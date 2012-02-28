@@ -150,7 +150,7 @@ noam.areEquivalentObjects = function(object1, object2) {
 };
 
 var fsm1 = {
-  states : ["s1", "s2", "s3"],
+  states : ["s1", "s2", "s3", "s4", "s5"],
   alphabet : ["a", "b", "c"],
   acceptingStates : ["s2", "s3"],
   initialState : "s1",
@@ -158,7 +158,9 @@ var fsm1 = {
     { fromState : "s1", toStates : ["s2"], symbol : "$"},
     { fromState : "s1", toStates : ["s3"], symbol : "b"},
     { fromState : "s2", toStates : ["s3", "s2", "s1"], symbol : "a"},
-    { fromState : "s3", toStates : ["s1"], symbol : "c"}
+    { fromState : "s3", toStates : ["s1"], symbol : "c"},
+    { fromState : "s4", toStates : ["s4", "s5"], symbol : "c"},
+    { fromState : "s5", toStates : ["s1"], symbol : "$"}
   ]
 };
 
@@ -362,3 +364,54 @@ noam.prettyFsm = function(fsm) {
 };
 
 console.log(noam.prettyFsm(fsm1));
+
+noam.removeUnreachableStates = function (fsm) {
+  var self = this;
+  var unprocessedStates = [fsm.initialState];
+  var reachableStates = [];
+
+  while (unprocessedStates.length !== 0) {
+    var currentState = unprocessedStates.pop();
+    console.log("cur:", currentState);
+    reachableStates.push(currentState);
+
+    for (var i=0; i<fsm.transitions.length; i++) {
+      var transition = fsm.transitions[i];
+
+      if (self.containsEquivalentObject(reachableStates, transition.fromState)) {
+        for (var j=0; j<transition.toStates.length; j++) {
+          if (self.containsEquivalentObject(reachableStates, transition.toStates[j]) ||
+              self.containsEquivalentObject(unprocessedStates, transition.toStates[j])) {
+            continue;
+          }
+  
+          unprocessedStates.push(transition.toStates[j]);
+        }
+      }
+    }
+  }
+
+  console.log("reachable:", reachableStates);
+
+  var newFsm = JSON.parse(JSON.stringify(fsm1));
+
+  newFsm.states = JSON.parse(JSON.stringify(reachableStates));
+  newFsm.acceptingStates = [];
+  newFsm.transitions = [];
+
+  for (var i=0; i<fsm.acceptingStates.length; i++) {
+    if (noam.containsEquivalentObject(reachableStates, fsm.acceptingStates[i])) {
+      newFsm.acceptingStates.push(fsm.acceptingStates[i]);
+    }
+  }
+
+  for (var i=0; i<fsm.transitions.length; i++) {
+    if (noam.containsEquivalentObject(reachableStates, fsm.transitions[i].fromState)) {
+      newFsm.transitions.push(fsm.transitions[i]);
+    }
+  }
+
+  return newFsm;
+};
+
+console.log(noam.removeUnreachableStates(fsm1));
