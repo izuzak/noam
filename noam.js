@@ -391,8 +391,6 @@ noam.removeUnreachableStates = function (fsm) {
     }
   }
 
-  console.log("reachable:", reachableStates);
-
   var newFsm = JSON.parse(JSON.stringify(fsm1));
 
   newFsm.states = JSON.parse(JSON.stringify(reachableStates));
@@ -415,3 +413,79 @@ noam.removeUnreachableStates = function (fsm) {
 };
 
 console.log(noam.removeUnreachableStates(fsm1));
+
+noam.areNondistinguishableState = function(fsmA, stateA, fsmB, stateB) {
+  if (noam.determineFsmType(fsmA) !== 'DFA' || 
+      noam.determineFsmType(fsmB) !== 'DFA') {
+    return new Error('FSMs must be DFAs');
+  }
+  
+  if (fsmA.alphabet.length !== fsmB.alphabet.length ||
+      !(noam.containsAllObjects(fsmA.alphabet, fsmB.alphabet))) {
+    return new Error('FSM alphabets must be the same');
+  }
+  
+  if (!(noam.containsEquivalentObject(fsmA.states, stateA)) ||
+      !(noam.containsEquivalentObject(fsmB.states, stateB))) {
+    return new Error('FSMs must contain states');
+  }
+
+  function doBothHaveSameAcceptance(fsmX, stateX, fsmY, stateY) {
+    var stateXAccepting = noam.containsEquivalentObject(fsmX.acceptingStates, stateX);
+    var stateYAccepting = noam.containsEquivalentObject(fsmY.acceptingStates, stateY);
+
+    return (stateXAccepting && stateYAccepting) || 
+           (!(stateXAccepting) && !(stateYAccepting));
+  }
+  
+  var unprocessedPairs = [[stateA, stateB]];
+  var processedPairs = [];
+
+  while (unprocessedPairs.length !== 0) {
+    var currentPair = unprocessedPairs.pop();
+
+    for (var i=0; i<fsmA.alphabet.length; i++) {
+      if (!(doBothHaveSameAcceptance(fsmA, currentPair[0], fsmB, currentPair[1]))) {
+        return false;
+      }
+
+      processedPairs.push(currentPair);
+
+      for (var j=0; j<fsmA.alphabet.length; j++) {
+        var pair = [noam.makeTransition(fsmA, currentPair[0], fsmA.alphabet[j])[0],
+                    noam.makeTransition(fsmB, currentPair[1], fsmA.alphabet[j])[0]];
+        
+        if (!(noam.containsEquivalentObject(processedPairs, pair)) &&
+            !(noam.containsEquivalentObject(unprocessedPairs, pair))) {
+          unprocessedPairs.push(pair);
+        }
+      }
+    }
+  }
+
+  return true;
+};
+
+noam.areEquivalentFSMs = function(fsmA, fsmB) {
+  return noam.areNondistinguishableState(fsmA, fsmA.initialState, fsmB, fsmB.initialState);
+};
+
+var fsm2 = {
+  states : ["s1", "s2", "s3",],
+  alphabet : ["a", "b"],
+  acceptingStates : ["s2", "s3"],
+  initialState : "s1",
+  transitions : [
+    { fromState : "s1", toStates : ["s2"], symbol : "a"},
+    { fromState : "s1", toStates : ["s3"], symbol : "b"},
+    { fromState : "s2", toStates : ["s3"], symbol : "a"},
+    { fromState : "s2", toStates : ["s1"], symbol : "b"},
+    { fromState : "s3", toStates : ["s1"], symbol : "a"},
+    { fromState : "s3", toStates : ["s1"], symbol : "b"}
+  ]
+};
+
+console.log(noam.areNondistinguishableState(fsm2, "s1", fsm2, "s1"));
+console.log(noam.areNondistinguishableState(fsm2, "s2", fsm2, "s3"));
+
+console.log(noam.areEquivalentFSMs(fsm2, fsm2));
