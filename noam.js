@@ -474,18 +474,161 @@ var fsm2 = {
   states : ["s1", "s2", "s3",],
   alphabet : ["a", "b"],
   acceptingStates : ["s2", "s3"],
-  initialState : "s1",
+  initialState : "s3",
   transitions : [
     { fromState : "s1", toStates : ["s2"], symbol : "a"},
     { fromState : "s1", toStates : ["s3"], symbol : "b"},
     { fromState : "s2", toStates : ["s3"], symbol : "a"},
     { fromState : "s2", toStates : ["s1"], symbol : "b"},
-    { fromState : "s3", toStates : ["s1"], symbol : "a"},
+    { fromState : "s3", toStates : ["s2"], symbol : "a"},
     { fromState : "s3", toStates : ["s1"], symbol : "b"}
   ]
 };
 
 console.log(noam.areNondistinguishableState(fsm2, "s1", fsm2, "s1"));
 console.log(noam.areNondistinguishableState(fsm2, "s2", fsm2, "s3"));
-
 console.log(noam.areEquivalentFSMs(fsm2, fsm2));
+
+noam.removeEquivalentStates = function(fsm) {
+  if (noam.determineFsmType(fsm) !== 'DFA') {
+    return new Error('FSM must be DFA');
+  }
+
+  var equivalentPairs = [];
+ 
+  for (var i=0; i<fsm.states.length; i++) {
+    for (var j=i+1; j<fsm.states.length; j++) {
+      if (noam.areNondistinguishableState(fsm, fsm.states[i], fsm, fsm.states[j])) {
+        var pair = [fsm.states[i], fsm.states[j]];
+
+        for (var k=0; k<equivalentPairs.length; k++) {
+          if (noam.areEquivalentObjects(equivalentPairs[k][1], pair[0])) {
+            pair[0] = equivalentPairs[k][1];
+            break;
+          }
+        }
+
+        if (!(noam.containsEquivalentObject(equivalentPairs, pair))) {
+          equivalentPairs.push(pair);
+        }
+      }
+    }
+  }
+
+  var newFsm = {
+    states : [],
+    alphabet : JSON.parse(JSON.stringify(fsm.alphabet)),
+    initialState : [],
+    acceptingStates : [],
+    transitions : []
+  };
+
+  function isOneOfEquivalentStates(s) {
+    for (var i=0; i<equivalentPairs.length; i++) {
+      if (noam.areEquivalentObjects(equivalentPairs[i][1], s)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function getEquivalentState(s) {
+    for (var i=0; i<equivalentPairs.length; i++) {
+      if (noam.areEquivalentObjects(equivalentPairs[i][1], s)) {
+        return equivalentPairs[i][0];
+      }
+    }
+
+    return s;
+  }
+
+  for (var i=0; i<fsm.states.length; i++) {
+    if (!(isOneOfEquivalentStates(fsm.states[i]))) {
+      newFsm.states.push(JSON.parse(JSON.stringify(fsm.states[i])));
+    }
+  }
+
+  for (var i=0; i<fsm.acceptingStates.length; i++) {
+    if (!(isOneOfEquivalentStates(fsm.states[i]))) {
+      newFsm.acceptingStates.push(JSON.parse(JSON.stringify(fsm.acceptingStates[i])));
+    }
+  }
+
+  newFsm.initialState = JSON.parse(JSON.stringify(getEquivalentState(fsm.initialState)));
+
+  for (var i=0; i<fsm.transitions.length; i++) {
+    var transition = JSON.parse(JSON.stringify(fsm.transitions[i]));
+
+    if (isOneOfEquivalentStates(transition.fromState)) {
+      continue;
+    }
+
+    for (var j=0; j<transition.toStates.length; j++) {
+      transition.toStates[j] = getEquivalentState(transition.toStates[j]);
+    }
+
+    newFsm.transitions.push(transition);
+  }
+
+  return newFsm;
+};
+
+console.log(require('util').inspect(fsm2, false, null));
+console.log(require('util').inspect(noam.removeEquivalentStates(fsm2), false, null));
+
+var fsm3 = {
+  states : ["p1", "p2", "p3", "p4", "p5", "p6", "p7"],
+  initialState : "p1",
+  acceptingStates : ["p5", "p6", "p7"],
+  alphabet : ["c", "d"],
+  transitions : [
+    { fromState : "p1", symbol : "c", toStates : ["p6"] },
+    { fromState : "p1", symbol : "d", toStates : ["p3"] },
+    { fromState : "p2", symbol : "c", toStates : ["p7"] },
+    { fromState : "p2", symbol : "d", toStates : ["p3"] },
+    { fromState : "p3", symbol : "c", toStates : ["p1"] },
+    { fromState : "p3", symbol : "d", toStates : ["p5"] },
+    { fromState : "p4", symbol : "c", toStates : ["p4"] },
+    { fromState : "p4", symbol : "d", toStates : ["p6"] },
+    { fromState : "p5", symbol : "c", toStates : ["p7"] },
+    { fromState : "p5", symbol : "d", toStates : ["p3"] },
+    { fromState : "p6", symbol : "c", toStates : ["p4"] },
+    { fromState : "p6", symbol : "d", toStates : ["p1"] },
+    { fromState : "p7", symbol : "c", toStates : ["p4"] },
+    { fromState : "p7", symbol : "d", toStates : ["p2"] }
+  ]
+};
+
+console.log(noam.validateFsm(fsm3));
+console.log(noam.prettyFsm(fsm3));
+console.log(noam.prettyFsm(noam.removeEquivalentStates(fsm3)));
+
+var fsm4 = {
+  states : ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"],
+  initialState : "p1",
+  acceptingStates : ["p3"],
+  alphabet : ["0", "1"],
+  transitions : [
+    { fromState : "p1", symbol : "0", toStates : ["p2"] },
+    { fromState : "p1", symbol : "1", toStates : ["p6"] },
+    { fromState : "p2", symbol : "0", toStates : ["p7"] },
+    { fromState : "p2", symbol : "1", toStates : ["p3"] },
+    { fromState : "p3", symbol : "0", toStates : ["p1"] },
+    { fromState : "p3", symbol : "1", toStates : ["p3"] },
+    { fromState : "p4", symbol : "0", toStates : ["p3"] },
+    { fromState : "p4", symbol : "1", toStates : ["p7"] },
+    { fromState : "p5", symbol : "0", toStates : ["p8"] },
+    { fromState : "p5", symbol : "1", toStates : ["p6"] },
+    { fromState : "p6", symbol : "0", toStates : ["p3"] },
+    { fromState : "p6", symbol : "1", toStates : ["p7"] },
+    { fromState : "p7", symbol : "0", toStates : ["p7"] },
+    { fromState : "p7", symbol : "1", toStates : ["p5"] },
+    { fromState : "p8", symbol : "0", toStates : ["p7"] },
+    { fromState : "p8", symbol : "1", toStates : ["p3"] }
+  ]
+};
+
+console.log(noam.validateFsm(fsm4));
+console.log(noam.prettyFsm(fsm4));
+console.log(noam.prettyFsm(noam.removeEquivalentStates(fsm4)));
