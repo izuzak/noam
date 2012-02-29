@@ -302,6 +302,8 @@ noam.prettyFsm = function(fsm) {
     colHeads.push("$");
   }
 
+  colHeads.push("");
+
   var table = new Table({
      head: colHeads,
      chars: {
@@ -330,6 +332,9 @@ noam.prettyFsm = function(fsm) {
       tableRows[i][j] = "";
     }
     tableRows[i][0] = fsm.states[i];
+    tableRows[i][colHeads.length-1] = 
+      noam.containsEquivalentObject(fsm.acceptingStates, fsm.states[i]) ? 
+      "1" : "0" ;
     table.push(tableRows[i]);
   }
 
@@ -347,7 +352,7 @@ noam.prettyFsm = function(fsm) {
     }
 
     if (transition.symbol === "$") {
-      colNum = colHeads.length-1;
+      colNum = colHeads.length-2;
     } else {
       for (var j=0; j<fsm.alphabet.length; j++) {
         if (noam.areEquivalentObjects(fsm.alphabet[j], transition.symbol)) {
