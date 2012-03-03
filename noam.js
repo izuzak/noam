@@ -89,6 +89,17 @@ noam.util.containsAll = function(arr1, arr2) {
   return true;
 };
 
+// check if array arr1 contains any element from array arr2
+noam.util.containsAny = function(arr1, arr2) {
+  for (var i=0; i<arr2.length; i++) {
+    if (noam.util.contains(arr1, arr2[i])) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 // make a deep clone of an object
 noam.util.clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -300,6 +311,13 @@ noam.fsm.readString = function(fsm, inputSymbolStream) {
 
   return states;
 };
+
+// test if a stream of input symbols leads a fsm to an accepting state
+noam.fsm.isStringInLanguage = function(fsm, inputSymbolStream) {
+  var states = noam.fsm.readString(fsm, inputSymbolStream);
+
+  return noam.util.containsAny(fsm.acceptingStates, states);
+}
 
 // pretty print the fsm transition function and accepting states as a table
 noam.fsm.printTable = function(fsm) {
@@ -571,6 +589,7 @@ noam.fsm.removeEquivalentStates = function(fsm) {
   return newFsm;
 };
 
+// minimizes the fsm by removing unreachable and equivalent states
 noam.fsm.minimize = function(fsm) {
   if (noam.fsm.determineType(fsm) !== noam.fsm.dfaType) {
     return new Error('FSM must be DFA');
