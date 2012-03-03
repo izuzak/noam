@@ -402,19 +402,25 @@ noam.fsm.removeUnreachableStates = function (fsm) {
   }
 
   var newFsm = noam.util.clone(fsm);
-  newFsm.states = noam.util.clone(reachableStates);
+  newFsm.states = [];
   newFsm.acceptingStates = [];
   newFsm.transitions = [];
 
+  for (var i=0; i<fsm.states.length; i++) {
+    if(noam.util.contains(reachableStates, fsm.states[i])) {
+      newFsm.states.push(noam.util.clone(fsm.states[i]));
+    }
+  }
+
   for (var i=0; i<fsm.acceptingStates.length; i++) {
     if (noam.util.contains(reachableStates, fsm.acceptingStates[i])) {
-      newFsm.acceptingStates.push(fsm.acceptingStates[i]);
+      newFsm.acceptingStates.push(noam.util.clone(fsm.acceptingStates[i]));
     }
   }
 
   for (var i=0; i<fsm.transitions.length; i++) {
     if (noam.util.contains(reachableStates, fsm.transitions[i].fromState)) {
-      newFsm.transitions.push(fsm.transitions[i]);
+      newFsm.transitions.push(noam.util.clone(fsm.transitions[i]));
     }
   }
 
@@ -563,4 +569,14 @@ noam.fsm.removeEquivalentStates = function(fsm) {
   }
 
   return newFsm;
+};
+
+noam.fsm.minimize = function(fsm) {
+  if (noam.fsm.determineType(fsm) !== noam.fsm.dfaType) {
+    return new Error('FSM must be DFA');
+  }
+
+  var fsmWithoutUnreachableStates = noam.fsm.removeUnreachableStates(fsm);
+  var minimalFsm = noam.fsm.removeEquivalentStates(fsmWithoutUnreachableStates);
+  return minimalFsm;
 };
