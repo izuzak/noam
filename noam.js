@@ -9,7 +9,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 noam.fsm = {};
 noam.util = {};
 
-noam.epsilonSymbol = '$';
+noam.fsm.epsilonSymbol = '$';
 noam.fsm.dfaType = 'DFA';
 noam.fsm.nfaType = 'NFA';
 noam.fsm.enfaType = 'eNFA';
@@ -17,8 +17,7 @@ noam.fsm.enfaType = 'eNFA';
 // "deep" compare of two objects
 // taken from http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
 noam.util.areEquivalent = function(object1, object2) {
-  if (typeof object1 === 'undefined' || typeof object2 === 'undefined' ||
-      object1 === null || object2 === null) {
+  if (typeof object1 === 'undefined' || typeof object2 === 'undefined') {
     throw new Error('Objects must be defined.');
   }
 
@@ -51,7 +50,7 @@ noam.util.areEquivalent = function(object1, object2) {
       return false;
     }
 
-    if (!(noam.areEquivalent(object1[p], object2[p]))) {
+    if (!(noam.util.areEquivalent(object1[p], object2[p]))) {
       return false;
     }
   }
@@ -170,7 +169,7 @@ noam.fsm.validate = function(fsm) {
     }
 
     if (!(noam.util.contains(fsm.alphabet, transition.symbol)) && 
-        transition.symbol !== noam.epsilonSymbol) {
+        transition.symbol !== noam.fsm.epsilonSymbol) {
       return new Error('Transition symbol must be in alphabet.');
     }
 
@@ -207,7 +206,7 @@ noam.fsm.determineType = function(fsm) {
     if (transition.toStates.length === 0 ||
         transition.toStates.length > 1) {
       fsmType = noam.fsm.nfaType;
-    } else if (transition.symbol === noam.epsilonSymbol) {
+    } else if (transition.symbol === noam.fsm.epsilonSymbol) {
       fsmType = noam.fsm.enfaType;
       break;
     }
@@ -232,7 +231,7 @@ noam.fsm.computeEpsilonArea = function(fsm, states) {
     for (var i=0; i<fsm.transitions.length; i++) {
       var transition = fsm.transitions[i];
 
-      if (transition.symbol === noam.epsilonSymbol &&
+      if (transition.symbol === noam.fsm.epsilonSymbol &&
           noam.util.areEquivalent(transition.fromState, currentState)) {
         for (var j=0; j<transition.toStates.length; j++) {
           if (noam.util.contains(targetStates, transition.toStates[j]) ||
@@ -325,7 +324,7 @@ noam.fsm.printTable = function(fsm) {
   var colHeads = [""].concat(fsm.alphabet);
 
   if (noam.fsm.determineType(fsm) === noam.fsm.enfaType) {
-    colHeads.push(noam.epsilonSymbol);
+    colHeads.push(noam.fsm.epsilonSymbol);
   }
 
   colHeads.push("");
@@ -377,7 +376,7 @@ noam.fsm.printTable = function(fsm) {
       }
     }
 
-    if (transition.symbol === noam.epsilonSymbol) {
+    if (transition.symbol === noam.fsm.epsilonSymbol) {
       colNum = colHeads.length-2;
     } else {
       for (var j=0; j<fsm.alphabet.length; j++) {
@@ -565,7 +564,7 @@ noam.fsm.removeEquivalentStates = function(fsm) {
   }
 
   for (var i=0; i<fsm.acceptingStates.length; i++) {
-    if (!(isOneOfEquivalentStates(fsm.states[i]))) {
+    if (!(isOneOfEquivalentStates(fsm.acceptingStates[i]))) {
       newFsm.acceptingStates.push(noam.util.clone(fsm.acceptingStates[i]));
     }
   }
