@@ -212,6 +212,12 @@ noam.fsm.determineType = function(fsm) {
     }
   }
 
+  if (fsmType === noam.fsm.dfaType) {
+    if (fsm.transitions.length < fsm.states.length * fsm.alphabet.length) {
+      fsmType = noam.fsm.nfaType;
+    }
+  }
+
   return fsmType;
 };
 
