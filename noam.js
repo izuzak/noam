@@ -399,6 +399,49 @@ noam.fsm.printTable = function(fsm) {
   return table.toString();
 };
 
+// print the fsm in the graphviz dot format
+noam.fsm.printDotFormat = function(fsm) {
+  var result = ["digraph finite_state_machine {", "  rankdir=LR;"];
+
+  var accStates = ["  node [shape = doublecircle];"];
+  
+  for (var i=0; i<fsm.acceptingStates.length; i++) {
+    accStates.push(fsm.acceptingStates[i].toString());
+  }
+
+  accStates.push(";");
+  result.push(accStates.join(" "));
+  result.push("  node [shape = circle];");
+  result.push("  secret_node [style=invis, shape=point];");
+  var initState = ['  {rank = source; "secret_node" "'];
+  initState.push(fsm.initialState.toString());
+  initState.push('"}');
+  result.push(initState.join(""));
+
+  var initStateArrow = ["  secret_node ->"]
+  initStateArrow.push(fsm.initialState.toString());
+  initStateArrow.push("[style=bold];");
+  result.push(initStateArrow.join(" "));
+
+  for (var i=0; i<fsm.transitions.length; i++) {
+    for (var j=0; j<fsm.transitions[i].toStates.length; j++) {
+      var trans = [" "];
+      trans.push(fsm.transitions[i].fromState.toString());
+      trans.push("->");
+      trans.push(fsm.transitions[i].toStates[j].toString());
+      trans.push("[");
+      trans.push("label =");
+      trans.push('"' + fsm.transitions[i].symbol.toString() + '"');
+      trans.push("];");
+      result.push(trans.join(" "));
+    }
+  }
+  
+  result.push("}");
+
+  return result.join("\n").replace(/\$/g, "ε");
+};
+
 // determine and remove unreachable states
 noam.fsm.removeUnreachableStates = function (fsm) {
   var unprocessedStates = [fsm.initialState];
