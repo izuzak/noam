@@ -317,6 +317,24 @@ noam.fsm.readString = function(fsm, inputSymbolStream) {
   return states;
 };
 
+// read a stream of input symbols starting from state and make a list of
+// states that were on the transition path
+noam.fsm.transitionTrail = function(fsm, state, inputSymbolStream) {
+  if (!(noam.util.containsAll(fsm.alphabet, inputSymbolStream))) {
+    return new Error('FSM must contain all symbols for which the transition is being computed');
+  }
+
+  var states = [state];
+  var trail = [noam.util.clone(states)];
+
+  for (var i=0; i<inputSymbolStream.length; i++) {
+    states = noam.fsm.makeTransition(fsm, states, inputSymbolStream[i]);
+    trail.push(noam.util.clone(states));
+  }
+
+  return trail;
+};
+
 // test if a stream of input symbols leads a fsm to an accepting state
 noam.fsm.isStringInLanguage = function(fsm, inputSymbolStream) {
   var states = noam.fsm.readString(fsm, inputSymbolStream);
