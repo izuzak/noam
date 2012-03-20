@@ -321,11 +321,13 @@ noam.fsm.makeTransition = function(fsm, states, symbol) {
     return new Error('FSM must contain input symbol for which the transition is being computed');
   }
 
-  states = noam.fsm.computeEpsilonArea(fsm, states);
-  states = noam.fsm.makeSimpleTransition(fsm, states, symbol);
-  states = noam.fsm.computeEpsilonArea(fsm, states);
+  var targetStates = noam.util.clone(states);
 
-  return states;
+  targetStates = noam.fsm.computeEpsilonArea(fsm, targetStates);
+  targetStates = noam.fsm.makeSimpleTransition(fsm, targetStates, symbol);
+  targetStates = noam.fsm.computeEpsilonArea(fsm, targetStates);
+
+  return targetStates;
 };
 
 // read a stream of input symbols and determine target states
