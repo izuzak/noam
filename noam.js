@@ -99,6 +99,32 @@ noam.util.containsAny = function(arr1, arr2) {
   return false;
 };
 
+// check if arrays arr1 and arr2 contain the same elements
+noam.util.areEqualSets = function(arr1, arr2) {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  for (var i=0; i<arr1.length; i++) {
+    if (!(noam.util.contains(arr2, arr1[i]))) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+// check if array arr1 contains the set obj
+noam.util.containsSet = function(arr1, obj) {
+  for (var i=0; i<arr1.length; i++) {
+    if (noam.util.areEqualSets(arr1[i], obj)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 // make a deep clone of an object
 noam.util.clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
