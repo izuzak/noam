@@ -18,7 +18,7 @@ noam.fsm.enfaType = 'eNFA';
 // taken from http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
 noam.util.areEquivalent = function(object1, object2) {
   if (typeof object1 === 'undefined' || typeof object2 === 'undefined') {
-    throw new Error('Objects must be defined.');
+    return false;
   }
 
   if (object1 === object2) {
