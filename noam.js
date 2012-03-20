@@ -408,7 +408,7 @@ noam.fsm.printTable = function(fsm) {
     for (var j=0; j<colHeads.length; j++) {
       tableRows[i][j] = "";
     }
-    tableRows[i][0] = fsm.states[i];
+    tableRows[i][0] = fsm.states[i].toString();
     tableRows[i][colHeads.length-1] =
       noam.util.contains(fsm.acceptingStates, fsm.states[i]) ?
       "1" : "0" ;
