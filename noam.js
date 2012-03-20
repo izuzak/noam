@@ -693,3 +693,81 @@ noam.fsm.minimize = function(fsm) {
   var minimalFsm = noam.fsm.removeEquivalentStates(fsmWithoutUnreachableStates);
   return minimalFsm;
 };
+
+// generate random fsm
+noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet) {
+  var newFsm = {};
+
+  function prefix(ch, num, str) {
+    var retStr = str;
+
+    for (var i=0; i<str.length - num; i++) {
+      retStr = ch + str;
+    }
+
+    return retStr;
+  }
+
+  newFsm.states = [];
+  for (var i=0, len=numStates.toString().length; i<numStates; i++) {
+    newFsm.states.push("s" + prefix("0", len, i.toString()));
+  }
+
+  newFsm.alphabet = [];
+  for (var i=0, len=numAlphabet.toString().length; i<numAlphabet; i++) {
+    newFsm.alphabet.push("a" + prefix("0", len, i.toString()));
+  }
+
+  newFsm.initialState = newFsm.states[0];
+
+  newFsm.acceptingStates = [];
+  for (var i=0; i<numStates; i++) {
+    if(Math.round(Math.random())) {
+      newFsm.acceptingStates.push(newFsm.states[i]);
+    }
+  }
+
+  if (fsmType === noam.fsm.enfaType) {
+    newFsm.alphabet.push(noam.fsm.epsilonSymbol);
+  }
+
+  newFsm.transitions = [];
+  for (var i=0; i<numStates; i++) {
+    for (var j=0; j<newFsm.alphabet.length; j++) {
+      var numToStates = 1;
+
+      if (fsmType !== noam.fsm.dfaType) {
+        numToStates = Math.floor(Math.random()*newFsm.states.length);
+
+        if (numToStates > 3) {
+          numToStates = 0;
+        }
+      }
+
+      if (numToStates > 0) {
+        var toStates = [];
+        for (var k=0; k<newFsm.states.length && toStates.length < numToStates; k++) {
+          var diff = (newFsm.states.length-k)-(numToStates-toStates.length) + 1;
+
+          if (diff <= 0) {
+            diff = 1;
+          } else {
+            diff = 1/diff;
+          }
+
+          if (Math.random() <= diff) {
+            toStates.push(newFsm.states[k]);
+          }
+        }
+
+        newFsm.transitions.push({fromState : newFsm.states[i], symbol : newFsm.alphabet[j], toStates : toStates});
+      }
+    }
+  }
+
+  if (fsmType === noam.fsm.enfaType) {
+    newFsm.alphabet.pop();
+  }
+
+  return newFsm;
+};
