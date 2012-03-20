@@ -695,7 +695,7 @@ noam.fsm.minimize = function(fsm) {
 };
 
 // generate random fsm
-noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet) {
+noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet, maxNumToStates) {
   var newFsm = {};
 
   function prefix(ch, num, str) {
@@ -737,11 +737,7 @@ noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet) {
       var numToStates = 1;
 
       if (fsmType !== noam.fsm.dfaType) {
-        numToStates = Math.floor(Math.random()*newFsm.states.length);
-
-        if (numToStates > 3) {
-          numToStates = 0;
-        }
+        numToStates = Math.floor(Math.random()*maxNumToStates);
       }
 
       if (numToStates > 0) {
