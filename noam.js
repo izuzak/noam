@@ -488,31 +488,37 @@ noam.fsm.printDotFormat = function(fsm) {
   return result.join("\n").replace(/\$/g, "ε");
 };
 
-// determine and remove unreachable states
-noam.fsm.removeUnreachableStates = function (fsm) {
-  var unprocessedStates = [fsm.initialState];
-  var reachableStates = [];
+// determine reachable states
+noam.fsm.getReachableStates = function(fsm, state, shouldIncludeInitialState) {
+  var unprocessedStates = [state];
+  var reachableStates = shouldIncludeInitialState ? [state] : [];
 
   while (unprocessedStates.length !== 0) {
     var currentState = unprocessedStates.pop();
-    reachableStates.push(currentState);
 
     for (var i=0; i<fsm.transitions.length; i++) {
       var transition = fsm.transitions[i];
 
-      if (noam.util.contains(reachableStates, transition.fromState)) {
+      if (noam.util.areEquivalent(currentState, transition.fromState)) {
         for (var j=0; j<transition.toStates.length; j++) {
-          if (noam.util.contains(reachableStates, transition.toStates[j]) ||
-              noam.util.contains(unprocessedStates, transition.toStates[j])) {
-            continue;
+          if (!(noam.util.contains(reachableStates, transition.toStates[j]))) {
+            reachableStates.push(transition.toStates[j]);
+            
+            if (!(noam.util.contains(unprocessedStates, transition.toStates[j]))) {
+              unprocessedStates.push(transition.toStates[j]);
+            }
           }
-
-          unprocessedStates.push(transition.toStates[j]);
         }
       }
     }
   }
 
+ return reachableStates;
+};
+
+// determine and remove unreachable states
+noam.fsm.removeUnreachableStates = function (fsm) {
+  var reachableStates = noam.fsm.getReachableStates(fsm, fsm.initialState, true);
   var newFsm = noam.util.clone(fsm);
   newFsm.states = [];
   newFsm.acceptingStates = [];
