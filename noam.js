@@ -872,3 +872,52 @@ noam.fsm.convertNfaToDfa = function(fsm) {
 
   return newFsm;
 };
+
+noam.fsm.convertEnfaToNfa = function(fsm) {
+  if (noam.fsm.determineType(fsm) !== noam.fsm.enfaType) {
+    return new Error('FSM must be eNFA');
+  }
+
+  var newFsm = noam.util.clone(fsm);
+
+  for (var i=0; i<newFsm.transitions.length; i++) {
+    var transition = newFsm.transitions[i];
+
+    if (transition.symbol !== noam.fsm.epsilonSymbol) {
+      transition.toStates = noam.fsm.makeTransition(fsm, [transition.fromState], transition.symbol).sort();
+    }
+  }
+
+
+  for (var i=newFsm.transitions.length -1; i>=0; i--) {
+    var transition = newFsm.transitions[i];
+
+    if (transition.symbol === noam.fsm.epsilonSymbol) {
+      newFsm.transitions.splice(i, 1);
+    }
+  }
+
+  var multiStateTransitions = [];
+
+  for (var i=0; i<newFsm.transitions.length; i++) {
+    var transition = newFsm.transitions[i];
+
+    if (transition.toStates.length > 1) {
+      var existing = false;
+
+      for (var j=0; j<multiStateTransitions.length; j++) {
+        if (noam.util.areEqualSets(transition.toStates, multiStateTransitions[j])) {
+          transition.toStates = multiStateTransitions[j];
+          existing = true;
+          break;
+        }
+      }
+
+      if (existing === false) {
+        multiStateTransitions.push(transition.toStates);
+      }
+    }
+  }
+
+  return newFsm;
+};
