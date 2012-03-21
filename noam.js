@@ -817,17 +817,19 @@ noam.fsm.convertNfaToDfa = function(fsm) {
     }
 
     for (var i=0; i<newFsm.alphabet.length; i++) {
-      var ts = noam.fsm.makeTransition(fsm, state, newFsm.alphabet[i]);
+      var ts = noam.fsm.makeTransition(fsm, state, newFsm.alphabet[i]).sort();
 
       for (var j=0; j<newFsm.states.length; j++) {
         if (noam.util.areEqualSets(ts, newFsm.states[j])) {
           ts = newFsm.states[j];
+          break;
         }
       }
       
       for (var j=0; j<newStates.length; j++) {
         if (noam.util.areEqualSets(ts, newStates[j])) {
           ts = newStates[j];
+          break;
         }
       }
 
