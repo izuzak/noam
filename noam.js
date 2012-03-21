@@ -927,3 +927,72 @@ noam.fsm.convertEnfaToNfa = function(fsm) {
 
   return newFsm;
 };
+
+// test whether if the language accepted by the fsm contains at least one string
+noam.fsm.isLanguageNonEmpty = function(fsm) {
+  var fsmType = noam.fsm.determineType(fsm);
+  var newFsm = fsm;
+
+  if (fsmType === noam.fsm.nfaType) {
+    newFsm = noam.fsm.convertNfaToDfa(fsm);
+  } else if (fsmType === noam.fsm.enfaType) {
+    newFsm = noam.fsm.convertEnfaToNfa(fsm);
+    newFsm = noam.fsm.convertNfaToDfa(newFsm);
+  }
+
+  newFsm = noam.fsm.minimize(newFsm);
+
+  return newFsm.acceptingStates.length > 0;
+};
+
+noam.fsm.isLanguageInfinite = function(fsm) {
+  var fsmType = noam.fsm.determineType(fsm);
+  var newFsm = fsm;
+
+  if (fsmType === noam.fsm.nfaType) {
+    newFsm = noam.fsm.convertNfaToDfa(fsm);
+  } else if (fsmType === noam.fsm.enfaType) {
+    newFsm = noam.fsm.convertEnfaToNfa(fsm);
+    newFsm = noam.fsm.convertNfaToDfa(newFsm);
+  }
+
+  newFsm = noam.fsm.minimize(newFsm);
+
+  // find dead states
+  // if at least one non-dead state containt a transition to another non-dead state - then there is a cycle
+
+  var deadState = null;
+
+  for (var i=0; i<newFsm.states.length; i++) {
+    if (noam.util.contains(newFsm.acceptingStates, newFsm.states[i])) {
+      continue;
+    }
+
+    var reachable = noam.fsm.getReachableStates(newFsm, newFsm.states[i], true);
+
+    if (noam.util.containsAny(newFsm.acceptingStates, reachable)) {
+      continue;
+    }
+
+    deadState = newFsm.states[i];
+    break;
+  }
+
+  if (deadState === null) {
+    return true;
+  }
+
+  for (var i=0; i<newFsm.states.length; i++) {
+    if (noam.util.areEquivalent(deadState, newFsm.states[i])) {
+      continue;
+    }
+
+    var reachable = noam.fsm.getReachableStates(newFsm, newFsm.states[i], false);
+
+    if (noam.util.contains(reachable, newFsm.states[i])) {
+      return true;
+    }
+  }
+
+  return false;
+};
