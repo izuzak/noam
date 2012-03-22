@@ -958,9 +958,6 @@ noam.fsm.isLanguageInfinite = function(fsm) {
 
   newFsm = noam.fsm.minimize(newFsm);
 
-  // find dead states
-  // if at least one non-dead state containt a transition to another non-dead state - then there is a cycle
-
   var deadState = null;
 
   for (var i=0; i<newFsm.states.length; i++) {
@@ -995,4 +992,114 @@ noam.fsm.isLanguageInfinite = function(fsm) {
   }
 
   return false;
+};
+
+// generate a random string which the fsm accepts
+noam.fsm.randomStringInLanguage = function(fsm) {
+  var fsmType = noam.fsm.determineType(fsm);
+  var newFsm = fsm;
+
+  if (fsmType === noam.fsm.nfaType) {
+    newFsm = noam.fsm.convertNfaToDfa(fsm);
+  } else if (fsmType === noam.fsm.enfaType) {
+    newFsm = noam.fsm.convertEnfaToNfa(fsm);
+    newFsm = noam.fsm.convertNfaToDfa(newFsm);
+  }
+
+  newFsm = noam.fsm.minimize(newFsm);
+
+  if (newFsm.acceptingStates.length === 0) {
+    return null;
+  }
+
+  var currentState = newFsm.acceptingStates[Math.floor(Math.random()*newFsm.acceptingStates.length)];
+  var trail = [];
+
+  while (true) {
+    if (noam.util.areEquivalent(currentState, newFsm.initialState) === true) {
+      if (Math.round(Math.random())) {
+        break;
+      }
+    }
+
+    var transitions = [];
+
+    for (var i=0; i<newFsm.transitions.length; i++) {
+      if (noam.util.areEquivalent(newFsm.transitions[i].toStates[0], currentState)) {
+        transitions.push(newFsm.transitions[i]);
+      }
+    }
+
+    if (transitions.length === 0) {
+      break;
+    }
+
+    var transition = transitions[Math.floor(Math.random()*transitions.length)];
+
+    trail.push(transition.symbol);
+    currentState = transition.fromState;
+  }
+
+  trail.reverse();
+
+  return trail;
+};
+
+// generate a random string which the fsm doest accept
+noam.fsm.randomStringNotInLanguage = function(fsm) {
+  var fsmType = noam.fsm.determineType(fsm);
+  var newFsm = fsm;
+
+  if (fsmType === noam.fsm.nfaType) {
+    newFsm = noam.fsm.convertNfaToDfa(fsm);
+  } else if (fsmType === noam.fsm.enfaType) {
+    newFsm = noam.fsm.convertEnfaToNfa(fsm);
+    newFsm = noam.fsm.convertNfaToDfa(newFsm);
+  }
+
+  newFsm = noam.fsm.minimize(newFsm);
+
+  var nonAcceptingStates = [];
+
+  for (var i=0; i<newFsm.states.length; i++) {
+    if (!(noam.util.contains(newFsm.acceptingStates, newFsm.states[i]))) {
+      nonAcceptingStates.push(newFsm.states[i]);
+    }
+  }
+
+  if (nonAcceptingStates.length === 0) {
+    return null;
+  }
+
+  var currentState = nonAcceptingStates[Math.floor(Math.random()*nonAcceptingStates.length)];
+  var trail = [];
+
+  while (true) {
+    if (noam.util.areEquivalent(currentState, newFsm.initialState) === true) {
+      if (Math.round(Math.random())) {
+        break;
+      }
+    }
+
+    var transitions = [];
+
+    for (var i=0; i<newFsm.transitions.length; i++) {
+      if (noam.util.areEquivalent(newFsm.transitions[i].toStates[0], currentState)) {
+        transitions.push(newFsm.transitions[i]);
+      }
+    }
+
+    if (transitions.length === 0) {
+      break;
+    }
+
+    var transition = transitions[Math.floor(Math.random()*transitions.length)];
+
+    trail.push(transition.symbol);
+    currentState = transition.fromState;
+  }
+
+  trail.reverse();
+
+  return trail;
 };
