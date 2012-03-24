@@ -1154,3 +1154,241 @@ noam.fsm.randomStringNotInLanguage = function(fsm) {
 
   return trail;
 };
+
+// get a new fsm which accepts the language L=L1+L2 (set union) where
+// L1 is the language accepted by fsma and
+// L2 is the language accepted by fsmB
+noam.fsm.union = function(fsmA, fsmB) {
+  if (!(noam.util.areEquivalent(fsmA.alphabet, fsmB.alphabet))) {
+    throw new Error("Alphabets must be the same");
+  }
+
+  var newFsm = {
+    alphabet : noam.util.clone(fsmA.alphabet),
+    states : [],
+    initialState : [noam.util.clone(fsmA.initialState), noam.util.clone(fsmB.initialState)],
+    acceptingStates : [],
+    transitions : []
+  };
+
+  for (var i=0; i<fsmA.states.length; i++) {
+    for (var j=0; j<fsmB.states.length; j++) {
+      var newState = [noam.util.clone(fsmA.states[i]), noam.util.clone(fsmB.states[j])];
+      newFsm.states.push(newState);
+
+      if (noam.util.contains(fsmA.acceptingStates, fsmA.states[i]) ||
+          noam.util.contains(fsmB.acceptingStates, fsmB.states[j])) {
+        newFsm.acceptingStates.push(newState);
+      }
+
+      for (var k=0; k<newFsm.alphabet.length; k++) {
+        newFsm.transitions.push({
+          fromState : newState,
+          symbol : newFsm.alphabet[k],
+          toStates : [[noam.fsm.makeTransition(fsmA, [fsmA.states[i]], newFsm.alphabet[k])[0],
+                      noam.fsm.makeTransition(fsmB, [fsmB.states[j]], newFsm.alphabet[k])[0]]]
+        });
+      }
+    }
+  }
+
+  return newFsm;
+};
+
+// get a new fsm which accepts the language L=L1/L2 (set intersection) where
+// L1 is the language accepted by fsma and
+// L2 is the language accepted by fsmB
+noam.fsm.intersection = function(fsmA, fsmB) {
+  if (!(noam.util.areEquivalent(fsmA.alphabet, fsmB.alphabet))) {
+    throw new Error("Alphabets must be the same");
+  }
+
+  var newFsm = {
+    alphabet : noam.util.clone(fsmA.alphabet),
+    states : [],
+    initialState : [noam.util.clone(fsmA.initialState), noam.util.clone(fsmB.initialState)],
+    acceptingStates : [],
+    transitions : []
+  };
+
+  for (var i=0; i<fsmA.states.length; i++) {
+    for (var j=0; j<fsmB.states.length; j++) {
+      var newState = [noam.util.clone(fsmA.states[i]), noam.util.clone(fsmB.states[j])];
+      newFsm.states.push(newState);
+
+      if (noam.util.contains(fsmA.acceptingStates, fsmA.states[i]) &&
+          noam.util.contains(fsmB.acceptingStates, fsmB.states[j])) {
+        newFsm.acceptingStates.push(newState);
+      }
+
+      for (var k=0; k<newFsm.alphabet.length; k++) {
+        newFsm.transitions.push({
+          fromState : newState,
+          symbol : newFsm.alphabet[k],
+          toStates : [[noam.fsm.makeTransition(fsmA, [fsmA.states[i]], newFsm.alphabet[k])[0],
+                      noam.fsm.makeTransition(fsmB, [fsmB.states[j]], newFsm.alphabet[k])[0]]]
+        });
+      }
+    }
+  }
+
+  return newFsm;
+};
+
+// get a new fsm which accepts the language L=L1-L2 (set difference) where
+// L1 is the language accepted by fsma and
+// L2 is the language accepted by fsmB
+noam.fsm.difference = function(fsmA, fsmB) {
+  if (!(noam.util.areEquivalent(fsmA.alphabet, fsmB.alphabet))) {
+    throw new Error("Alphabets must be the same");
+  }
+
+  var newFsm = {
+    alphabet : noam.util.clone(fsmA.alphabet),
+    states : [],
+    initialState : [noam.util.clone(fsmA.initialState), noam.util.clone(fsmB.initialState)],
+    acceptingStates : [],
+    transitions : []
+  };
+
+  for (var i=0; i<fsmA.states.length; i++) {
+    for (var j=0; j<fsmB.states.length; j++) {
+      var newState = [noam.util.clone(fsmA.states[i]), noam.util.clone(fsmB.states[j])];
+      newFsm.states.push(newState);
+
+      if (noam.util.contains(fsmA.acceptingStates, fsmA.states[i]) &&
+          !(noam.util.contains(fsmB.acceptingStates, fsmB.states[j]))) {
+        newFsm.acceptingStates.push(newState);
+      }
+
+      for (var k=0; k<newFsm.alphabet.length; k++) {
+        newFsm.transitions.push({
+          fromState : newState,
+          symbol : newFsm.alphabet[k],
+          toStates : [[noam.fsm.makeTransition(fsmA, [fsmA.states[i]], newFsm.alphabet[k])[0],
+                      noam.fsm.makeTransition(fsmB, [fsmB.states[j]], newFsm.alphabet[k])[0]]]
+        });
+      }
+    }
+  }
+
+  return newFsm;
+};
+
+// get a new fsm which accepts the complement language of the 
+// langauge accepted by the input fsm
+noam.fsm.complement = function(fsm) {
+  var newFsm = noam.util.clone(fsm);
+
+  var newAccepting = [];
+
+  for (var i=0; i<newFsm.states.length; i++) {
+    if (!(noam.util.contains(newFsm.acceptingStates, newFsm.states[i]))) {
+      newAccepting.push(newFsm.states[i]);
+    }
+  }
+
+  newFsm.acceptingStates = newAccepting;
+
+  return newFsm;
+};
+
+// get a new fsm which accepts the language L1L2 where
+// L1 is the language accepted by fsmA and L2 is the
+// langauge accepted by fsmB
+noam.fsm.concatenation = function(fsmA, fsmB) {
+  if (!(noam.util.areEquivalent(fsmA.alphabet, fsmB.alphabet))) {
+    throw new Error("Alphabets must be the same");
+  }
+
+  if (noam.util.containsAny(fsmA.states, fsmB.states)) {
+    throw new Error("States must not overlap");
+  }
+
+  var newFsm = {
+    alphabet : noam.util.clone(fsmA.alphabet),
+    states : noam.util.clone(fsmA.states).concat(noam.util.clone(fsmB.states)),
+    initialState : noam.util.clone(fsmA.initialState),
+    acceptingStates : noam.util.clone(fsmB.acceptingStates),
+    transitions : noam.util.clone(fsmA.transitions).concat(noam.util.clone(fsmB.transitions))
+  };
+
+  for (var i=0; i<fsmA.acceptingStates.length; i++) {
+    newFsm.transitions.push({
+      fromState : noam.util.clone(fsmA.acceptingStates[i]),
+      toStates : [noam.util.clone(fsmB.initialState)],
+      symbol : noam.fsm.epsilonSymbol
+    });
+  }
+
+  return newFsm;
+};
+
+// get a new fsm which accepts the language L*, where L is
+// accepted by the input fsm and * is the kleene operator
+noam.fsm.kleene = function(fsm) {
+  var newFsm = noam.util.clone(fsm);
+
+  var newInitial = "NEW_INITIAL";
+
+  newFsm.states.push(newInitial);
+  newFsm.transitions.push({
+    fromState : newInitial,
+    toStates : [newFsm.initialState],
+    symbol : noam.fsm.epsilonSymbol
+  });
+  newFsm.initialState = newInitial;
+
+  for (var i=0; i<newFsm.acceptingStates.length; i++) {
+    newFsm.transitions.push({
+      fromState : newFsm.acceptingStates[i],
+      toStates : [newInitial],
+      symbol : noam.fsm.epsilonSymbol
+    });
+  }
+
+  return newFsm;
+};
+
+// get a new fsm which accepts the reverse language of the input fsm
+noam.fsm.reverse = function(fsm) {
+  var newFsm = noam.util.clone(fsm);
+
+  var newTransitions = [];
+
+  for (var i=0; i<newFsm.transitions.length; i++) {
+    for (var j=0; j<newFsm.transitions[i].toStates.length; j++) {
+      newTransitions.push({
+        fromState : newFsm.transitions[i].toStates[j],
+        toStates : [newFsm.transitions[i].fromState],
+        symbol : newFsm.transitions[i].symbol
+      });
+    }
+  }
+
+  newFsm.transitions = newTransitions;
+
+  var oldAcceptingStates = newFsm.acceptingStates;
+
+  newFsm.acceptingStates = [newFsm.initialState];
+
+  var newInitialState = "NEW_INITIAL";
+  newFsm.states.push(newInitialState);
+  newFsm.initialState = newInitialState;
+
+  newFsm.transitions.push({
+    fromState : newInitialState,
+    toStates : oldAcceptingStates,
+    symbol : noam.fsm.epsilonSymbol
+  });
+
+  return newFsm;
+};
+
+// check whether the language accepted by fsmB is a subset of 
+// the language accepted by fsmA
+noam.fsm.isSubset = function(fsmA, fsmB) {
+  var fsmIntersection = noam.fsm.intersection(fsmA, fsmB);
+
+  return noam.fsm.areEquivalentFSMs(fsmB, fsmIntersection);
+};
