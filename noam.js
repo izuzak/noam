@@ -728,11 +728,17 @@ noam.fsm.removeEquivalentStates = function(fsm) {
 
 // minimizes the fsm by removing unreachable and equivalent states
 noam.fsm.minimize = function(fsm) {
-  if (noam.fsm.determineType(fsm) !== noam.fsm.dfaType) {
-    return new Error('FSM must be DFA');
+  var fsmType = noam.fsm.determineType(fsm);
+  var newFsm = fsm;
+
+  if (fsmType === noam.fsm.nfaType) {
+    newFsm = noam.fsm.convertNfaToDfa(fsm);
+  } else if (fsmType === noam.fsm.enfaType) {
+    newFsm = noam.fsm.convertEnfaToNfa(fsm);
+    newFsm = noam.fsm.convertNfaToDfa(newFsm);
   }
 
-  var fsmWithoutUnreachableStates = noam.fsm.removeUnreachableStates(fsm);
+  var fsmWithoutUnreachableStates = noam.fsm.removeUnreachableStates(newFsm);
   var minimalFsm = noam.fsm.removeEquivalentStates(fsmWithoutUnreachableStates);
   return minimalFsm;
 };
