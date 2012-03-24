@@ -929,22 +929,30 @@ noam.fsm.convertEnfaToNfa = function(fsm) {
 
   var newFsm = noam.util.clone(fsm);
 
-  for (var i=0; i<newFsm.transitions.length; i++) {
-    var transition = newFsm.transitions[i];
+  var initialEpsilon = noam.fsm.computeEpsilonArea(fsm, [fsm.initialState]);
 
-    if (transition.symbol !== noam.fsm.epsilonSymbol) {
-      transition.toStates = noam.fsm.makeTransition(fsm, [transition.fromState], transition.symbol).sort();
+  if (noam.util.containsAny(newFsm.acceptingStates, initialEpsilon) &&
+      !(noam.util.contains(newFsm.acceptingStates, newFsm.initialState))) {
+    newFsm.acceptingStates.push(newFsm.initialState);
+  }
+
+  var newTransitions = [];
+
+  for (var i=0; i<newFsm.states.length; i++) {
+    for (var j=0; j<newFsm.alphabet.length; j++) {
+      var toStates = noam.fsm.makeTransition(newFsm, [newFsm.states[i]], newFsm.alphabet[j]).sort();
+
+      if (toStates.length > 0) {
+        newTransitions.push({
+          fromState : newFsm.states[i],
+          toStates : toStates,
+          symbol : newFsm.alphabet[j]
+        });
+      }
     }
   }
 
-
-  for (var i=newFsm.transitions.length -1; i>=0; i--) {
-    var transition = newFsm.transitions[i];
-
-    if (transition.symbol === noam.fsm.epsilonSymbol) {
-      newFsm.transitions.splice(i, 1);
-    }
-  }
+  newFsm.transitions = newTransitions;
 
   var multiStateTransitions = [];
 
