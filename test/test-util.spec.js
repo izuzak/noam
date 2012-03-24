@@ -5,7 +5,7 @@ describe("UTIL", function() {
     it("undefined test", function() {
       x = "3";
 
-      expect(function(){ noamUtil.areEquivalent(x); }).toThrow();
+      expect(noamUtil.areEquivalent(x)).toEqual(false);
     });
     
     it("simple object test", function() {
