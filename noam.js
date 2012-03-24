@@ -463,30 +463,63 @@ noam.fsm.printDotFormat = function(fsm) {
   result.push(accStates.join(" "));
   result.push("  node [shape = circle];");
   result.push("  secret_node [style=invis, shape=point];");
-  var initState = ['  {rank = source; "secret_node" "'];
-  initState.push(fsm.initialState.toString());
-  initState.push('"}');
-  result.push(initState.join(""));
+  //var initState = ['  {rank = source; "'];
+  //initState.push(fsm.initialState.toString());
+  //initState.push('" "secret_node"}');
+  //result.push(initState.join(""));
 
   var initStateArrow = ["  secret_node ->"]
   initStateArrow.push(fsm.initialState.toString());
   initStateArrow.push("[style=bold];");
   result.push(initStateArrow.join(" "));
 
+  var newTransitions = [];
+
   for (var i=0; i<fsm.transitions.length; i++) {
     for (var j=0; j<fsm.transitions[i].toStates.length; j++) {
+      var found = null;
+
+      for (var k=0; k<newTransitions.length; k++) {
+        if (noam.util.areEquivalent(newTransitions[k].fromState, fsm.transitions[i].fromState) &&
+            noam.util.areEquivalent(newTransitions[k].toStates, [fsm.transitions[i].toStates[j]])) {
+          found = newTransitions[k];
+        }
+      }
+
+      if (found === null) {
+        var newTransition = noam.util.clone(fsm.transitions[i]);
+        newTransition.symbol = [newTransition.symbol];
+        newTransitions.push(newTransition);
+      } else {
+        found.symbol.push(fsm.transitions[i].symbol);
+      }
+    }
+  }
+
+  for (var i=0; i<newTransitions.length; i++) {
+    if (noam.util.areEquivalent(newTransitions[i].toStates[0], fsm.initialState)) {
       var trans = [" "];
-      trans.push(fsm.transitions[i].fromState.toString());
+      trans.push(newTransitions[i].toStates[0].toString());
       trans.push("->");
-      trans.push(fsm.transitions[i].toStates[j].toString());
+      trans.push(newTransitions[i].fromState.toString());
       trans.push("[");
       trans.push("label =");
-      trans.push('"' + fsm.transitions[i].symbol.toString() + '"');
-      trans.push("];");
+      trans.push('"' + newTransitions[i].symbol.toString() + '"');
+      trans.push(" dir = back];");
+      result.push(trans.join(" "));
+    } else {
+      var trans = [" "];
+      trans.push(newTransitions[i].fromState.toString());
+      trans.push("->");
+      trans.push(newTransitions[i].toStates[0].toString());
+      trans.push("[");
+      trans.push("label =");
+      trans.push('"' + newTransitions[i].symbol.toString() + '"');
+      trans.push(" ];");
       result.push(trans.join(" "));
     }
   }
-  
+
   result.push("}");
 
   return result.join("\n").replace(/\$/g, "ε");
