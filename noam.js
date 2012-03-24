@@ -439,7 +439,11 @@ noam.fsm.printTable = function(fsm) {
       }
     }
 
-    tableRows[rowNum][colNum] = { text : transition.toStates };
+    if (typeof tableRows[rowNum][colNum].text === "undefined") {
+      tableRows[rowNum][colNum] = { text : [] };
+    }
+
+    tableRows[rowNum][colNum].text.push(transition.toStates);
   }
 
   return table.toString();
