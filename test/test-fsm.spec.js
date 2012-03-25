@@ -134,7 +134,7 @@ describe("FSM", function() {
     });
   });
 
-  describe("computeEpsilonArea", function() {
+  describe("computeEpsilonClosure", function() {
     var fsm1 = {
       states : ["s1", "s2", "s3", "s4", "s5"],
       alphabet : ["a", "b", "c"],
@@ -151,19 +151,19 @@ describe("FSM", function() {
     };
 
     it("Handles non-epsilon transitions", function() {
-      expect(noamFsm.computeEpsilonArea(fsm1, ["s2"])).toEqual(["s2"]);
+      expect(noamFsm.computeEpsilonClosure(fsm1, ["s2"])).toEqual(["s2"]);
     });
 
     it("Handles simple, nonlooping epsilon transitions", function() {
-      expect(noamFsm.computeEpsilonArea(fsm1, ["s1"])).toEqual(["s1", "s2"]);
+      expect(noamFsm.computeEpsilonClosure(fsm1, ["s1"])).toEqual(["s1", "s2"]);
     });
 
     it("Handles looping epsilon transitions", function() {
-      expect(noamFsm.computeEpsilonArea(fsm1, ["s4"])).toEqual(["s4", "s5", "s1", "s2"]);
+      expect(noamFsm.computeEpsilonClosure(fsm1, ["s4"])).toEqual(["s4", "s5", "s1", "s2"]);
     });
 
     it("Handles multiple starting states", function() {
-      expect(noamFsm.computeEpsilonArea(fsm1, ["s1", "s3"])).toEqual(["s3", "s1", "s2"]);
+      expect(noamFsm.computeEpsilonClosure(fsm1, ["s1", "s3"])).toEqual(["s3", "s1", "s2"]);
     });
   });
 
