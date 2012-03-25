@@ -247,10 +247,10 @@ noam.fsm.determineType = function(fsm) {
   return fsmType;
 };
 
-// computes epsilon area of fsm from states array states
-noam.fsm.computeEpsilonArea = function(fsm, states) {
+// computes epsilon closure of fsm from states array states
+noam.fsm.computeEpsilonClosure = function(fsm, states) {
   if (!(noam.util.containsAll(fsm.states, states))) {
-    return new Error('FSM must contain all states for which epsilon area is being computed');
+    return new Error('FSM must contain all states for which epsilon closure is being computed');
   }
 
   var unprocessedStates = states
@@ -309,9 +309,9 @@ noam.fsm.makeSimpleTransition = function(fsm, states, symbol) {
 };
 
 // makes transition from states array states and for input symbol symbol by:
-//   a) computing the epsilon area of states
+//   a) computing the epsilon closure of states
 //   b) making a simple transition from resulting states of a)
-//   c) computing the epsilon area of resulting states of b)
+//   c) computing the epsilon closure of resulting states of b)
 noam.fsm.makeTransition = function(fsm, states, symbol) {
   if (!(noam.util.containsAll(fsm.states, states))) {
     return new Error('FSM must contain all states for which the transition is being computed');
@@ -323,9 +323,9 @@ noam.fsm.makeTransition = function(fsm, states, symbol) {
 
   var targetStates = noam.util.clone(states);
 
-  targetStates = noam.fsm.computeEpsilonArea(fsm, targetStates);
+  targetStates = noam.fsm.computeEpsilonClosure(fsm, targetStates);
   targetStates = noam.fsm.makeSimpleTransition(fsm, targetStates, symbol);
-  targetStates = noam.fsm.computeEpsilonArea(fsm, targetStates);
+  targetStates = noam.fsm.computeEpsilonClosure(fsm, targetStates);
 
   return targetStates;
 };
@@ -929,7 +929,7 @@ noam.fsm.convertEnfaToNfa = function(fsm) {
 
   var newFsm = noam.util.clone(fsm);
 
-  var initialEpsilon = noam.fsm.computeEpsilonArea(fsm, [fsm.initialState]);
+  var initialEpsilon = noam.fsm.computeEpsilonClosure(fsm, [fsm.initialState]);
 
   if (noam.util.containsAny(newFsm.acceptingStates, initialEpsilon) &&
       !(noam.util.contains(newFsm.acceptingStates, newFsm.initialState))) {
