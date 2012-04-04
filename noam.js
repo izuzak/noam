@@ -1506,6 +1506,11 @@ noam.fsm.grammar = function(fsm) {
 noam.grammar = {};
 
 noam.grammar.epsilonSymbol = '$';
+noam.grammar.regType = 'regular';
+noam.grammar.cfgType = 'context-free';
+noam.grammar.csgType = 'context-sensitive';
+noam.grammar.unrestrictedType = 'unrestricted';
+
 // validate the grammar
 noam.grammar.validate = function(grammar) {
   if (!(typeof grammar !== 'undefined' &&
@@ -1589,4 +1594,107 @@ noam.grammar.validate = function(grammar) {
   }
 
   return true;
+};
+
+// determine whether the grammar is regular, context-free, 
+// context-sensitive or unrestricted
+noam.grammar.determineType = function(grammar) {
+  var type = noam.grammar.regType;
+  var isRightRegular = null;
+
+  for (var i=0; i<grammar.productions.length; i++) {
+    var production = grammar.productions[i];
+
+    // handle both left-regular and right-regular
+    if (type === noam.grammar.regType) {
+      if (production.left.length !== 1 || !(noam.util.contains(grammar.nonterminals, production.left[0]))) {
+        type = noam.grammar.cfgType;
+      } else {
+        if (production.right.length === 1) {
+          continue;
+        } else {
+          var rightNonTerminalCount = 0;
+          var indexOfNonterminal = -1;
+
+          for (var j=0; j<production.right.length; j++) {
+            if (noam.util.contains(grammar.nonterminals, production.right[j])) {
+              rightNonTerminalCount += 1;
+              indexOfNonterminal = j;
+            }
+          }
+
+          if (rightNonTerminalCount > 1) {
+            type = noam.grammar.cfgType;
+          } else if (rightNonTerminalCount === 0) {
+            continue;
+          } else {
+            if (indexOfNonterminal === 0) {
+              if (isRightRegular === null) {
+                isRightRegular = false;
+                continue;
+              } else if (isRightRegular === false) {
+                continue;
+              } else if (isRightRegular === true) {
+                type = noam.grammar.cfgType;
+              }
+            } else if (indexOfNonterminal === production.right.length - 1) {
+              if (isRightRegular === null) {
+                isRightRegular = true;
+                continue;
+              } else if (isRightRegular === true) {
+                continue;
+              } else if (isRightRegular === false) {
+                type = noam.grammar.cfgType;
+              }
+            } else {
+              type = noam.grammar.cfgType;
+            }
+          }
+        }
+      }
+    }
+
+    if (type === noam.grammar.cfgType) {
+      if (production.left.length !== 1 || !(noam.util.contains(grammar.nonterminals, production.left[0]))) {
+        type = noam.grammar.csgType;
+      }
+    }
+
+    if (type === noam.grammar.csgType) {
+      var leftNonTerminalCount = 0;
+      var indexOfNonterminal = -1;
+
+      for (var j=0; j<production.left.length; j++) {
+        if (noam.util.contains(grammar.nonterminals, production.left[j])) {
+          leftNonTerminalCount += 1;
+          indexOfNonterminal = j;
+        }
+      }
+
+      if (leftNonTerminalCount > 1) {
+        return noam.grammar.unrestrictedType;
+      }
+
+      var prefix = production.left.slice(0, indexOfNonterminal-1);
+      var sufix = production.left.slice(indexOfNonterminal);
+
+      for (var j=0; j<prefix.length; j++) {
+        if (!(noam.util.areEquivalent(prefix[j], production.right[j]))) {
+          return noam.grammar.unrestrictedType;
+        }
+      }
+
+      for (var j=0; j<sufix.length; j++) {
+        if (!(noam.util.areEquivalent(sufix[sufix.length-j-1], production.right[production.right.length-j-1]))) {
+          return noam.grammar.unrestrictedType;
+        }
+      }
+
+      if (production.right.length <= prefix.length + sufix.length) {
+        return noam.grammar.unrestrictedType;
+      }
+    }
+  }
+
+  return type;
 };
