@@ -1698,3 +1698,69 @@ noam.grammar.determineType = function(grammar) {
 
   return type;
 };
+
+// print the grammar in a human-readable condensed ascii format
+noam.grammar.printAscii = function(grammar) {
+  var str = [];
+
+  str.push("Initial nonterminal: " + "<" + grammar.initialNonterminal + ">");
+
+  var slimProds = [];
+
+  for (var i=0; i<grammar.productions.length; i++) {
+    var foundSlim = -1;
+
+    for (var j=0; j<slimProds.length; j++) {
+      if (noam.util.areEquivalent(slimProds[j][0], grammar.productions[i].left)) {
+        foundSlim = j;
+        break;
+      }
+    }
+
+    if (foundSlim === -1) {
+      slimProds[slimProds.length] = [grammar.productions[i].left, [grammar.productions[i].right]];
+    } else {
+      slimProds[foundSlim][1].push(grammar.productions[i].right);
+    }
+  }
+
+  for (var i=0; i<slimProds.length; i++) {
+    var prod = [];
+
+    for (var j=0; j<slimProds[i][0].length; j++) {
+      if (noam.util.contains(grammar.nonterminals, slimProds[i][0][j])) {
+        prod.push("<" + slimProds[i][0][j].toString() + ">");
+      } else {
+        if (slimProds[i][0][j] === noam.grammar.epsilonSymbol) {
+          prod.push(slimProds[i][0][j].toString());
+        } else {
+          prod.push('"' + slimProds[i][0][j].toString() + '"');
+        }
+      }
+    }
+
+    prod.push("->");
+
+    for (var j=0; j<slimProds[i][1].length; j++) {
+      for (var k=0; k<slimProds[i][1][j].length; k++) {
+        if (noam.util.contains(grammar.nonterminals, slimProds[i][1][j][k])) {
+          prod.push("<" + slimProds[i][1][j][k].toString() + ">");
+        } else {
+          if (slimProds[i][1][j][k] === noam.grammar.epsilonSymbol) {
+            prod.push(slimProds[i][1][j][k].toString());
+          } else {
+            prod.push('"' + slimProds[i][1][j][k].toString() + '"');
+          }
+        }
+      }
+
+      if (j < slimProds[i][1].length - 1) {
+        prod.push("|");
+      }
+    }
+
+    str.push(prod.join(" "));
+  }
+
+  return str.join("\n");
+};
