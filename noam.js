@@ -449,6 +449,82 @@ noam.fsm.printTable = function(fsm) {
   return table.toString();
 };
 
+// print the fsm transition function and accepting states as an HTML table
+noam.fsm.printHtmlTable = function(fsm) {
+  var headers = [""].concat(fsm.alphabet);
+  if (noam.fsm.determineType(fsm) === noam.fsm.enfaType) {
+    headers.push(noam.fsm.epsilonSymbol);
+  }
+  headers.push("");
+
+  var tableRows = [];
+  
+  for (var i=0; i<fsm.states.length; i++) {
+    tableRows.push(new Array(headers.length));
+    for (var j=0; j<headers.length; j++) {
+      tableRows[i][j] = { text : []};
+    }
+    tableRows[i][0] = { text : fsm.states[i].toString() };
+    tableRows[i][headers.length-1] =
+      noam.util.contains(fsm.acceptingStates, fsm.states[i]) ?
+      { text : ["1"] } : { text : ["0"] };
+  }
+
+  for (var i=0; i<fsm.transitions.length; i++) {
+    var transition = fsm.transitions[i];
+
+    var colNum = null;
+    var rowNum = null;
+
+    for (var j=0; j<fsm.states.length; j++) {
+      if (noam.util.areEquivalent(fsm.states[j], transition.fromState)) {
+        rowNum = j;
+        break;
+      }
+    }
+
+    if (transition.symbol === noam.fsm.epsilonSymbol) {
+      colNum = headers.length-2;
+    } else {
+      for (var j=0; j<fsm.alphabet.length; j++) {
+        if (noam.util.areEquivalent(fsm.alphabet[j], transition.symbol)) {
+          colNum = j+1;
+          break;
+        }
+      }
+    }
+
+    if (typeof tableRows[rowNum][colNum].text === "undefined") {
+      tableRows[rowNum][colNum] = { text : [] };
+    }
+
+    tableRows[rowNum][colNum].text.push(transition.toStates);
+  }
+
+  var htmlString = [];
+
+  htmlString.push("<table border='1'>");
+  htmlString.push("  <tr>");
+  
+  for(var i=0; i<headers.length; i++) {
+    htmlString.push("    <th>" + headers[i].toString() + "</th>");
+  }
+
+  htmlString.push("  </tr>");
+
+  for (var i=0; i<tableRows.length; i++) {
+    htmlString.push("  <tr>");
+    for (var j=0; j<tableRows[i].length; j++) {
+      htmlString.push("    <td>" + tableRows[i][j].text + "</td>");
+    }
+
+    htmlString.push("  </tr>");
+  }
+
+  htmlString.push("</table>");
+  return htmlString.join("\n");
+};
+
 // print the fsm in the graphviz dot format
 noam.fsm.printDotFormat = function(fsm) {
   var result = ["digraph finite_state_machine {", "  rankdir=LR;"];
