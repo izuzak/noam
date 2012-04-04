@@ -1506,3 +1506,87 @@ noam.fsm.grammar = function(fsm) {
 noam.grammar = {};
 
 noam.grammar.epsilonSymbol = '$';
+// validate the grammar
+noam.grammar.validate = function(grammar) {
+  if (!(typeof grammar !== 'undefined' &&
+      Array.isArray(grammar.nonterminals) &&
+      Array.isArray(grammar.terminals) &&
+      typeof grammar.initialNonterminal !== 'undefined' && grammar.initialNonterminal !== null &&
+      Array.isArray(grammar.productions))) {
+    return new Error('Grammar must be defined and have nonterminals, terminals, initialNonterminal and productions array properties!');
+  }
+
+  if (grammar.nonterminals.length < 1) {
+    return new Error('Set of nonterminals must not be empty.');
+  }
+
+  if (grammar.terminals.length < 1) {
+    return new Error('Set of terminals must not be empty.');
+  }
+
+  for (var i=0; i<grammar.nonterminals.length; i++) {
+    if (noam.util.contains(grammar.nonterminals, grammar.nonterminals[i], i+1)) {
+      return new Error('Equivalent nonterminals');
+    }
+  }
+
+  for (var i=0; i<grammar.terminals.length; i++) {
+    if (noam.util.contains(grammar.terminals, grammar.terminals[i], i+1)) {
+      return new Error('Equivalent terminals');
+    }
+  }
+
+  for (var i=0; i<grammar.terminals.length; i++) {
+    if (noam.util.contains(grammar.nonterminals, grammar.terminals[i])) {
+      return new Error('Terminals and nonterminals must not overlap');
+    }
+  }
+
+  if (!(noam.util.contains(grammar.nonterminals, grammar.initialNonterminal))) {
+    return new Error('InitialNonterminal must be in nonterminals');
+  }
+
+  for (var i=0; i<grammar.productions.length; i++) {
+    var production = grammar.productions[i];
+
+    if (!(Array.isArray(production.left))) {
+      return new Error('Left side of production must be an array');
+    }
+
+    if (production.left.length === 0) {
+      return new Error('Left side of production must have at least one terminal or nonterminal');
+    }
+
+    for (var j=0; j<production.left.length; j++) {
+      if (!(noam.util.contains(grammar.nonterminals, production.left[j])) &&
+          !(noam.util.contains(grammar.terminals, production.left[j]))) {
+        return new Error('Left side of production must be in nonterminals or terminals');
+      }
+    }
+
+    if (!(Array.isArray(production.right))) {
+      return new Error('Right side of production must be an array');
+    }
+
+    if (production.right.length === 1 && production.right[0] === noam.grammar.epsilonSymbol) {
+      ;
+    } else {
+      if (production.right.length === 0) {
+        return new Error('Right side of production must have at least one terminal or nonterminal or epsilon symbol');
+      }
+
+      for (var j=0; j<production.right.length; j++) {
+        if (!(noam.util.contains(grammar.nonterminals, production.right[j])) &&
+            !(noam.util.contains(grammar.terminals, production.right[j]))) {
+          return new Error('Right side of production must be in nonterminals or terminals');
+        }
+      }
+    }
+
+    if (noam.util.contains(grammar.productions, production, i+1)) {
+      return new Error('Grammar must not have duplicate productions');
+    }
+  }
+
+  return true;
+};
