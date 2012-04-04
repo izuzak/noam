@@ -1468,3 +1468,41 @@ noam.fsm.isSubset = function(fsmA, fsmB) {
 
   return noam.fsm.areEquivalentFSMs(fsmB, fsmIntersection);
 };
+
+// convert the fsm into a regular grammar
+noam.fsm.grammar = function(fsm) {
+  var grammar = {
+    nonterminals : noam.util.clone(fsm.states),
+    terminals : noam.util.clone(fsm.alphabet),
+    initialNonterminal : noam.util.clone(fsm.initialState),
+    productions : []
+  };
+
+  for (var i=0; i<fsm.transitions.length; i++) {
+    if (fsm.transitions[i].symbol === noam.fsm.epsilonSymbol) {
+      grammar.productions.push({
+        left : [noam.util.clone(fsm.transitions[i].fromState)],
+        right : noam.util.clone(fsm.transitions[i].toStates)
+      });
+    } else {
+      grammar.productions.push({
+        left : [noam.util.clone(fsm.transitions[i].fromState)],
+        right : [noam.util.clone(fsm.transitions[i].symbol)].concat(
+          noam.util.clone(fsm.transitions[i].toStates))
+      });
+    }
+  }
+
+  for (var i=0; i<fsm.acceptingStates.length; i++) {
+    grammar.productions.push({
+      left : [noam.util.clone(fsm.acceptingStates[i])],
+      right : [noam.grammar.epsilonSymbol]
+    });
+  }
+
+  return grammar;
+};
+
+noam.grammar = {};
+
+noam.grammar.epsilonSymbol = '$';
