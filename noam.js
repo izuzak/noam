@@ -1764,3 +1764,87 @@ noam.grammar.printAscii = function(grammar) {
 
   return str.join("\n");
 };
+
+/* 
+ * Regular expressions module.
+ *
+ * Parsed regular expressions are represented by a syntax tree. Tools for working with that 
+ * representation are accessible through noam.re.tree.
+ */
+noam.re = (function() {
+
+  /*
+   * Tools for creating and manipulating parsed regular expressions.
+   *
+   * The make* functions are a minimal API that can be used to create arbitrarily complex
+   * regular expressions programatically.
+   */
+  var tree = (function() {
+    var tags = {
+      ALT: 'alt',
+      SEQ: 'sequence',
+      KSTAR: 'kleene_star',
+      LIT: 'literal',
+      EPS: 'epsilon',
+    };
+
+    // The choices parameter must be an array of expression trees.
+    // Returns the root of a new tree that represents the expression that is the union of
+    // all the choices.
+    function makeAlt(choices) {
+      return {
+        tag: tags.ALT,
+        choices: choices,
+      };
+    }
+
+    // The elements parameter must be an array of expression trees.
+    // Returns the root of a new tree that represents the expression that is the sequence
+    // of all the elements.
+    function makeSeq(elements) {
+      return {
+        tag: tags.SEQ,
+        elements: elements,
+      };
+    }
+
+    // Wraps the given expressin tree unde a Kleene star operator.
+    // Returns the root of the new tree.
+    function makeKStar(expr) {
+      return {
+        tag: tags.KSTAR,
+        expr: expr,
+      };
+    }
+
+    // Creates a node that represents the literal obj.
+    function makeLit(obj) {
+      return {
+        tag: tags.LIT,
+        obj: obj,
+      };
+    }
+
+    var epsNode = {
+      tag: tags.EPS,
+    };
+    // Returns a node representing the empty string regular expression.
+    function makeEps() {
+      return epsNode;
+    }
+
+    return {
+      tags: tags,
+
+      makeAlt: makeAlt,
+      makeSeq: makeSeq,
+      makeKStar: makeKStar,
+      makeLit: makeLit,
+      makeEps: makeEps,
+    };
+  })();
+
+  return {
+    tree: tree,
+  };
+})();
