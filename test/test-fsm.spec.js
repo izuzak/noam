@@ -31,6 +31,24 @@ describe("FSM", function() {
       automaton = noamFsm.makeNew();
     });
 
+    it("can be used to create a valid automaton like this", function() {
+      var i;
+      for (i=0; i<3; i++) {
+        noamFsm.addState(automaton, i);
+      }
+      noamFsm.setInitialState(automaton, 0);
+      noamFsm.addAcceptingState(automaton, 2);
+      noamFsm.addSymbol(automaton, "a");
+      noamFsm.addSymbol(automaton, "b");
+      noamFsm.addTransition(automaton, 0, [1], "a");
+      noamFsm.addTransition(automaton, 1, [2], "b");
+      noamFsm.addEpsilonTransition(automaton, 1, [2]);
+      expect(noamFsm.validate(automaton)).toBeTruthy();
+      expect(noamFsm.isStringInLanguage(automaton, [])).toBeFalsy();
+      expect(noamFsm.isStringInLanguage(automaton, ["a"])).toBeTruthy();
+      expect(noamFsm.isStringInLanguage(automaton, ["a", "b"])).toBeTruthy();
+    });
+
     describe("addState", function() {
       var stateObj;
       beforeEach(function() {
