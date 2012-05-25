@@ -196,6 +196,15 @@ noam.fsm.addAcceptingState = function(fsm, stateObj) {
       "The specified state is already accepting");
 };
 
+// Sets stateObj as the start state of the fsm.
+// Throws an Error if stateObj is not a state of the fsm.
+noam.fsm.setInitialState = function(fsm, stateObj) {
+  if (!noam.util.contains(fsm.states, stateObj)) {
+    throw new Error("The specified object is not a state of the FSM");
+  }
+  fsm.initialState = stateObj;
+};
+
 // end of FSM creation API
 
 // validates a FSM definition

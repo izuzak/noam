@@ -103,6 +103,24 @@ describe("FSM", function() {
       });
     });
 
+    describe("setInitialState", function() {
+      var stateObj;
+      beforeEach(function() {
+        stateObj = "test";
+      });
+
+      it("sets the initial state of the FSM", function() {
+        noamFsm.addState(automaton, stateObj);
+        noamFsm.setInitialState(automaton, stateObj);
+        expect(automaton.initialState).toBe(stateObj);
+      });
+
+      it("throws an Error if the given state is not a state of the FSM", function() {
+        expect(function() { noamFsm.setInitialState(automaton, stateObj); }).
+            toThrow(new Error("The specified object is not a state of the FSM"));
+      });
+    });
+
   });
 
   describe("Validate", function() {
