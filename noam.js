@@ -157,38 +157,35 @@ noam.fsm.makeNew = function() {
   };
 };
 
+// Common internal implementation for addStata and addSymbol.
+noam.fsm._addStateOrSymbol = function(arr, obj, undefErrorMsg, existsErrorMsg) {
+  // need to check this because undefined would otherwise be added as a state
+  // or symbol which is probably not what you want
+  if (obj === undefined) { 
+    throw new Error(undefErrorMsg);
+  }
+  if (noam.util.contains(arr, obj)) {
+    throw new Error(existsErrorMsg);
+  }
+
+  arr.push(obj);
+  return obj;
+};
+
 // Adds stateObj as a state to the fsm.
 // Throws an Error if no stateObj is passed or if the same state already exists.
 // Returns the added state object.
 noam.fsm.addState = function(fsm, stateObj) {
-  // need to check this because undefined would otherwise be added as a state
-  // which is probably not what you want
-  if (stateObj === undefined) { 
-    throw new Error("No state object specified");
-  }
-  if (noam.util.contains(fsm.states, stateObj)) {
-    throw new Error("State already exists");
-  }
-
-  fsm.states.push(stateObj);
-  return stateObj;
+  return noam.fsm._addStateOrSymbol(fsm.states, stateObj, 
+      "No state object specified", "State already exists");
 };
 
 // Adds symObj as an alphabet symbol to the fsm.
 // Throws an Error if no symObj is passed or if the same symbol already exists.
 // Returns the added symbol object.
 noam.fsm.addSymbol = function(fsm, symObj) {
-  // need to check this because undefined would otherwise be added as a state
-  // which is probably not what you want
-  if (symObj === undefined) {
-    throw new Error("No symbol object specified");
-  }
-  if (noam.util.contains(fsm.alphabet, symObj)) {
-    throw new Error("Symbol already exists");
-  }
-
-  fsm.alphabet.push(symObj);
-  return symObj;
+  return noam.fsm._addStateOrSymbol(fsm.alphabet, symObj, 
+      "No symbol object specified", "Symbol already exists");
 };
 
 // end of FSM creation API
