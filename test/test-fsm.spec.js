@@ -467,6 +467,12 @@ describe("FSM", function() {
     it("Works 2", function() {
       expect(noamFsm.readString(fsm1, ["a", "b", "b", "a"])).toEqual([]);
     });
+
+    it("expands the epsilon closure of the start state", function() {
+      var fsm2 = noamUtil.clone(fsm1);
+      noamFsm.addEpsilonTransition(fsm2, "s1", ["s2"]);
+      expect(noamUtil.contains(noamFsm.readString(fsm2, []), "s2")).toBeTruthy();
+    });
   });
 
   describe("isStringInLanguage", function() {

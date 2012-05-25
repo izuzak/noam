@@ -489,7 +489,7 @@ noam.fsm.readString = function(fsm, inputSymbolStream) {
     return new Error('FSM must contain all symbols for which the transition is being computed');
   }
 
-  var states = [fsm.initialState];
+  var states = noam.fsm.computeEpsilonClosure(fsm, [fsm.initialState]);
 
   for (var i=0; i<inputSymbolStream.length; i++) {
     states = noam.fsm.makeTransition(fsm, states, inputSymbolStream[i]);
