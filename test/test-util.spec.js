@@ -84,6 +84,33 @@ describe("UTIL", function() {
     });
   });
 
+  describe("setUnion", function() {
+    it("returns an unordered array representing the union of the two argument arrays", function() {
+      var a = [1, 2, [3, 4]];
+      var b = [2, 3, 4];
+      var union = noamUtil.setUnion(a, b);
+      expect(union.length).toBe(5);
+      var i;
+      for (i=0; i<a.length; i++) {
+        expect(noamUtil.contains(union, a[i])).toBeTruthy();
+      }
+      for (i=0; i<b.length; i++) {
+        expect(noamUtil.contains(union, b[i])).toBeTruthy();
+      }
+    });
+
+    it("does not include duplicates from either argument", function() {
+      var a = [1, 2, 2];
+      var b = [3, 1, 1];
+      var union = noamUtil.setUnion(a, b);
+      expect(union.length).toBe(3);
+      var i;
+      for (i=1; i<4; i++) {
+        expect(noamUtil.contains(union, i)).toBeTruthy();
+      }
+    });
+  });
+
   describe("clone", function() {
     it("nested objects and null", function() {
       var x = [1, 2, null, { a : [4, 5, 6] }];

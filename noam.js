@@ -138,6 +138,25 @@ noam.util.containsSet = function(arr1, obj) {
   return false;
 };
 
+// returns an unsorted array representation of the union of the two arrays arr1 and arr2 
+// with each element included exactly once, regardless of the count in arr1 and arr2
+noam.util.setUnion = function(arr1, arr2) {
+  var res = [];
+  var i;
+  for (i=0; i<arr1.length; i++) {
+    // this will not include duplicates from arr1
+    if (!noam.util.contains(res, arr1[i])) { 
+      res.push(arr1[i]);
+    }
+  }
+  for (i=0; i<arr2.length; i++) {
+    if (!noam.util.contains(res, arr2[i])) { 
+      res.push(arr2[i]);
+    }
+  }
+  return res;
+};
+
 // make a deep clone of an object
 noam.util.clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
