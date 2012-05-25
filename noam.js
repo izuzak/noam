@@ -290,6 +290,11 @@ noam.fsm.validate = function(fsm) {
   return true;
 };
 
+// determine if stateObj is an accepting state in fsm
+noam.fsm.isAcceptingState = function(fsm, stateObj) {
+  return noam.util.contains(fsm.acceptingStates, stateObj);
+};
+
 // determine fsm type based on transition function
 noam.fsm.determineType = function(fsm) {
   var fsmType = noam.fsm.dfaType;

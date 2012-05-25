@@ -84,10 +84,9 @@ describe("FSM", function() {
 
       it("makes the given state acceptable", function() {
         noamFsm.addState(automaton, stateObj);
-        // TODO: leaky, fix by adding a predicate
-        expect(noamUtil.contains(automaton.acceptingStates, stateObj)).toBeFalsy();
+        expect(noamFsm.isAcceptingState(automaton, stateObj)).toBeFalsy();
         noamFsm.addAcceptingState(automaton, stateObj);
-        expect(noamUtil.contains(automaton.acceptingStates, stateObj)).toBeTruthy();
+        expect(noamFsm.isAcceptingState(automaton, stateObj)).toBeTruthy();
       });
 
       it("throws an Error if the given state is not a state of the FSM", function() {
