@@ -20,6 +20,37 @@ describe("FSM", function() {
     });
   });
 
+  describe("manipulation API", function() {
+    var automaton;
+
+    beforeEach(function() {
+      automaton = noamFsm.makeNew();
+    });
+
+    describe("addState", function() {
+      var stateObj;
+      beforeEach(function() {
+        stateObj = "test";
+      });
+
+      it("given an object, makes it a state of the automaton and returns the object", function() {
+        expect(noamFsm.addState(automaton, stateObj)).toBe(stateObj);
+        stateObj = {};
+        expect(noamFsm.addState(automaton, stateObj)).toBe(stateObj);
+      });
+
+      it("throws an Error if the passed object is already a state of the automaton", function() {
+        noamFsm.addState(automaton, stateObj);
+        expect(function() { noamFsm.addState(automaton, stateObj); }).toThrow(new Error("State already exists"));
+      });
+
+      it("throws an Error if no state object is specified", function() {
+        expect(function() { noamFsm.addState(automaton); }).toThrow(new Error("No state object specified"));
+      });
+    });
+
+  });
+
   describe("Validate", function() {
     var fsm1 = {
       states : ["s1", "s2", "s3", "s4", "s5"],

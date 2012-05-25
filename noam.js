@@ -77,6 +77,19 @@ noam.util.contains = function(arr, obj, startIndex) {
   return false;
 };
 
+// returns the index of the leftmost obj instance in arr starting from startIndex or -1 
+// if no instance of obj is found
+noam.util.index = function(arr, obj, startIndex) {
+  var i = startIndex || 0;
+  while (i < arr.length) {
+    if (noam.util.areEquivalent(arr[i], obj)) {
+      return i;
+    }
+    i++;
+  }
+  return -1;
+}
+
 // check if array arr1 contains all elements from array arr2
 noam.util.containsAll = function(arr1, arr2) {
   for (var i=0; i<arr2.length; i++) {
@@ -129,6 +142,38 @@ noam.util.containsSet = function(arr1, obj) {
 noam.util.clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
 };
+
+// FSM creation API
+
+// Creates and returns an empty FSM that can then be manipulated through the other 
+// functions in the API.
+noam.fsm.makeNew = function() {
+  return {
+    states: [],
+    alphabet: [],
+    acceptingStates: [],
+    initialState: undefined,
+    transitions: [],
+  };
+};
+
+// Adds a new state to the FSM. If called without the second argument creates an opaque
+// state.
+// Throws an Error if the same state already exists.
+// Returns the added state object.
+noam.fsm.addState = function(fsm, stateObj) {
+  if (stateObj === undefined) {
+    throw new Error("No state object specified");
+  }
+  if (noam.util.contains(fsm.states, stateObj)) {
+    throw new Error("State already exists");
+  }
+
+  fsm.states.push(stateObj);
+  return stateObj;
+};
+
+// end of FSM creation API
 
 // validates a FSM definition
 noam.fsm.validate = function(fsm) {
