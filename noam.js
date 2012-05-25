@@ -184,6 +184,9 @@ noam.fsm.addState = function(fsm, stateObj) {
 // Throws an Error if no symObj is passed or if the same symbol already exists.
 // Returns the added symbol object.
 noam.fsm.addSymbol = function(fsm, symObj) {
+  if (noam.util.areEquivalent(symObj, noam.fsm.epsilonSymbol)) {
+    throw new Error("Can't add the epsilon symbol to the alphabet");
+  }
   return noam.fsm._addStateOrSymbol(fsm.alphabet, symObj, 
       "No symbol object specified", "Symbol already exists");
 };

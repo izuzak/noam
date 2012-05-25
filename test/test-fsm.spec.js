@@ -75,6 +75,11 @@ describe("FSM", function() {
         expect(function() { noamFsm.addSymbol(automaton); }).
             toThrow(new Error("No symbol object specified"));
       });
+
+      it("throws an Error if you try to add the epsilon symbol to the alphabet", function() {
+        expect(function() { noamFsm.addSymbol(automaton, noamFsm.epsilonSymbol); }).
+            toThrow(new Error("Can't add the epsilon symbol to the alphabet"));
+      });
     });
 
     describe("addAcceptingState", function() {
