@@ -1,5 +1,6 @@
 // TODO: consider defining a custom exception matcher that would enable 
 // error differentiation but not at the cost of committing to a specific error message
+// something like http://stackoverflow.com/questions/4144686/how-to-write-a-test-which-expects-an-error-to-be-thrown
 
 describe("FSM", function() {
   var noamFsm = require('../noam.js').fsm;
