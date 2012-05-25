@@ -191,6 +191,11 @@ describe("FSM", function() {
         expect(function() { noamFsm.addTransition(automaton, state1, [state2], noamFsm.epsilonSymbol); }).
             toThrow(new Error("The specified object is not an alphabet symbol of the FSM"));
       });
+
+      it("throws an Error if the toStates argument is not an array", function() {
+        expect(function() { noamFsm.addTransition(automaton, state1, state2, symbolObj); }).
+            toThrow(new Error("The toStates argument must be an array"));
+      });
     });
 
     describe("addEpsilonTransition", function() {
@@ -232,6 +237,11 @@ describe("FSM", function() {
             toThrow(new Error("One of the specified objects is not a state of the FSM"));
         expect(function() { noamFsm.addEpsilonTransition(automaton, state1, [state2, "zaz"]); }).
             toThrow(new Error("One of the specified objects is not a state of the FSM"));
+      });
+
+      it("throws an Error if the toStates argument is not an array", function() {
+        expect(function() { noamFsm.addEpsilonTransition(automaton, state1, state2); }).
+            toThrow(new Error("The toStates argument must be an array"));
       });
     });
 

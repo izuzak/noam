@@ -232,6 +232,9 @@ noam.fsm.setInitialState = function(fsm, stateObj) {
 
 // Common implementation for addTransition and addEpsilonTransition.
 noam.fsm._addTransition = function(fsm, fromState, toStates, transitionSymbol) {
+  if (!Array.isArray(toStates)) {
+    throw new Error("The toStates argument must be an array");
+  }
   if (!noam.util.contains(fsm.states, fromState) || 
       !noam.util.containsAll(fsm.states, toStates)) {
     throw new Error("One of the specified objects is not a state of the FSM");
