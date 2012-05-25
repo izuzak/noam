@@ -448,7 +448,7 @@ noam.fsm.makeSimpleTransition = function(fsm, states, symbol) {
   for (var i=0; i<fsm.transitions.length; i++) {
     var transition = fsm.transitions[i];
 
-    if (fsm.transitions[i].symbol === symbol &&
+    if (noam.util.areEquivalent(fsm.transitions[i].symbol, symbol) &&
         noam.util.contains(states, transition.fromState)) {
       for (var j=0; j<transition.toStates.length; j++) {
         if (!(noam.util.contains(targetStates, transition.toStates[j]))) {

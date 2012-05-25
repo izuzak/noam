@@ -417,6 +417,13 @@ describe("FSM", function() {
     it("Handles multiple states as start", function() {
       expect(noamFsm.makeSimpleTransition(fsm1, ["s1", "s2"], "b")).toEqual(["s3", "s2", "s1"]);
     });
+
+    it("Handles object transition symbols", function() {
+      var fsm2 = noamUtil.clone(fsm1);
+      noamFsm.addSymbol(fsm2, {});
+      noamFsm.addTransition(fsm2, "s1", ["s2"], {});
+      expect(noamFsm.makeSimpleTransition(fsm2, ["s1"], {})).toEqual(["s2"]);
+    });
   });
 
   describe("makeTransition", function() {
