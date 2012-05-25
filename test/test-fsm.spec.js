@@ -49,6 +49,28 @@ describe("FSM", function() {
       });
     });
 
+    describe("addSymbol", function() {
+      var symObj;
+      beforeEach(function() {
+        symObj = "test";
+      });
+
+      it("given an object, makes it an alphabet symbol of the automaton and returns the object", function() {
+        expect(noamFsm.addSymbol(automaton, symObj)).toBe(symObj);
+        symObj = {};
+        expect(noamFsm.addSymbol(automaton, symObj)).toBe(symObj);
+      });
+
+      it("throws an Error if the passed object is already a symbol of the automaton", function() {
+        noamFsm.addSymbol(automaton, symObj);
+        expect(function() { noamFsm.addSymbol(automaton, symObj); }).toThrow(new Error("Symbol already exists"));
+      });
+
+      it("throws an Error if no symbol object is specified", function() {
+        expect(function() { noamFsm.addSymbol(automaton); }).toThrow(new Error("No symbol object specified"));
+      });
+    });
+
   });
 
   describe("Validate", function() {

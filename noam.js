@@ -157,12 +157,13 @@ noam.fsm.makeNew = function() {
   };
 };
 
-// Adds a new state to the FSM. If called without the second argument creates an opaque
-// state.
-// Throws an Error if the same state already exists.
+// Adds stateObj as a state to the fsm.
+// Throws an Error if no stateObj is passed or if the same state already exists.
 // Returns the added state object.
 noam.fsm.addState = function(fsm, stateObj) {
-  if (stateObj === undefined) {
+  // need to check this because undefined would otherwise be added as a state
+  // which is probably not what you want
+  if (stateObj === undefined) { 
     throw new Error("No state object specified");
   }
   if (noam.util.contains(fsm.states, stateObj)) {
@@ -171,6 +172,23 @@ noam.fsm.addState = function(fsm, stateObj) {
 
   fsm.states.push(stateObj);
   return stateObj;
+};
+
+// Adds symObj as an alphabet symbol to the fsm.
+// Throws an Error if no symObj is passed or if the same symbol already exists.
+// Returns the added symbol object.
+noam.fsm.addSymbol = function(fsm, symObj) {
+  // need to check this because undefined would otherwise be added as a state
+  // which is probably not what you want
+  if (symObj === undefined) {
+    throw new Error("No symbol object specified");
+  }
+  if (noam.util.contains(fsm.alphabet, symObj)) {
+    throw new Error("Symbol already exists");
+  }
+
+  fsm.alphabet.push(symObj);
+  return symObj;
 };
 
 // end of FSM creation API
