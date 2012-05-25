@@ -126,6 +126,97 @@ describe("FSM", function() {
       });
     });
 
+    describe("addTransition", function() {
+      var state1, state2, symbolObj;
+      beforeEach(function() {
+        symbolObj = "test";
+        state1 = "foo";
+        state2 = "bar";
+        noamFsm.addState(automaton, state1);
+        noamFsm.addState(automaton, state2);
+        noamFsm.addSymbol(automaton, symbolObj);
+      });
+
+      it("adds a transition for the given transition symbol from a source state to an array of states", function() {
+        var targetStates = noamFsm.makeSimpleTransition(automaton, [state1], symbolObj);
+        expect(targetStates.length).toBe(0);
+
+        noamFsm.addTransition(automaton, state1, [state2], symbolObj);
+        targetStates = noamFsm.makeSimpleTransition(automaton, [state1], symbolObj);
+        expect(targetStates.length).toBe(1);
+        expect(targetStates[0]).toBe(state2);
+      });
+
+      it("unites target state arrays with previous calls", function() {
+        noamFsm.addTransition(automaton, state1, [state2], symbolObj);
+        var state3 = "zaz";
+        noamFsm.addState(automaton, state3);
+        noamFsm.addTransition(automaton, state1, [state3], symbolObj);
+        var targetStates = noamFsm.makeSimpleTransition(automaton, [state1], symbolObj);
+        expect(targetStates.length).toBe(2);
+        expect(noamUtil.contains(targetStates, state2)).toBeTruthy();
+        expect(noamUtil.contains(targetStates, state3)).toBeTruthy();
+      });
+
+      it("throws an Error if any of the states is not a state of the FSM", function() {
+        expect(function() { noamFsm.addTransition(automaton, "zaz", [state2], symbolObj); }).
+            toThrow(new Error("One of the specified objects is not a state of the FSM"));
+        expect(function() { noamFsm.addTransition(automaton, state1, ["zaz"], symbolObj); }).
+            toThrow(new Error("One of the specified objects is not a state of the FSM"));
+        expect(function() { noamFsm.addTransition(automaton, state1, [state2, "zaz"], symbolObj); }).
+            toThrow(new Error("One of the specified objects is not a state of the FSM"));
+      });
+
+      it("throws an Error if the specified symbol object is not an alphabet symbol of the FSM", function() {
+        expect(function() { noamFsm.addTransition(automaton, state1, [state2], "zaz"); }).
+            toThrow(new Error("The specified object is not an alphabet symbol of the FSM"));
+        expect(function() { noamFsm.addTransition(automaton, state1, [state2], noamFsm.epsilonSymbol); }).
+            toThrow(new Error("The specified object is not an alphabet symbol of the FSM"));
+      });
+    });
+
+    describe("addEpsilonTransition", function() {
+      var state1, state2;
+      beforeEach(function() {
+        state1 = "foo";
+        state2 = "bar";
+        noamFsm.addState(automaton, state1);
+        noamFsm.addState(automaton, state2);
+      });
+
+      it("adds an epsilon transition from a source state to an array of states", function() {
+        var targetStates = noamFsm.computeEpsilonClosure(automaton, [state1]);
+        expect(targetStates.length).toBe(1);
+
+        noamFsm.addEpsilonTransition(automaton, state1, [state2]);
+        targetStates = noamFsm.computeEpsilonClosure(automaton, [state1]);
+        expect(targetStates.length).toBe(2);
+        expect(noamUtil.contains(targetStates, state1)).toBeTruthy();
+        expect(noamUtil.contains(targetStates, state2)).toBeTruthy();
+      });
+
+      it("unites target state arrays with previous calls", function() {
+        noamFsm.addEpsilonTransition(automaton, state1, [state2]);
+        var state3 = "zaz";
+        noamFsm.addState(automaton, state3);
+        noamFsm.addEpsilonTransition(automaton, state1, [state3]);
+        var targetStates = noamFsm.computeEpsilonClosure(automaton, [state1]);
+        expect(targetStates.length).toBe(3);
+        expect(noamUtil.contains(targetStates, state1)).toBeTruthy();
+        expect(noamUtil.contains(targetStates, state2)).toBeTruthy();
+        expect(noamUtil.contains(targetStates, state3)).toBeTruthy();
+      });
+
+      it("throws an Error if any of the states is not a state of the FSM", function() {
+        expect(function() { noamFsm.addEpsilonTransition(automaton, "zaz", [state2]); }).
+            toThrow(new Error("One of the specified objects is not a state of the FSM"));
+        expect(function() { noamFsm.addEpsilonTransition(automaton, state1, ["zaz"]); }).
+            toThrow(new Error("One of the specified objects is not a state of the FSM"));
+        expect(function() { noamFsm.addEpsilonTransition(automaton, state1, [state2, "zaz"]); }).
+            toThrow(new Error("One of the specified objects is not a state of the FSM"));
+      });
+    });
+
   });
 
   describe("Validate", function() {

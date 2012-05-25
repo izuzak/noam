@@ -230,6 +230,49 @@ noam.fsm.setInitialState = function(fsm, stateObj) {
   fsm.initialState = stateObj;
 };
 
+// Common implementation for addTransition and addEpsilonTransition.
+noam.fsm._addTransition = function(fsm, fromState, toStates, transitionSymbol) {
+  if (!noam.util.contains(fsm.states, fromState) || 
+      !noam.util.containsAll(fsm.states, toStates)) {
+    throw new Error("One of the specified objects is not a state of the FSM");
+  }
+
+  var i;
+  var added = false;
+  for (i=0; i<fsm.transitions.length; i++) {
+    if (noam.util.areEquivalent(fromState, fsm.transitions[i].fromState) &&
+        noam.util.areEquivalent(transitionSymbol, fsm.transitions[i].transitionSymbol)) {
+      fsm.transitions[i].toStates = noam.util.setUnion(fsm.transitions[i].toStates, toStates);
+      added = true;
+      break;
+    }
+  }
+  if (!added) {
+    fsm.transitions.push({fromState: fromState, toStates: toStates, symbol: transitionSymbol});
+  }
+};
+
+// Adds a transition from fromState to the set of states represented by the array
+// toStates, using transitionSymbol.
+// If a transition for this pair of (fromState, transitionSymbol) already exists,
+// toStates is added to the existing set of destination states.
+// Throws an Error if any of the states is not actually in the fsm or if the
+// transition symbol is not in the fsm's alphabeth.
+// Note that this means that an Error will be thrown if you try to use this to
+// specify an epsilon transition. For that, use addEpsilonTransition instead.
+noam.fsm.addTransition = function(fsm, fromState, toStates, transitionSymbol) {
+  if (!noam.util.contains(fsm.alphabet, transitionSymbol)) {
+    throw new Error("The specified object is not an alphabet symbol of the FSM");
+  }
+  noam.fsm._addTransition(fsm, fromState, toStates, transitionSymbol);
+};
+
+// Equivalent to addTransition except that there is no transition symbol, i.e. the
+// transition can be executed without consuming an input symbol.
+noam.fsm.addEpsilonTransition = function(fsm, fromState, toStates) {
+  noam.fsm._addTransition(fsm, fromState, toStates, noam.fsm.epsilonSymbol);
+};
+
 // end of FSM creation API
 
 // validates a FSM definition
