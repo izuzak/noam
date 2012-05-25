@@ -1,3 +1,6 @@
+// TODO: consider defining a custom exception matcher that would enable 
+// error differentiation but not at the cost of committing to a specific error message
+
 describe("FSM", function() {
   var noamFsm = require('../noam.js').fsm;
   var noamUtil = require('../noam.js').util;
@@ -63,11 +66,40 @@ describe("FSM", function() {
 
       it("throws an Error if the passed object is already a symbol of the automaton", function() {
         noamFsm.addSymbol(automaton, symObj);
-        expect(function() { noamFsm.addSymbol(automaton, symObj); }).toThrow(new Error("Symbol already exists"));
+        expect(function() { noamFsm.addSymbol(automaton, symObj); }).
+            toThrow(new Error("Symbol already exists"));
       });
 
       it("throws an Error if no symbol object is specified", function() {
-        expect(function() { noamFsm.addSymbol(automaton); }).toThrow(new Error("No symbol object specified"));
+        expect(function() { noamFsm.addSymbol(automaton); }).
+            toThrow(new Error("No symbol object specified"));
+      });
+    });
+
+    describe("addAcceptingState", function() {
+      var stateObj;
+      beforeEach(function() {
+        stateObj = "test";
+      });
+
+      it("makes the given state acceptable", function() {
+        noamFsm.addState(automaton, stateObj);
+        // TODO: leaky, fix by adding a predicate
+        expect(noamUtil.contains(automaton.acceptingStates, stateObj)).toBeFalsy();
+        noamFsm.addAcceptingState(automaton, stateObj);
+        expect(noamUtil.contains(automaton.acceptingStates, stateObj)).toBeTruthy();
+      });
+
+      it("throws an Error if the given state is not a state of the FSM", function() {
+        expect(function() { noamFsm.addAcceptingState(automaton, stateObj); }).
+            toThrow(new Error("The specified object is not a state of the FSM"));
+      });
+
+      it("throws an Error if the given state is already accepting", function() {
+        noamFsm.addState(automaton, stateObj);
+        noamFsm.addAcceptingState(automaton, stateObj);
+        expect(function() { noamFsm.addAcceptingState(automaton, stateObj); }).
+            toThrow(new Error("The specified state is already accepting"));
       });
     });
 

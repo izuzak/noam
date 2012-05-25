@@ -188,6 +188,14 @@ noam.fsm.addSymbol = function(fsm, symObj) {
       "No symbol object specified", "Symbol already exists");
 };
 
+noam.fsm.addAcceptingState = function(fsm, stateObj) {
+  if (!noam.util.contains(fsm.states, stateObj)) {
+    throw new Error("The specified object is not a state of the FSM");
+  }
+  noam.fsm._addStateOrSymbol(fsm.acceptingStates, stateObj, "", 
+      "The specified state is already accepting");
+};
+
 // end of FSM creation API
 
 // validates a FSM definition
