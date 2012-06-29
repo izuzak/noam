@@ -118,5 +118,17 @@ describe("UTIL", function() {
       expect(x).toEqual(y);
     });
   });
+
+  describe("makeCounter", function() {
+    it("counts up from the specified start value", function() {
+      var counter = noamUtil.makeCounter(0);
+      expect(counter.getAndAdvance()).toBe(0);
+      expect(counter.getAndAdvance()).toBe(1);
+      expect(counter.value).toBe(2);
+
+      var counter = noamUtil.makeCounter(5);
+      expect(counter.getAndAdvance()).toBe(5);
+    });
+  });
 });
 

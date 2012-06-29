@@ -162,6 +162,26 @@ noam.util.clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
 };
 
+
+// Returns an object that is basically an integer reference useful for counting
+// across multiple function calls. The current value can be accessed through the
+// value property.
+// See the noam.re.tree.toAutomaton function for a usage example.
+noam.util.makeCounter = (function() {
+  function getAndAdvance() {
+    return this.value++;
+  }
+
+  function makeCounter(init) {
+    return {
+      value: init,
+      getAndAdvance: getAndAdvance,
+    };
+  };
+
+  return makeCounter;
+})();
+
 // FSM creation API
 
 // Creates and returns an empty FSM that can then be manipulated through the other 
