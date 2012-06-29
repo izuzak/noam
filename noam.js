@@ -2006,6 +2006,102 @@ noam.re = (function() {
       return epsNode;
     }
 
+    function _altToAutomaton(regex, automaton, stateCounter) {
+      var l = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      var r = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      for (var i=0; i<regex.choices.length; i++) {
+        var statePair = _dispatch(regex.choices[i], automaton, stateCounter);
+        noam.fsm.addEpsilonTransition(automaton, l, [statePair[0]]);
+        noam.fsm.addEpsilonTransition(automaton, statePair[1], [r]);
+      }
+      return [l, r];
+    }
+
+    function _seqToAutomaton(regex, automaton, stateCounter) {
+      // Create the parts for the sequence elements and connect them via epsilon transitions.
+      var l, r, statePair;
+      for (var i=0; i<regex.elements.length; i++) {
+        statePair = _dispatch(regex.elements[i], automaton, stateCounter);
+        if (i === 0) { // this is the first element
+          l = statePair[0];
+        } else { // this is a later element that needs to be connected to the previous elements
+          noam.fsm.addEpsilonTransition(automaton, r, [statePair[0]]);
+        }
+        r = statePair[1];
+      }
+      return [l, r];
+    }
+
+    function _KStarToAutomaton(regex, automaton, stateCounter) {
+      // The $ sign in the following drawing represents an epsilon transition.
+      //
+      //    ----------------$>----------------
+      //   /                                  \
+      // |l|-$>-|ll|...(regex.expr)...|rr|-$>-|r|
+      //          \_________<$_________/
+      //
+      var l = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      var r = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      var inner = _dispatch(regex.expr, automaton, stateCounter);
+      var ll = inner[0];
+      var rr = inner[1];
+      noam.fsm.addEpsilonTransition(automaton, l, [r]); // zero times
+      noam.fsm.addEpsilonTransition(automaton, l, [ll]); // once or more times
+      noam.fsm.addEpsilonTransition(automaton, rr, [ll]); // repeat
+      noam.fsm.addEpsilonTransition(automaton, rr, [r]); // continue after one or more repetitions
+
+      return [l, r];
+    }
+
+    function _litToAutomaton(regex, automaton, stateCounter) {
+      // Generate the "left" and "right" states and connect them with the appropriate
+      // transition symbol.
+      var l = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      var r = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      try {
+        noam.fsm.addSymbol(automaton, regex.obj);
+      } catch (err) {
+        ; // addSymbol can throw if the symbol already exists - that's ok but
+          // would like to be able to avoid catching other exceptions
+          // TODO: use a custom exception class instead of Error
+      }
+      noam.fsm.addTransition(automaton, l, [r], regex.obj);
+      return [l, r];
+    }
+
+    function _epsToAutomaton(regex, automaton, stateCounter) {
+      // Generate the "left" and "right" states and connect them with an epsilon transition.
+      var l = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      var r = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      noam.fsm.addEpsilonTransition(automaton, l, [r]);
+      return [l, r];
+    }
+
+    var _toAutomatonFuns = {};
+    _toAutomatonFuns[tags.ALT] = _altToAutomaton;
+    _toAutomatonFuns[tags.SEQ] = _seqToAutomaton;
+    _toAutomatonFuns[tags.KSTAR] = _KStarToAutomaton;
+    _toAutomatonFuns[tags.LIT] = _litToAutomaton;
+    _toAutomatonFuns[tags.EPS] = _epsToAutomaton;
+
+    // Calls the appropriate *ToAutomaton function to handle the various kinds of regular expressions.
+    // @a stateCounter holds the number of the next state to be added to the automaton.
+    // Every *ToAutomaton function modifies @a automaton and returns a pair of states (as a two element array).
+    // The first state is the start state and the second state is the accepting state of the part of the
+    // automaton that accepts the language defined by @a regex.
+    function _dispatch(regex, automaton, stateCounter) {
+      return _toAutomatonFuns[regex.tag](regex, automaton, stateCounter);
+    }
+
+    // Returns the equivalent FSM for the specified regular expression in the tree representation.
+    function toAutomaton(regex) {
+      var automaton = noam.fsm.makeNew();
+      var statePair = _dispatch(regex, automaton, noam.util.makeCounter(0));
+      noam.fsm.setInitialState(automaton, statePair[0]);
+      noam.fsm.addAcceptingState(automaton, statePair[1]);
+      return automaton;
+    }
+
     return {
       tags: tags,
 
@@ -2014,6 +2110,8 @@ noam.re = (function() {
       makeKStar: makeKStar,
       makeLit: makeLit,
       makeEps: makeEps,
+
+      toAutomaton: toAutomaton,
     };
   })();
 
