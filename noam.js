@@ -329,6 +329,10 @@ noam.fsm.validate = function(fsm) {
     }
   }
 
+  if (noam.util.contains(fsm.alphabet, noam.fsm.epsilonSymbol)) {
+    return new Error('FSM alphabet must not contain the epsilon symbol');
+  }
+
   for (var i=0; i<fsm.alphabet.length; i++) {
     if (noam.util.contains(fsm.states, fsm.alphabet[i])) {
       return new Error('States and alphabet symbols must not overlap');
