@@ -5,6 +5,7 @@
 describe("FSM", function() {
   var noamFsm = require('../noam.js').fsm;
   var noamUtil = require('../noam.js').util;
+  var noamRe = require('../noam.js').re;
 
   describe("Constants", function() {
     it("DFA constant is valid", function() {
@@ -725,6 +726,23 @@ describe("FSM", function() {
     it("Works", function() {
       expect(noamFsm.transitionTrail(fsm1, "s1", ["a", "b"])).toEqual(
         [ [ 's1' ], [ 's2', 's4', 's5', 's1', 's3' ], [ 's3' ] ]);
+    });
+  });
+  
+  describe("dfatore", function() {
+    var fsm1 = {
+      states : ["1", "2"],
+      alphabet : ["a"],
+      initialState : "1",
+      acceptingStates : ["2"],
+      transitions : [
+        { fromState : "1", symbol : "a", toStates : ["2"] },
+        { fromState : "2", symbol : "a", toStates : ["2"] }
+      ]
+    }
+    
+    it("Works", function() {
+      expect(noamFsm.areEquivalentFSMs(fsm1, noamFsm.minimize(noamRe.tree.toAutomaton(noamFsm.toRegex(fsm1))))).toEqual(true);
     });
   });
 });

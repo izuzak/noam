@@ -1676,6 +1676,78 @@ noam.fsm.grammar = function(fsm) {
   return grammar;
 };
 
+noam.fsm.symbolsForTransitions = function(fsm, stateA, stateB) {
+  var res = [];
+  
+  for (var i=0; i<fsm.transitions.length; i++) {
+    var transition = fsm.transitions[i];
+    
+    if (noam.util.areEquivalent(transition.fromState, stateA) &&
+        noam.util.contains(transition.toStates, stateB)) {
+      res.push(transition.symbol)
+    }
+  }
+  
+  return res;
+};
+
+noam.fsm.toRegex = function(fsm) {
+  var r = [];
+  var n = fsm.states.length;
+  
+  for (var k=0; k<n+1; k++) {
+    r[k] = []
+    for (var i=0; i<n; i++) {
+      r[k][i] = []
+    }
+  }
+  
+  for (var i=0; i<n; i++) {
+    for (var j=0; j<n; j++) {
+      var symbols = noam.fsm.symbolsForTransitions(fsm, fsm.states[i], fsm.states[j]);
+      
+      for (var z=0; z<symbols.length; z++) {
+        symbols[z] = noam.re.tree.makeLit(symbols[z]);
+      }
+      
+      if (i === j) {
+        symbols.push(noam.re.tree.makeEps());
+      }
+      
+      r[0][i][j] = noam.re.tree.makeAlt(symbols);
+    }
+  }
+  
+  for (var k=1; k<n+1; k++) {
+    for (var i=0; i<n; i++) {
+      for (var j=0; j<n; j++) {
+        r[k][i][j] = noam.re.tree.makeAlt([r[k-1][i][j], noam.re.tree.makeSeq([r[k-1][i][k-1], noam.re.tree.makeKStar(r[k-1][k-1][k-1]), r[k-1][k-1][j]])])
+      }
+    }
+  }
+  
+  var startStateIndex = -1;
+  var acceptableStatesIndexes = []
+  
+  for (var i=0; i<fsm.states.length; i++) {
+    if (noam.util.areEquivalent(fsm.states[i], fsm.initialState)) {
+      startStateIndex = i;
+    }
+    
+    if (noam.util.contains(fsm.acceptingStates, fsm.states[i])) {
+      acceptableStatesIndexes.push(i);
+    }
+  }
+  
+  var elements = []
+  
+  for (var i=0; i<acceptableStatesIndexes.length; i++) {
+    elements.push(r[n][startStateIndex][acceptableStatesIndexes[i]])
+  }
+
+  return noam.re.tree.makeAlt(elements);
+};
+
 noam.grammar = {};
 
 noam.grammar.epsilonSymbol = '$';
