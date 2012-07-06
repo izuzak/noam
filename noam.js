@@ -1071,10 +1071,6 @@ noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet, maxNumToSta
 };
 
 noam.fsm.convertNfaToDfa = function(fsm) {
-  if (noam.fsm.determineType(fsm) !== noam.fsm.nfaType) {
-    return new Error('FSM must be NFA');
-  }
-
   var newFsm = {};
 
   newFsm.alphabet = noam.util.clone(fsm.alphabet);
@@ -2033,6 +2029,12 @@ noam.re = (function() {
         }
         r = statePair[1];
       }
+
+      if (l === undefined) { // empty language
+        l = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+        r = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
+      }
+
       return [l, r];
     }
 

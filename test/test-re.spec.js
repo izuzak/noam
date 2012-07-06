@@ -29,11 +29,23 @@ describe("regular expressions", function() {
       it("returns a tree representing the concatenation of the elements of its parameter", function() {
         expect(noamRe.tree.makeSeq([literal_a, literal_b]).tag).toEqual(noamRe.tree.tags.SEQ);
       });
+
+      it("represents the empty language if passed an empty array", function() {
+        var regex = noamRe.tree.makeSeq([]);
+        var automaton = noamRe.tree.toAutomaton(regex);
+        expect(noamFsm.isLanguageNonEmpty(automaton)).toBeFalsy();
+      });
     });
 
     describe("makeAlt", function() {
       it("returns a tree representing the choice between the elements of its parameter", function() {
         expect(noamRe.tree.makeAlt([literal_a, literal_b]).tag).toEqual(noamRe.tree.tags.ALT);
+      });
+
+      it("represents the empty language if passed an empty array", function() {
+        var regex = noamRe.tree.makeAlt([]);
+        var automaton = noamRe.tree.toAutomaton(regex);
+        expect(noamFsm.isLanguageNonEmpty(automaton)).toBeFalsy();
       });
     });
 
@@ -112,6 +124,11 @@ describe("regular expressions", function() {
         return noamFsm.isStringInLanguage(automaton, symbolArray);
       }
 
+      it("works for the empty language", function() {
+        var regexTree = noamRe.array.toTree([]);
+        var automaton = noamRe.tree.toAutomaton(regexTree);
+        expect(noamFsm.isLanguageNonEmpty(automaton)).toBeFalsy();
+      });
       it("works for epsilon", function() {
         expect(inRegexLanguage([specials.EPS], [])).toBeTruthy();
       });
