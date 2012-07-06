@@ -89,4 +89,66 @@ describe("regular expressions", function() {
 
   });
 
+  describe("array representation API", function() {
+    var specials = noamRe.array.specials; // shortcut
+
+    describe("specials", function() {
+      it("holds distinct constants for the alteration operator, the Kleene star," +
+         " parentheses and epsilon", function() {
+        expect(specials.ALT !== specials.KSTAR).toBeTruthy()
+        expect(specials.KSTAR !== specials.LEFT_PAREN).toBeTruthy()
+        expect(specials.LEFT_PAREN !== specials.RIGHT_PAREN).toBeTruthy()
+        expect(specials.RIGHT_PAREN !== specials.EPS).toBeTruthy()
+      });
+    });
+
+    describe("toTree", function() {
+      // Helper that converts the array representation to the tree representation
+      // using toTree and then tests if the @a symbolArray is in the specified
+      // language.
+      function inRegexLanguage(regexArray, symbolArray) {
+        var regexTree = noamRe.array.toTree(regexArray);
+        var automaton = noamRe.tree.toAutomaton(regexTree);
+        return noamFsm.isStringInLanguage(automaton, symbolArray);
+      }
+
+      it("works for epsilon", function() {
+        expect(inRegexLanguage([specials.EPS], [])).toBeTruthy();
+      });
+      it("works for a single literal", function() {
+        var regex = ["a"];
+        expect(inRegexLanguage(regex, [])).toBeFalsy();
+        expect(inRegexLanguage(regex, ["a"])).toBeTruthy();
+      });
+      it("works for a Kleene starred literal", function() {
+        var regex = ["a", specials.KSTAR];
+        expect(inRegexLanguage(regex, [])).toBeTruthy();
+        expect(inRegexLanguage(regex, ["a"])).toBeTruthy();
+        expect(inRegexLanguage(regex, ["a", "a"])).toBeTruthy();
+      });
+      it("works for concatenation", function() {
+        var regex = ["a", "b", "c"];
+        expect(inRegexLanguage(regex, [])).toBeFalsy();
+        expect(inRegexLanguage(regex, ["a"])).toBeFalsy();
+        expect(inRegexLanguage(regex, ["a", "b"])).toBeFalsy();
+        expect(inRegexLanguage(regex, ["a", "b", "c"])).toBeTruthy();
+      });
+      it("assigns operator priority to parentheses > Kleene star > concatenation > alteration", function() {
+        var regex = ["a", "b", specials.KSTAR, 
+            specials.ALT,
+            specials.LEFT_PAREN, "c", "d", specials.RIGHT_PAREN, specials.KSTAR]; // ab* + (cd)*
+        expect(inRegexLanguage(regex, [])).toBeTruthy();
+        expect(inRegexLanguage(regex, ["a"])).toBeTruthy();
+        expect(inRegexLanguage(regex, ["a", "b"])).toBeTruthy();
+        expect(inRegexLanguage(regex, ["a", "b", "b"])).toBeTruthy();
+        expect(inRegexLanguage(regex, ["a", "b", "a", "b"])).toBeFalsy();
+        expect(inRegexLanguage(regex, ["c"])).toBeFalsy();
+        expect(inRegexLanguage(regex, ["c", "d"])).toBeTruthy();
+        expect(inRegexLanguage(regex, ["c", "d", "d"])).toBeFalsy();
+        expect(inRegexLanguage(regex, ["c", "d", "c", "d"])).toBeTruthy();
+      });
+    });
+
+  });
+
 });

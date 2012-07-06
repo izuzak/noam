@@ -2119,7 +2119,132 @@ noam.re = (function() {
     };
   })();
 
+  /*
+   * A linear representation of regular expressions.
+   * Every symbol can be an arbitrary object.
+   *
+   * Regular expression operators, parentheses and epsilon must be represented using 
+   * the array.specials constants.
+   *
+   * Concatenation is implicit when there are no operators between two subexpressions.
+   * The default operator precedence is Kleene star > concatenation > alteration, and
+   * can be modified using parentheses.
+   */
+  var array = (function() {
+    // This is based on object identity, i.e. each of these constants will be different 
+    // from any other object that can be inserted into the regex array.
+    var specials = {
+      ALT: {},
+      KSTAR: {},
+      LEFT_PAREN: {},
+      RIGHT_PAREN: {},
+      EPS: {},
+    };
+
+    // The next three functions are used to make a convenient array wrapper
+    // used in the parsing code.
+    //
+    // This peek method relies on the fact that accessing "out of bounds"
+    // will return undefined.
+    function _peek() {
+      return this.arr[this.idx];
+    }
+    function _advance() {
+      ++this.idx;
+    }
+    function _makeInputSeq(arr) {
+      return {
+        arr: arr,
+        idx: 0,
+        peek: _peek,
+        advance: _advance,
+      };
+    }
+
+    // Returns the tree representation of the regex given by @a arr.
+    function toTree(arr) {
+      var input = _makeInputSeq(arr);
+      var result = _parseExpr(input);
+      
+      // should be at end of input
+      if (input.peek() !== undefined) {
+        throw new Error("Malformed regex array: successfully parsed up to position " + input.idx);
+      }
+      return result;
+    }
+
+    // <expr> ::= <concat> ("|" <concat>)*
+    function _parseExpr(input) {
+      var concats = [];
+      while (true) {
+        concats.push(_parseConcat(input));
+        if (input.peek() === specials.ALT) {
+          input.advance();
+        } else {
+          break;
+        }
+      }
+
+      return noam.re.tree.makeAlt(concats);
+    }
+
+    // <concat> ::= <katom>+
+    function _parseConcat(input) {
+      var katoms = [];
+      var katom;
+      while (true) {
+        katom = _parseKatom(input);
+        if (katom === undefined) {
+          break;
+        }
+        katoms.push(katom);
+      }
+      
+      return noam.re.tree.makeSeq(katoms);
+    }
+
+    // <katom> ::= <atom> ("*" | eps)
+    function _parseKatom(input) {
+      var atom = _parseAtom(input);
+      if (input.peek() === specials.KSTAR) {
+        input.advance();
+        atom = noam.re.tree.makeKStar(atom);
+      }
+      return atom;
+    }
+
+    // <atom> ::= "(" <expr> ")" | eps | symbol
+    function _parseAtom(input) {
+      if (input.peek() === specials.LEFT_PAREN) {
+        input.advance(); // skip the left parenthesis
+        var expr = _parseExpr(input);
+        if (input.peek() !== specials.RIGHT_PAREN) {
+          throw new Error("Malformed regex array: missing matching right parenthesis at index " + input.idx);
+        }
+        input.advance(); // skip the right parenthesis
+        return expr;
+      } else if (input.peek() === specials.EPS) {
+        input.advance();
+        return noam.re.tree.makeEps();
+      } else if (input.peek()===undefined || input.peek()===specials.ALT || 
+            input.peek()===specials.RIGHT_PAREN) {
+        return undefined; // this will stop the parsing of <concat>
+      } else {
+        var sym = noam.re.tree.makeLit(input.peek());
+        input.advance();
+        return sym;
+      }
+    }
+
+    return {
+      specials: specials,
+
+      toTree: toTree,
+    };
+  })();
+
   return {
     tree: tree,
+    array: array,
   };
 })();
