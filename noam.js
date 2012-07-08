@@ -2015,6 +2015,13 @@ noam.grammar.printAscii = function(grammar) {
  *
  * Parsed regular expressions are represented by a syntax tree. Tools for working with that 
  * representation are accessible through noam.re.tree.
+ *
+ * Two linear representations are also available and provide a convenient way to specify
+ * some languages, but are not composable like the tree representation. The array representation
+ * is available through noam.re.array and supports arbitrarily complex literals. If all the
+ * literals are characters, the string representation should be more convenient. It is 
+ * available through noam.re.string. These linear representations are only useful for specifying
+ * languages and should usually be converted to a tree representation or to an automaton immediately.
  */
 noam.re = (function() {
 
@@ -2317,8 +2324,94 @@ noam.re = (function() {
     };
   })();
 
+
+  /*
+   * A string representation of regular expressions.
+   *
+   * The alphabet is limited to string characters, i.e. every character in the string is an input
+   * symbol in the language except:
+   *    - the dollar symbol ($) which is used as epsilon, i.e. the empty string
+   *    - the plus character (+) which is used as the alteration operator
+   *    - the star character (*) which is used as the Kleene star
+   *    - parentheses which are used for grouping
+   *    - the backslash character (\) which is used for escaping the special meaning of all
+   *      the listed characters, including backslash itself; for example, the regex
+   *      "(a+b)*\\+" represents the language of all strings of as and bs ending in one 
+   *      plus character (notice that due to the fact that backslash also escapes in
+   *      JavaScript strings, we need two backslashes to get the two-character
+   *      sequence \+ that we want)
+   */
+  var string = (function() {
+
+    // Returns the array representation of the regex represented by @a str.
+    //
+    // Throws an Error if @a str contains illegal escape sequences.
+    function toArray(str) {
+      var arr = [];
+      var escaped = false;
+      var escapable = "$+*()\\";
+      var specials = noam.re.array.specials;
+      var chr;
+      for (var i=0; i<str.length; ++i) {
+        if (escaped) {
+          if (escapable.indexOf(str[i]) === -1) {
+            throw new Error("Malformed string regex: illegal escape sequence \\" + str[i]);
+          }
+          arr.push(str[i]); // the result of the escape sequence is the escaped character itself
+          escaped = false;
+        } else if (str[i] === '\\') {
+          escaped = true;
+        } else {
+          chr = str[i];
+          switch (chr) {
+            case "$": chr = specials.EPS; break;
+            case "+": chr = specials.ALT; break;
+            case "*": chr = specials.KSTAR; break;
+            case "(": chr = specials.LEFT_PAREN; break;
+            case ")": chr = specials.RIGHT_PAREN; break;
+          }
+          arr.push(chr);
+        }
+      }
+      if (escaped) {
+        throw new Error("Malformed string regex: unfinished escape sequence at end of string");
+      }
+
+      return arr;
+    }
+
+    // Returns the tree representation of the regex represented by @a str.
+    // 
+    // Semantically equivalent to first converting the @a str to the array
+    // representation via noam.re.string.toArray and then converting the
+    // result to a tree via noam.re.array.toTree.
+    function toTree(str) {
+      var arr = noam.re.string.toArray(str);
+      return noam.re.array.toTree(arr);
+    }
+
+    // Returns an FSM accepting the language of the regex represented by @a str.
+    // 
+    // Semantically equivalent to first converting the @a str to the array
+    // representation via noam.re.string.toArray, then converting the
+    // result to a tree via noam.re.array.toTree and finally converting the result
+    // of that to an automaton via noam.re.tree.toAutomaton.
+    function toAutomaton(str) {
+      var tree = noam.re.string.toTree(str);
+      return noam.re.tree.toAutomaton(tree);
+    }
+
+    return {
+      toArray: toArray,
+      toTree: toTree,
+      toAutomaton: toAutomaton,
+    };
+
+  })();
+
   return {
     tree: tree,
     array: array,
+    string: string,
   };
 })();
