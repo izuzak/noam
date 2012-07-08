@@ -745,4 +745,16 @@ describe("FSM", function() {
       expect(noamFsm.areEquivalentFSMs(fsm1, noamFsm.minimize(noamRe.tree.toAutomaton(noamFsm.toRegex(fsm1))))).toEqual(true);
     });
   });
+
+  describe("convertNfaToDfa", function() {
+    it("throws an Error if the passed automaton is an eNFA", function() {
+      var automaton = noamFsm.makeNew();
+      noamFsm.addState(automaton, "1");
+      noamFsm.addState(automaton, "2");
+      noamFsm.setInitialState(automaton, "1");
+      noamFsm.addAcceptingState(automaton, "2");
+      noamFsm.addEpsilonTransition(automaton, "1", ["2"]);
+      expect(function() { noamFsm.convertNfaToDfa(automaton); }).toThrow();
+    });
+  });
 });

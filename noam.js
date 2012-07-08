@@ -1071,6 +1071,15 @@ noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet, maxNumToSta
 };
 
 noam.fsm.convertNfaToDfa = function(fsm) {
+  var fsmType = noam.fsm.determineType(fsm);
+  if (fsmType === noam.fsm.enfaType) {
+    throw new Error('FSM must be an NFA');
+  }
+
+  if (fsmType === noam.fsm.dfaType) {
+    return fsm; // no need to convert it
+  }
+
   var newFsm = {};
 
   newFsm.alphabet = noam.util.clone(fsm.alphabet);
@@ -1173,7 +1182,7 @@ noam.fsm.convertNfaToDfa = function(fsm) {
 
 noam.fsm.convertEnfaToNfa = function(fsm) {
   if (noam.fsm.determineType(fsm) !== noam.fsm.enfaType) {
-    return new Error('FSM must be eNFA');
+    return fsm; // this is already an NFA (or a DFA which is also an NFA)
   }
 
   var newFsm = noam.util.clone(fsm);
