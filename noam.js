@@ -2263,6 +2263,15 @@ noam.re = (function() {
       return result;
     }
 
+    // Returns the automaton accepting the language represented by the regex @a arr.
+    //
+    // Semantically equivalent to first calling toTree on @a arr and then converting
+    // the result to an automaton via noam.re.tree.toAutomaton.
+    function toAutomaton(arr) {
+      var tree = noam.re.array.toTree(arr);
+      return noam.re.tree.toAutomaton(tree);
+    }
+
     // <expr> ::= <concat> ("|" <concat>)*
     function _parseExpr(input) {
       var concats = [];
@@ -2330,6 +2339,7 @@ noam.re = (function() {
       specials: specials,
 
       toTree: toTree,
+      toAutomaton: toAutomaton,
     };
   })();
 

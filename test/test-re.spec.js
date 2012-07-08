@@ -115,12 +115,23 @@ describe("regular expressions", function() {
     });
 
     describe("toTree", function() {
+      it("converts the regex to a tree that can then be manipulated", function() {
+        var a_or_b = noamRe.array.toTree(["a", specials.ALT, "b"]);
+        var a_or_b_star = noamRe.tree.makeKStar(a_or_b);
+        var automaton = noamRe.tree.toAutomaton(a_or_b_star);
+        expect(noamFsm.isStringInLanguage(automaton, [])).toBeTruthy();
+        expect(noamFsm.isStringInLanguage(automaton, ["a"])).toBeTruthy();
+        expect(noamFsm.isStringInLanguage(automaton, ["a", "b"])).toBeTruthy();
+        expect(noamFsm.isStringInLanguage(automaton, ["a", "b", "b"])).toBeTruthy();
+      });
+    });
+
+    describe("toAutomaton", function() {
       // Helper that converts the array representation to the tree representation
-      // using toTree and then tests if the @a symbolArray is in the specified
+      // using toAutomaton and then tests if the @a symbolArray is in the specified
       // language.
       function inRegexLanguage(regexArray, symbolArray) {
-        var regexTree = noamRe.array.toTree(regexArray);
-        var automaton = noamRe.tree.toAutomaton(regexTree);
+        var automaton = noamRe.array.toAutomaton(regexArray);
         return noamFsm.isStringInLanguage(automaton, symbolArray);
       }
 
@@ -129,20 +140,24 @@ describe("regular expressions", function() {
         var automaton = noamRe.tree.toAutomaton(regexTree);
         expect(noamFsm.isLanguageNonEmpty(automaton)).toBeFalsy();
       });
+
       it("works for epsilon", function() {
         expect(inRegexLanguage([specials.EPS], [])).toBeTruthy();
       });
+
       it("works for a single literal", function() {
         var regex = ["a"];
         expect(inRegexLanguage(regex, [])).toBeFalsy();
         expect(inRegexLanguage(regex, ["a"])).toBeTruthy();
       });
+
       it("works for a Kleene starred literal", function() {
         var regex = ["a", specials.KSTAR];
         expect(inRegexLanguage(regex, [])).toBeTruthy();
         expect(inRegexLanguage(regex, ["a"])).toBeTruthy();
         expect(inRegexLanguage(regex, ["a", "a"])).toBeTruthy();
       });
+
       it("works for concatenation", function() {
         var regex = ["a", "b", "c"];
         expect(inRegexLanguage(regex, [])).toBeFalsy();
@@ -150,6 +165,7 @@ describe("regular expressions", function() {
         expect(inRegexLanguage(regex, ["a", "b"])).toBeFalsy();
         expect(inRegexLanguage(regex, ["a", "b", "c"])).toBeTruthy();
       });
+
       it("assigns operator priority to parentheses > Kleene star > concatenation > alteration", function() {
         var regex = ["a", "b", specials.KSTAR, 
             specials.ALT,
@@ -164,6 +180,7 @@ describe("regular expressions", function() {
         expect(inRegexLanguage(regex, ["c", "d", "d"])).toBeFalsy();
         expect(inRegexLanguage(regex, ["c", "d", "c", "d"])).toBeTruthy();
       });
+
     });
 
   });
