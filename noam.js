@@ -2098,7 +2098,7 @@ noam.re = (function() {
       var l = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
       var r = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
       for (var i=0; i<regex.choices.length; i++) {
-        var statePair = _dispatch(regex.choices[i], automaton, stateCounter);
+        var statePair = _dispatchToAutomaton(regex.choices[i], automaton, stateCounter);
         noam.fsm.addEpsilonTransition(automaton, l, [statePair[0]]);
         noam.fsm.addEpsilonTransition(automaton, statePair[1], [r]);
       }
@@ -2109,7 +2109,7 @@ noam.re = (function() {
       // Create the parts for the sequence elements and connect them via epsilon transitions.
       var l, r, statePair;
       for (var i=0; i<regex.elements.length; i++) {
-        statePair = _dispatch(regex.elements[i], automaton, stateCounter);
+        statePair = _dispatchToAutomaton(regex.elements[i], automaton, stateCounter);
         if (i === 0) { // this is the first element
           l = statePair[0];
         } else { // this is a later element that needs to be connected to the previous elements
@@ -2136,7 +2136,7 @@ noam.re = (function() {
       //
       var l = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
       var r = noam.fsm.addState(automaton, stateCounter.getAndAdvance());
-      var inner = _dispatch(regex.expr, automaton, stateCounter);
+      var inner = _dispatchToAutomaton(regex.expr, automaton, stateCounter);
       var ll = inner[0];
       var rr = inner[1];
       noam.fsm.addEpsilonTransition(automaton, l, [r]); // zero times
@@ -2183,17 +2183,119 @@ noam.re = (function() {
     // Every *ToAutomaton function modifies @a automaton and returns a pair of states (as a two element array).
     // The first state is the start state and the second state is the accepting state of the part of the
     // automaton that accepts the language defined by @a regex.
-    function _dispatch(regex, automaton, stateCounter) {
+    function _dispatchToAutomaton(regex, automaton, stateCounter) {
       return _toAutomatonFuns[regex.tag](regex, automaton, stateCounter);
     }
 
     // Returns the equivalent FSM for the specified regular expression in the tree representation.
     function toAutomaton(regex) {
       var automaton = noam.fsm.makeNew();
-      var statePair = _dispatch(regex, automaton, noam.util.makeCounter(0));
+      var statePair = _dispatchToAutomaton(regex, automaton, noam.util.makeCounter(0));
       noam.fsm.setInitialState(automaton, statePair[0]);
       noam.fsm.addAcceptingState(automaton, statePair[1]);
       return automaton;
+    }
+
+
+    // "Operator" precedence lookup. This is used when determining if we need to 
+    // insert parentheses to preserve the meaning of the regex when converting from
+    // the tree representation to the array representation.
+    var _prec = {};
+    _prec[tags.ALT] = 0;
+    _prec[tags.SEQ] = 1;
+    _prec[tags.KSTAR] = 2;
+    // these two are not operators, but it's convenient to assign them a precedence
+    // for uniformity... since they are just atoms (i.e. can't be "regrouped"), their
+    // precedence is higher than all the operators
+    _prec[tags.LIT] = 3;
+    _prec[tags.EPS] = 3;
+
+    // Returns true if parantheses are needed around the child expression 
+    // when it is embedded into the parent expression, false otherwise.
+    function _needParens(par, child) {
+      return _prec[par.tag] >= _prec[child.tag];
+    }
+
+    // Add child to the array representation, and surround it with parentheses
+    // if necessary.
+    function _optParenToArray(par, child, arr) {
+      var parens = _needParens(par, child);
+      if (parens) {
+          arr.push(noam.re.array.specials.LEFT_PAREN);
+      }
+      _dispatchToArray(child, arr);
+      if (parens) {
+          arr.push(noam.re.array.specials.RIGHT_PAREN);
+      }
+    }
+
+    // Common implementation for _altToArray and _seqToArray.
+    function _binOpToArray(regex, arr, parts, operand) {
+      for (var i=0; i<parts.length; i++) {
+        if (operand!==undefined && i>0) {
+          arr.push(operand);
+        }
+        _optParenToArray(regex, parts[i], arr);
+      }
+    }
+
+    function _altToArray(regex, arr) {
+      _binOpToArray(regex, arr, regex.choices, noam.re.array.specials.ALT);
+    }
+
+    function _seqToArray(regex, arr) {
+      _binOpToArray(regex, arr, regex.elements);
+    }
+
+    function _KStarToArray(regex, arr) {
+      _optParenToArray(regex, regex.expr, arr);
+      arr.push(noam.re.array.specials.KSTAR);
+    }
+
+    function _litToArray(regex, arr) {
+      arr.push(regex.obj);
+    }
+
+    function _epsToArray(regex, arr) {
+      arr.push(noam.re.array.specials.EPS);
+    }
+
+    var _toArrayFuns = {};
+    _toArrayFuns[tags.ALT] = _altToArray;
+    _toArrayFuns[tags.SEQ] = _seqToArray;
+    _toArrayFuns[tags.KSTAR] = _KStarToArray;
+    _toArrayFuns[tags.LIT] = _litToArray;
+    _toArrayFuns[tags.EPS] = _epsToArray;
+
+    // Calls the appropriate *ToArray function to handle the various kinds of regular expressions.
+    // @a arr acts as an accumulator for all *ToArray functions.
+    function _dispatchToArray(regex, arr) {
+      return _toArrayFuns[regex.tag](regex, arr);
+    }
+
+    // Returns the array representation (i.e. noam.re.array) of @a regex which must
+    // be in the tree (i.e. noam.re.tree) representation.
+    // Parentheses are inserted into the array to preserve the meaning of the
+    // regex. However, this does not really lead to minimal parenthesization because
+    // it doesn't consider any rewriting rules. More specifically, if there were 
+    // parentheses that modify associativity of alteration or sequencing in the 
+    // original regex that was parsed into this tree, they will be preserved 
+    // even though they are not necessary.
+    function toArray(regex) {
+      var arr = [];
+      _dispatchToArray(regex, arr);
+      return arr;
+    }
+
+    // Returns the string representation of @a regex which must be in the tree
+    // (i.e. noam.re.tree) representation. This is not always possible, so 
+    // this function throws when the regex contains some symbols which are not
+    // single-character strings.
+    //
+    // Semantically equivalent to first calling toArray and then calling
+    // noam.re.array.toString on the result.
+    function toString(regex) {
+      return noam.re.array.toString(toArray(regex));
     }
 
     return {
@@ -2206,6 +2308,8 @@ noam.re = (function() {
       makeEps: makeEps,
 
       toAutomaton: toAutomaton,
+      toArray: toArray,
+      toString: toString,
     };
   })();
 
@@ -2261,6 +2365,70 @@ noam.re = (function() {
         throw new Error("Malformed regex array: successfully parsed up to position " + input.idx);
       }
       return result;
+    }
+
+    // Returns the replacement string for objects in noam.re.array.specials or
+    // undefined if @a obj doesn't match any of them.
+    function _replacementStr(obj) {
+      // This can't be done with a dict because objects are not hashable...
+      if (obj === specials.ALT) {
+        return "+";
+      } else if (obj === specials.KSTAR) {
+        return "*";
+      } else if (obj === specials.LEFT_PAREN) {
+        return "(";
+      } else if (obj === specials.RIGHT_PAREN) {
+        return ")";
+      } else if (obj === specials.EPS) {
+        return "$";
+      } else {
+        return undefined;
+      }
+    }
+
+    // If @a chr is one of the escapable characters
+    // in the string representation (i.e. element of noam.re.string.escapable),
+    // returns it prefixed by a backslash (i.e. escaped).
+    // Otherwise returns chr unchanged.
+    function _escape(chr) {
+      var escapable = noam.re.string.escapable;
+      for (var i=0; i<escapable.length; i++) {
+        if (chr === escapable[i]) {
+          return "\\" + chr;
+        }
+      }
+      return chr;
+    }
+
+    // Returns the string representation of the regex given by @a arr.
+    // 
+    // Throws if the regex contains any symbols which are not one-character strings
+    // and special symbols from noam.re.array.specials.
+    function toString(arr) {
+      var res = [];
+      var elem;
+      var failed = false;
+      for (var i=0; i<arr.length; i++) {
+        elem = arr[i];
+        if (typeof(elem) === "string") {
+          if (elem.length !== 1) {
+            failed = true;
+          } else {
+            elem = _escape(elem);
+          }
+        } else {
+          elem = _replacementStr(elem);
+          if (elem === undefined) {
+            failed = true;
+          }
+        }
+        if (failed) {
+          throw new Error("Array regex not convertible to string representation:" +
+              " failed at position " + i);
+        }
+        res.push(elem);
+      }
+      return res.join("");
     }
 
     // Returns the automaton accepting the language represented by the regex @a arr.
@@ -2339,6 +2507,7 @@ noam.re = (function() {
       specials: specials,
 
       toTree: toTree,
+      toString: toString,
       toAutomaton: toAutomaton,
     };
   })();
@@ -2362,13 +2531,14 @@ noam.re = (function() {
    */
   var string = (function() {
 
+    var escapable = "$+*()\\";
+
     // Returns the array representation of the regex represented by @a str.
     //
     // Throws an Error if @a str contains illegal escape sequences.
     function toArray(str) {
       var arr = [];
       var escaped = false;
-      var escapable = "$+*()\\";
       var specials = noam.re.array.specials;
       var chr;
       for (var i=0; i<str.length; ++i) {
@@ -2421,6 +2591,8 @@ noam.re = (function() {
     }
 
     return {
+      escapable: escapable, 
+
       toArray: toArray,
       toTree: toTree,
       toAutomaton: toAutomaton,

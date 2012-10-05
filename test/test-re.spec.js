@@ -6,6 +6,9 @@ describe("regular expressions", function() {
 
     var literal_a = noamRe.tree.makeLit("a");
     var literal_b = noamRe.tree.makeLit("b");
+    var a_or_b = noamRe.tree.makeAlt([literal_a, literal_b]);
+    var a_or_b_star = noamRe.tree.makeKStar(a_or_b);
+    var a_before_a_or_b_star = noamRe.tree.makeSeq([literal_a, a_or_b_star]);
 
     describe("makeEps", function() {
       it("returns a tree representing the empty string expression", function() {
@@ -59,7 +62,6 @@ describe("regular expressions", function() {
       });
 
       it("handles alteration in the regular expression", function() {
-        var a_or_b = noamRe.tree.makeAlt([literal_a, literal_b]);
         var automaton = noamRe.tree.toAutomaton(a_or_b);
         expect(noamFsm.isStringInLanguage(automaton, [])).toBeFalsy();
         expect(noamFsm.isStringInLanguage(automaton, ["a"])).toBeTruthy();
@@ -87,15 +89,93 @@ describe("regular expressions", function() {
       });
 
       it("handles any combination of the above", function() {
-        var a_or_b = noamRe.tree.makeAlt([literal_a, literal_b]);
-        var a_or_b_star = noamRe.tree.makeKStar(a_or_b);
-        var a_before_a_or_b_star = noamRe.tree.makeSeq([literal_a, a_or_b_star]);
         var automaton = noamRe.tree.toAutomaton(a_before_a_or_b_star);
         expect(noamFsm.isStringInLanguage(automaton, ["a"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "b"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "a"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "a", "b", "a"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["b", "a", "b", "a"])).toBeFalsy();
+      });
+    });
+
+    describe("toArray", function() {
+      it("converts from the tree representation to the array representation", function() {
+        var arr;
+        arr = noamRe.tree.toArray(noamRe.tree.makeEps());
+        expect(arr.length === 1);
+        expect(arr[0] === noamRe.array.specials.EPS);
+
+        arr = noamRe.tree.toArray(literal_a);
+        expect(arr.length === 1);
+        expect(arr[0] === "a");
+
+        arr = noamRe.tree.toArray(a_or_b);
+        expect(arr.length === 3);
+        expect(arr[0] === "a");
+        expect(arr[1] === noamRe.array.specials.ALT);
+        expect(arr[2] === "b");
+
+        arr = noamRe.tree.toArray(noamRe.tree.makeSeq([literal_a, literal_b]));
+        expect(arr.length === 2);
+        expect(arr[0] === "a");
+        expect(arr[1] === "b");
+
+        arr = noamRe.tree.toArray(noamRe.tree.makeKStar(literal_a));
+        expect(arr.length === 2);
+        expect(arr[0] === "a");
+        expect(arr[1] === noamRe.array.specials.KSTAR);
+      });
+
+      it("adds perentheses when necessary", function() {
+        var arr;
+        // (a+b)*
+        arr = noamRe.tree.toArray(a_or_b_star);
+        expect(arr.length === 6);
+        expect(arr[0] === noamRe.array.specials.LEFT_PAREN);
+        expect(arr[1] === "a");
+        expect(arr[2] === noamRe.array.specials.ALT);
+        expect(arr[3] === "b");
+        expect(arr[4] === noamRe.array.specials.RIGHT_PAREN);
+        expect(arr[5] === noamRe.array.specials.KSTAR);
+
+        // a(a+b)*
+        arr = noamRe.tree.toArray(a_before_a_or_b_star);
+        expect(arr.length === 7);
+        expect(arr[0] === "a");
+
+        // (a+b)b
+        arr = noamRe.tree.toArray(noamRe.tree.makeSeq([a_or_b, literal_b]));
+        expect(arr.length == 5);
+        expect(arr[0] === noamRe.array.specials.LEFT_PAREN);
+        expect(arr[1] === "a");
+        expect(arr[2] === noamRe.array.specials.ALT);
+        expect(arr[3] === "b");
+        expect(arr[4] === noamRe.array.specials.RIGHT_PAREN);
+        expect(arr[5] === "b");
+
+        // ab+b
+        arr = noamRe.tree.toArray(noamRe.tree.makeAlt([
+            noamRe.tree.makeSeq([literal_a, literal_b]),
+            literal_b]));
+        expect(arr.length == 4);
+        expect(arr[0] === "a");
+        expect(arr[2] === "b");
+        expect(arr[3] === noamRe.array.specials.ALT);
+        expect(arr[4] === "b");
+      });
+
+      it("preserves parentheses that ignore associativity", function() {
+        var arr;
+        // (a+b)+b
+        arr = noamRe.tree.toArray(noamRe.tree.makeAlt([a_or_b, literal_b]));
+        expect(arr.length === 7);
+        expect(arr[0] === noamRe.array.specials.LEFT_PAREN);
+        expect(arr[1] === "a");
+        expect(arr[2] === noamRe.array.specials.ALT);
+        expect(arr[3] === "b");
+        expect(arr[4] === noamRe.array.specials.RIGHT_PAREN);
+        expect(arr[5] === noamRe.array.specials.ALT);
+        expect(arr[6] === "b");
       });
     });
 
@@ -123,6 +203,30 @@ describe("regular expressions", function() {
         expect(noamFsm.isStringInLanguage(automaton, ["a"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "b"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "b", "b"])).toBeTruthy();
+      });
+    });
+
+    describe("toString", function() {
+      it("converts the regex to a string representation if all the symbols are" +
+          " single character strings", function() {
+        expect(noamRe.array.toString(["a"]) === "a");
+        expect(noamRe.array.toString(["a", "b"]) === "ab");
+        expect(noamRe.array.toString(["a", specials.ALT, "b"]) === "a+b");
+        expect(noamRe.array.toString(["a", specials.KSTAR]) === "a*");
+        expect(noamRe.array.toString([specials.LEFT_PAREN, "a",
+            specials.RIGHT_PAREN]) === "(a)");
+      });
+
+      it("throws if the array contains other kinds of symbols", function() {
+        expect(function() { noamRe.array.toString(["a", "b", "ab"]); }).toThrow();
+        expect(function() { noamRe.array.toString(["a", {}, "b"]); }).toThrow();
+        expect(function() { noamRe.array.toString(["a", [1, 2], "b"]); }).toThrow();
+        expect(function() { noamRe.array.toString(["a", 3]); }).toThrow();
+        expect(function() { noamRe.array.toString([1, "b"]); }).toThrow();
+      });
+
+      it("escapes operator characters in string notation", function() {
+        expect(noamRe.array.toString(["(", "+", "$", ")", "\\"]) === "\\(\\+\\$\\)\\\\");
       });
     });
 
