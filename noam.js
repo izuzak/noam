@@ -182,6 +182,13 @@ noam.util.makeCounter = (function() {
   return makeCounter;
 })();
 
+
+// Returns a random integer from the interval [from, to].
+noam.util.randint = function(from, to) {
+  return Math.floor(Math.random()*(to-from+1)) + from;
+}
+
+
 // FSM creation API
 
 // Creates and returns an empty FSM that can then be manipulated through the other 
