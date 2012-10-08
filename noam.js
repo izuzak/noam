@@ -344,51 +344,51 @@
         Array.isArray(fsm.acceptingStates) &&
         typeof fsm.initialState !== 'undefined' && fsm.initialState !== null &&
         Array.isArray(fsm.transitions))) {
-      return new Error('FSM must be defined and have states, alphabet, acceptingStates, initialState and transitions array properties!');
+      throw new Error('FSM must be defined and have states, alphabet, acceptingStates, initialState and transitions array properties!');
     }
 
     if (fsm.states.length < 1) {
-      return new Error('Set of states must not be empty.');
+      throw new Error('Set of states must not be empty.');
     }
 
     for (var i=0; i<fsm.states.length; i++) {
       if (noam.util.contains(fsm.states, fsm.states[i], i+1)) {
-        return new Error('Equivalent states');
+        throw new Error('Equivalent states');
       }
     }
 
     if (fsm.alphabet.length < 1) {
-      return new Error('Alphabet must not be empty.');
+      throw new Error('Alphabet must not be empty.');
     }
 
     for (var i=0; i<fsm.alphabet.length; i++) {
       if (noam.util.contains(fsm.alphabet, fsm.alphabet[i], i+1)) {
-        return new Error('Equivalent alphabet symbols');
+        throw new Error('Equivalent alphabet symbols');
       }
     }
 
     if (noam.util.contains(fsm.alphabet, noam.fsm.epsilonSymbol)) {
-      return new Error('FSM alphabet must not contain the epsilon symbol');
+      throw new Error('FSM alphabet must not contain the epsilon symbol');
     }
 
     for (var i=0; i<fsm.alphabet.length; i++) {
       if (noam.util.contains(fsm.states, fsm.alphabet[i])) {
-        return new Error('States and alphabet symbols must not overlap');
+        throw new Error('States and alphabet symbols must not overlap');
       }
     }
 
     for (var i=0; i<fsm.acceptingStates.length; i++) {
       if (noam.util.contains(fsm.acceptingStates, fsm.acceptingStates[i], i+1)) {
-        return new Error('Equivalent acceptingStates');
+        throw new Error('Equivalent acceptingStates');
       }
 
       if (!(noam.util.contains(fsm.states, fsm.acceptingStates[i]))) {
-        return new Error('Each accepting state must be in states');
+        throw new Error('Each accepting state must be in states');
       }
     }
 
     if (!(noam.util.contains(fsm.states, fsm.initialState))) {
-      return new Error('Initial state must be in states');
+      throw new Error('Initial state must be in states');
     }
 
     for (var i=0; i<fsm.transitions.length; i++) {
@@ -397,25 +397,25 @@
       if (typeof transition.fromState === 'undefined' ||
           typeof transition.toStates === 'undefined' ||
           typeof transition.symbol === 'undefined') {
-        return new Error('Transitions must have fromState, toState and symbol');
+        throw new Error('Transitions must have fromState, toState and symbol');
       }
 
       if (!(noam.util.contains(fsm.states, transition.fromState))) {
-        return new Error('Transition fromState must be in states.');
+        throw new Error('Transition fromState must be in states.');
       }
 
       if (!(noam.util.contains(fsm.alphabet, transition.symbol)) && 
           transition.symbol !== noam.fsm.epsilonSymbol) {
-        return new Error('Transition symbol must be in alphabet.');
+        throw new Error('Transition symbol must be in alphabet.');
       }
 
       for (var k=0; k<transition.toStates.length; k++) {
         if (!(noam.util.contains(fsm.states, transition.toStates[k]))) {
-          return new Error('Transition toStates must be in states.');
+          throw new Error('Transition toStates must be in states.');
         }
 
         if (noam.util.contains(transition.toStates, transition.toStates[k], k+1)) {
-          return new Error('Transition toStates must not contain duplicates.');
+          throw new Error('Transition toStates must not contain duplicates.');
         }
       }
     }
@@ -424,7 +424,7 @@
       for (var j=i+1; j<fsm.transitions.length; j++) {
         if (fsm.transitions[i].fromState === fsm.transitions[j].fromState &&
             fsm.transitions[i].symbol === fsm.transitions[j].symbol) {
-          return new Error('Transitions for the same fromState and symbol must be defined in a single trainsition.');
+          throw new Error('Transitions for the same fromState and symbol must be defined in a single trainsition.');
         }
       }
     }
@@ -465,7 +465,7 @@
   // computes epsilon closure of fsm from states array states
   noam.fsm.computeEpsilonClosure = function(fsm, states) {
     if (!(noam.util.containsAll(fsm.states, states))) {
-      return new Error('FSM must contain all states for which epsilon closure is being computed');
+      throw new Error('FSM must contain all states for which epsilon closure is being computed');
     }
 
     var unprocessedStates = states
@@ -498,11 +498,11 @@
   // determines the target states from reading symbol at states array states
   noam.fsm.makeSimpleTransition = function(fsm, states, symbol) {
     if (!(noam.util.containsAll(fsm.states, states))) {
-      return new Error('FSM must contain all states for which the transition is being computed');
+      throw new Error('FSM must contain all states for which the transition is being computed');
     }
 
     if (!(noam.util.contains(fsm.alphabet, symbol))) {
-      return new Error('FSM must contain input symbol for which the transition is being computed');
+      throw new Error('FSM must contain input symbol for which the transition is being computed');
     }
 
     var targetStates = [];
@@ -529,11 +529,11 @@
   //   c) computing the epsilon closure of resulting states of b)
   noam.fsm.makeTransition = function(fsm, states, symbol) {
     if (!(noam.util.containsAll(fsm.states, states))) {
-      return new Error('FSM must contain all states for which the transition is being computed');
+      throw new Error('FSM must contain all states for which the transition is being computed');
     }
 
     if (!(noam.util.contains(fsm.alphabet, symbol))) {
-      return new Error('FSM must contain input symbol for which the transition is being computed');
+      throw new Error('FSM must contain input symbol for which the transition is being computed');
     }
 
     var targetStates = noam.util.clone(states);
@@ -548,7 +548,7 @@
   // read a stream of input symbols and determine target states
   noam.fsm.readString = function(fsm, inputSymbolStream) {
     if (!(noam.util.containsAll(fsm.alphabet, inputSymbolStream))) {
-      return new Error('FSM must contain all symbols for which the transition is being computed');
+      throw new Error('FSM must contain all symbols for which the transition is being computed');
     }
 
     var states = noam.fsm.computeEpsilonClosure(fsm, [fsm.initialState]);
@@ -564,7 +564,7 @@
   // states that were on the transition path
   noam.fsm.transitionTrail = function(fsm, state, inputSymbolStream) {
     if (!(noam.util.containsAll(fsm.alphabet, inputSymbolStream))) {
-      return new Error('FSM must contain all symbols for which the transition is being computed');
+      throw new Error('FSM must contain all symbols for which the transition is being computed');
     }
 
     var states = [state];
@@ -877,17 +877,17 @@
   noam.fsm.areEquivalentStates = function(fsmA, stateA, fsmB, stateB) {
     if (noam.fsm.determineType(fsmA) !== noam.fsm.dfaType ||
         noam.fsm.determineType(fsmB) !== noam.fsm.dfaType) {
-      return new Error('FSMs must be DFAs');
+      throw new Error('FSMs must be DFAs');
     }
 
     if (fsmA.alphabet.length !== fsmB.alphabet.length ||
         !(noam.util.containsAll(fsmA.alphabet, fsmB.alphabet))) {
-      return new Error('FSM alphabets must be the same');
+      throw new Error('FSM alphabets must be the same');
     }
 
     if (!(noam.util.contains(fsmA.states, stateA)) ||
         !(noam.util.contains(fsmB.states, stateB))) {
-      return new Error('FSMs must contain states');
+      throw new Error('FSMs must contain states');
     }
 
     function doBothStatesHaveSameAcceptance(fsmX, stateX, fsmY, stateY) {
@@ -934,7 +934,7 @@
   // finds and removes equivalent states
   noam.fsm.removeEquivalentStates = function(fsm) {
     if (noam.fsm.determineType(fsm) !== noam.fsm.dfaType) {
-      return new Error('FSM must be DFA');
+      throw new Error('FSM must be DFA');
     }
 
     var equivalentPairs = [];
@@ -1810,78 +1810,78 @@
         Array.isArray(grammar.terminals) &&
         typeof grammar.initialNonterminal !== 'undefined' && grammar.initialNonterminal !== null &&
         Array.isArray(grammar.productions))) {
-      return new Error('Grammar must be defined and have nonterminals, terminals, initialNonterminal and productions array properties!');
+      throw new Error('Grammar must be defined and have nonterminals, terminals, initialNonterminal and productions array properties!');
     }
 
     if (grammar.nonterminals.length < 1) {
-      return new Error('Set of nonterminals must not be empty.');
+      throw new Error('Set of nonterminals must not be empty.');
     }
 
     if (grammar.terminals.length < 1) {
-      return new Error('Set of terminals must not be empty.');
+      throw new Error('Set of terminals must not be empty.');
     }
 
     for (var i=0; i<grammar.nonterminals.length; i++) {
       if (noam.util.contains(grammar.nonterminals, grammar.nonterminals[i], i+1)) {
-        return new Error('Equivalent nonterminals');
+        throw new Error('Equivalent nonterminals');
       }
     }
 
     for (var i=0; i<grammar.terminals.length; i++) {
       if (noam.util.contains(grammar.terminals, grammar.terminals[i], i+1)) {
-        return new Error('Equivalent terminals');
+        throw new Error('Equivalent terminals');
       }
     }
 
     for (var i=0; i<grammar.terminals.length; i++) {
       if (noam.util.contains(grammar.nonterminals, grammar.terminals[i])) {
-        return new Error('Terminals and nonterminals must not overlap');
+        throw new Error('Terminals and nonterminals must not overlap');
       }
     }
 
     if (!(noam.util.contains(grammar.nonterminals, grammar.initialNonterminal))) {
-      return new Error('InitialNonterminal must be in nonterminals');
+      throw new Error('InitialNonterminal must be in nonterminals');
     }
 
     for (var i=0; i<grammar.productions.length; i++) {
       var production = grammar.productions[i];
 
       if (!(Array.isArray(production.left))) {
-        return new Error('Left side of production must be an array');
+        throw new Error('Left side of production must be an array');
       }
 
       if (production.left.length === 0) {
-        return new Error('Left side of production must have at least one terminal or nonterminal');
+        throw new Error('Left side of production must have at least one terminal or nonterminal');
       }
 
       for (var j=0; j<production.left.length; j++) {
         if (!(noam.util.contains(grammar.nonterminals, production.left[j])) &&
             !(noam.util.contains(grammar.terminals, production.left[j]))) {
-          return new Error('Left side of production must be in nonterminals or terminals');
+          throw new Error('Left side of production must be in nonterminals or terminals');
         }
       }
 
       if (!(Array.isArray(production.right))) {
-        return new Error('Right side of production must be an array');
+        throw new Error('Right side of production must be an array');
       }
 
       if (production.right.length === 1 && production.right[0] === noam.grammar.epsilonSymbol) {
         ;
       } else {
         if (production.right.length === 0) {
-          return new Error('Right side of production must have at least one terminal or nonterminal or epsilon symbol');
+          throw new Error('Right side of production must have at least one terminal or nonterminal or epsilon symbol');
         }
 
         for (var j=0; j<production.right.length; j++) {
           if (!(noam.util.contains(grammar.nonterminals, production.right[j])) &&
               !(noam.util.contains(grammar.terminals, production.right[j]))) {
-            return new Error('Right side of production must be in nonterminals or terminals');
+            throw new Error('Right side of production must be in nonterminals or terminals');
           }
         }
       }
 
       if (noam.util.contains(grammar.productions, production, i+1)) {
-        return new Error('Grammar must not have duplicate productions');
+        throw new Error('Grammar must not have duplicate productions');
       }
     }
 
