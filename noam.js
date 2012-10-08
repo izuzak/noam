@@ -1,4 +1,3 @@
-var noam = {};
 /*
  * noam - JavaScript library for working with automata and grammars for 
           regular and context-free languages . https://github.com/izuzak/noam
@@ -18,11 +17,7 @@ var noam = {};
  * limitations under the License.
  */
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-  module.exports = noam;
-} else {
-  window.noam = noam;
-}
+var noam = {};
 
 noam.fsm = {};
 noam.util = {};
@@ -2711,3 +2706,20 @@ noam.re = (function() {
     string: string,
   };
 })();
+
+/*
+ * Expose the module to the 'world' when loaded via CommonJS/NodeJS, 
+ * AMD and <script> tags.
+ */
+
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = noam; // CommonJS + nodeJS
+}
+
+if (typeof define === "function" && define.amd) {
+  define('noam', [], function () { return noam; } ); // AMD
+}
+
+if (typeof window !== 'undefined') {
+  window.noam = noam;  // <script>
+}
