@@ -234,7 +234,7 @@
     };
   };
 
-  // Common internal implementation for addStata and addSymbol.
+  // Common internal implementation for addState and addSymbol.
   noam.fsm._addStateOrSymbol = function(arr, obj, undefErrorMsg, existsErrorMsg) {
     // need to check this because undefined would otherwise be added as a state
     // or symbol which is probably not what you want
