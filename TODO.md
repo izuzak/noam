@@ -6,6 +6,30 @@
 * regex minimization
 * add Moore and Mealy machine support + minimization and Moore<->Mealy transformation functions
 * add push-down automata support + transformation to CFG functions
+* grammar-related functions: 
+  * printHtml
+  * isRegular (not possible in general, http://members.fortunecity.com/boroday/Automatatools.html)
+  * removeDeadSymbols 
+  * removeUnreachableSymbols
+  * removeUselessSymbols
+  * removeEpsilonProductions
+  * removeUnitProductions
+  * chomskyForm 
+  * greibachForm
+  * tofsm 
+  * llgToRlg 
+  * rlgToLlg 
+  * isAmbiguous (not possible in general)
+  * reverse
+  * isGenerativeTreeValidForGrammar
+  * topda
+  * generativeTree for string
+  * union
+  * concatenation
+  * kleene
+  * parseBnf
+  * parseAbnf
+  * parseEbnf
 
 ## Refactoring and documentation
 
@@ -28,5 +52,10 @@
   * composing languages
   * editing + instant refresh capability
   * console-based
+* find a usable client-side FSM graphing library, ideally a JS port of graphviz (http://www.graphviz.org/)
+  * Google Chart API - http://code.google.com/apis/chart/image/docs/gallery/graphviz.html
+  * liviz - http://ushiroad.com/jsviz/, https://github.com/gyuque/livizjs
+  * graphviz.js - https://github.com/bpartridge/graphviz.js
+  * viz.js - https://github.com/mdaines/viz.js
 * develop webapp for step-by-step simulation of the operation of FSMs and grammars
 * develop examples for FSMs, grammars and regular expressions
