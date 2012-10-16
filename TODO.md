@@ -59,5 +59,10 @@
   * composing languages
   * editing + instant refresh capability
   * console-based
+* playground app
+  * stretch UI over whole window (remove fuzzy border)
+  * put graph rendering into background worker + re-render only when typing stops for 1-2s
+  * image export for graphs
+  * develop simple language for defining FSMs
 * develop webapp for step-by-step simulation of the operation of FSMs and grammars
 * develop examples for FSMs, grammars and regular expressions
