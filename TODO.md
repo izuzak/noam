@@ -37,7 +37,12 @@
 * add more structured comments to functions (jsdoc?)
 * write API documentation for current code
 * write overview/list of implemented functionality
-* add package.json
+* add similar and related projects list: 
+  * https://github.com/jakesgordon/javascript-state-machine/
+  * https://github.com/fschaefer/Stately.js
+  * https://github.com/mdaines/grammophone
+  * http://smlweb.cpsc.ucalgary.ca/
+* move noam source to /src and webapps to /webapps
 
 ## Performance and testing
 
