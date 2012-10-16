@@ -1,0 +1,45 @@
+{
+  "name": "noam",
+  "preferGlobal": "false",
+  "version": "0.0.1",
+  "author": "Ivan Zuzak <izuzak@gmail.com> (http://ivanzuzak.info)",
+  "description": "JavaScript library for working with automata and formal grammars for regular and context-free languages",
+  "bugs" : "https://github.com/izuzak/noam/issues",
+  "homepage" : "https://github.com/izuzak/noam",
+  "scripts": {
+    "test": "jasmine-node ./test/*"
+  },
+  "main": "./noam.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/izuzak/noam.git"
+  },
+  "contributors": [
+    "Ivan Budiselic <ibudiselic@gmail.com> (https://github.com/ibudiselic)"
+  ],
+  "keywords": [
+    "automata",
+    "finite-state machines",
+    "formal grammars",
+    "regular languages",
+    "regular expressions",
+    "context-free languages",
+    "chomsky hierarchy"
+  ],
+  "dependencies" : {
+    "cli-table" : ">=0.0.1"
+  },
+  "devDependencies": {
+    "jasmine-node" :  ">=1.0.23"
+  },
+  "bundleDependencies": [],
+  "licenses": [
+    {
+      "type" : "Apache-2.0",
+      "url" : "https://raw.github.com/izuzak/noam/master/LICENSE"
+    }
+  ],
+  "engines": {
+    "node" : ">=0.6.10"
+  }
+}
