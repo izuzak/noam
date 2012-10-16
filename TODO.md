@@ -43,6 +43,8 @@
   * https://github.com/mdaines/grammophone
   * http://smlweb.cpsc.ucalgary.ca/
 * move noam source to /src and webapps to /webapps
+* list projects used in credits
+  * viz.js - https://github.com/mdaines/viz.js
 
 ## Performance and testing
 
@@ -57,10 +59,5 @@
   * composing languages
   * editing + instant refresh capability
   * console-based
-* find a usable client-side FSM graphing library, ideally a JS port of graphviz (http://www.graphviz.org/)
-  * Google Chart API - http://code.google.com/apis/chart/image/docs/gallery/graphviz.html
-  * liviz - http://ushiroad.com/jsviz/, https://github.com/gyuque/livizjs
-  * graphviz.js - https://github.com/bpartridge/graphviz.js
-  * viz.js - https://github.com/mdaines/viz.js
 * develop webapp for step-by-step simulation of the operation of FSMs and grammars
 * develop examples for FSMs, grammars and regular expressions
