@@ -43,8 +43,6 @@
   * https://github.com/mdaines/grammophone
   * http://smlweb.cpsc.ucalgary.ca/
 * move noam source to /src and webapps to /webapps
-* list projects used in credits
-  * viz.js - https://github.com/mdaines/viz.js
 
 ## Performance and testing
 

@@ -15,6 +15,13 @@ See [TODO list](https://github.com/izuzak/noam/blob/master/TODO.md).
 
 Noam is developed by [Ivan Zuzak](http://ivanzuzak.info) and [Ivan Budiselic](https://github.com/ibudiselic).
 
+Noam is built with many open-source projects:
+* [cli-table](https://github.com/LearnBoost/cli-table) - used for drawing ascii tables in the command-line version of noam
+* [jQuery](http://jquery.com/) - used for the FSM Web application playgrounds
+* [NodeJS](http://nodejs.org/) - used for running the command-line version of noam
+* [viz.js](https://github.com/mdaines/viz.js) - used for drawing FSM graphs in Web applications
+* [jasmine-node](https://github.com/mhevery/jasmine-node) - used for unit testing
+
 ## License
 
 Licensed under the [Apache 2.0 License](https://github.com/izuzak/noam/blob/master/LICENSE.md).
