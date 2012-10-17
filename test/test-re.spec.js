@@ -1,6 +1,6 @@
 describe("regular expressions", function() {
-  var noamRe = require('../noam.js').re;
-  var noamFsm = require('../noam.js').fsm;
+  var noamRe = require('../src/noam.js').re;
+  var noamFsm = require('../src/noam.js').fsm;
 
   describe("tree representation API", function() {
 
@@ -380,5 +380,5 @@ describe("regular expressions", function() {
     });
 
   });
-
+  
 });
