@@ -42,7 +42,7 @@
   * https://github.com/fschaefer/Stately.js
   * https://github.com/mdaines/grammophone
   * http://smlweb.cpsc.ucalgary.ca/
-* move noam source to /src and webapps to /webapps
+* add minified version of noam
 
 ## Performance and testing
 

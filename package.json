@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jasmine-node ./test/*"
   },
-  "main": "./noam.js",
+  "main": "./src/noam.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/izuzak/noam.git"
