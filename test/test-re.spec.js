@@ -1,7 +1,8 @@
 describe("regular expressions", function() {
   var noamRe = require('../src/noam.js').re;
   var noamFsm = require('../src/noam.js').fsm;
-
+  var noamUtil = require('../src/noam.js').util;
+  
   describe("tree representation API", function() {
 
     var literal_a = noamRe.tree.makeLit("a");
@@ -381,4 +382,90 @@ describe("regular expressions", function() {
 
   });
   
+  describe("regex simplification", function() {
+    describe("simplify", function() {
+      var specials = noamRe.array.specials;
+      // TODO -- add sanity checks using fsm equivalence?
+      
+      it("handles ((a)) = (a), seq and alt", function() {
+        var re1 = noamRe.tree.makeSeq( [noamRe.tree.makeLit ("a")] );
+        var re2 = noamRe.tree.makeAlt( [noamRe.tree.makeLit ("a")] );
+        
+        var re1_s = noamRe.tree.simplify(re1);
+        var re2_s = noamRe.tree.simplify(re2);
+        
+        expect(re1_s.tag === noamRe.tree.tags.LIT).toBeTruthy();
+        expect(re2_s.tag === noamRe.tree.tags.LIT).toBeTruthy();
+      });
+      
+      it("handles eps* = eps", function() {
+        var re1 = noamRe.array.toTree([ specials.EPS, specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ specials.EPS ])).toBeTruthy();
+      });
+      
+      it("handles (a*)*", function() {
+        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.KSTAR, specials.RIGHT_PAREN, specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
+      });
+      
+      it("handles (a+b*)* = (a+b)*", function() {
+        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.KSTAR, specials.RIGHT_PAREN, specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
+      });
+      
+      it("handles eps+a* = a*", function() {
+        var re1 = noamRe.array.toTree([ specials.EPS, specials.ALT, "a", specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
+      });
+      
+      it("handles (a*b*c*)* = (a*+b*+c*)*", function() {
+        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.KSTAR, "b", specials.KSTAR, "c", specials.KSTAR, specials.RIGHT_PAREN, specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.ALT, "c", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
+      });
+      
+      it("handles eps a = a", function() {
+        var re1 = noamRe.array.toTree([ specials.EPS, "a" ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a" ])).toBeTruthy();
+      });
+      
+      it("handles (a + (b + c)) = a+b+c", function() {
+        var re1 = noamRe.array.toTree([ "a", specials.ALT, specials.LEFT_PAREN, "b", specials.ALT, "c", specials.RIGHT_PAREN]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a", specials.ALT, "b", specials.ALT, "c" ])).toBeTruthy();
+      });
+      
+      it("handles a b ( c d ) = a b c d", function() {
+        var re1 = noamRe.array.toTree([ "a", "b", specials.LEFT_PAREN, "c", "d", specials.RIGHT_PAREN]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a", "b", "c", "d" ])).toBeTruthy();
+      });
+      
+      it("handles  a + b + a = a+b // a* + b + a* = a*+b // a + b + a* = b+a*", function() {
+        var specials = noamRe.array.specials;
+        var re1 = noamRe.array.toTree([ "a", specials.ALT, "b", specials.ALT, "a"]);
+        var re2 = noamRe.array.toTree([ "a", specials.KSTAR, specials.ALT, "b", specials.ALT, "a", specials.KSTAR]);
+        var re3 = noamRe.array.toTree([ "a", specials.ALT, "b", specials.ALT, "a", specials.KSTAR]);
+        
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        var re2_s = noamRe.tree.toArray(noamRe.tree.simplify(re2));
+        var re3_s = noamRe.tree.toArray(noamRe.tree.simplify(re3));
+                
+        expect(noamUtil.areEquivalent(re1_s, [ "a", specials.ALT, "b" ])).toBeTruthy();
+        expect(noamUtil.areEquivalent(re2_s, [ "a", specials.KSTAR, specials.ALT, "b" ])).toBeTruthy();
+        expect(noamUtil.areEquivalent(re3_s, [ "b", specials.ALT, "a", specials.KSTAR ])).toBeTruthy();
+      });
+      
+      it("handles a*a* = a*", function() {
+        var re1 = noamRe.array.toTree([ "a", specials.KSTAR, "a", specials.KSTAR]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
+      });
+    });
+  });
 });

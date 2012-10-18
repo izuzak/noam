@@ -2456,6 +2456,247 @@
         LIT: 'literal',
         EPS: 'epsilon',
       };
+      
+      function copyAndDeleteProperties(o1, o2) {
+        for (var p in o1) {
+          if (o1.hasOwnProperty(p)) {
+            delete o1[p];
+          }
+        }
+        
+        for (var p in o2) {
+          if (o2.hasOwnProperty(p)) {
+            o1[p] = o2[p];
+          }
+        }
+      }
+      
+      function simplify(tree) {
+        var treeClone = noam.util.clone(tree);
+        
+        // TODO -- possibly improve this procedure by doing a 
+        // regex -> fsm -> minimized fsm -> regex conversion first
+        
+        var changed = true;
+        while (changed) {
+          changed = _simplify_recursion(treeClone, simplify);
+        }
+        
+        return treeClone;
+      }
+      
+      function _simplify_recursion(tree) {
+        if (_simplify_main(tree)) {
+          return true;
+        }
+        
+        var children = [];
+        
+        if (tree.tag === tags.ALT) {
+          children = tree.choices;
+        } else if (tree.tag === tags.SEQ) {
+          children = tree.elements;
+        } else if (tree.tag === tags.KSTAR) {
+          children = [tree.expr];
+        }
+        
+        for (var i=0; i<children.length; i++) {
+          if (_simplify_recursion(children[i])) {
+            return true;
+          }
+        }
+        
+        return false;
+      }
+      
+      function _simplify_main(tree) {
+         // ((a)) = (a), seq
+         if (tree.tag === tags.SEQ && tree.elements.length === 1){
+           tree.tag = tree.elements[0].tag;
+           
+           copyAndDeleteProperties(tree, tree.elements[0]);
+           return true;
+         }
+         
+         // ((a)) = (a), alt
+         if (tree.tag === tags.ALT && tree.choices.length === 1) {
+           tree.tag = tree.choices[0].tag;
+           
+           copyAndDeleteProperties(tree, tree.choices[0]);
+           return true;
+         }
+         
+         // eps* = eps
+         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.EPS) {
+           tree.tag = tree.expr.tag;
+           delete tree.expr;
+           return true;
+         }
+         
+         // (a*)* = a*
+         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.KSTAR) {
+           tree.expr = tree.expr.expr;
+           return true;
+         }
+         
+         // (a+b*)* = (a+b)*
+         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT) {
+           var changed = false;
+           for (var i=0; i<tree.expr.choices.length; i++) {
+             if (tree.expr.choices[i].tag === tags.KSTAR) {
+               tree.expr.choices[i] = tree.expr.choices[i].expr;
+               changed = true;
+             }
+           }
+           
+           if (changed) {
+             return changed;
+           }
+         }
+         
+         // eps+a* = a*
+         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
+           var epsIndex = -1;
+           var kstarIndex = -1;
+           
+           for (var i=0; i<tree.choices.length; i++) {
+             if (tree.choices[i].tag === tags.EPS) {
+               epsIndex = i;
+             } else if (tree.choices[i].tag === tags.KSTAR) {
+               kstarIndex = i;
+             }
+           }
+           
+           if (epsIndex >= 0 && kstarIndex >= 0) {
+             tree.choices.splice(epsIndex, 1);
+             return true;
+           }
+         }
+         
+        // (a*b*c*)* = (a*+b*+c*)*
+        if (tree.tag === tags.SEQ && tree.elements.length > 0) {
+          var check = true;
+          for (var i=0; i<tree.elements.length; i++) {
+            if (tree.elements[i].tag !== tags.KSTAR) {
+              check = false;
+              break;
+            }
+          }
+           
+          if (check) {
+            tree.tag = tags.ALT;
+            tree.choices = tree.elements;
+            delete tree.elements;
+            return true;
+          }
+        }
+         
+        // eps a = a
+        if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
+          var epsIndex = -1;
+           
+          for (var i=0; i<tree.elements.length; i++) {
+            if (tree.elements[i].tag === tags.EPS) {
+              epsIndex = i;
+            }
+          }
+           
+          if (epsIndex >= 0) {
+            tree.elements.splice(epsIndex, 1);
+            return true;
+          }
+        }
+         
+         // (a + (b + c)) = a+b+c
+         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
+           var found = -1;
+           for (var i=0; i<tree.choices.length; i++) {
+             if (tree.choices[i].tag === tags.ALT) {
+               found = i;
+             }
+           }
+           
+           if (found >= 0) {
+             var node = tree.choices[found];
+             tree.choices.splice(found, 1);
+
+             for (var i=0; i<node.choices.length; i++) {
+               tree.choices.splice(found+i, 0, node.choices[i]);
+             }
+             
+             return true;
+           }
+         }
+         
+        // a b ( c d ) = a b c d
+        if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
+          var found = -1;
+          for (var i=0; i<tree.elements.length; i++) {
+            if (tree.elements[i].tag === tags.SEQ) {
+              found = i;
+              break;
+            }
+          }
+           
+          if (found >= 0) {
+            var node = tree.elements[i];
+            tree.elements.splice(i, 1);
+
+            for (var i=0; i<node.elements.length; i++) {
+              tree.elements.splice(found+i, 0, node.elements[i]);
+            }
+            
+            return true;
+          }
+        }
+         
+        // a + b + a = b+a // a* + b + a* = b+a* // a + b + a* = b+a*
+        if (tree.tag === tags.ALT && tree.choices.length >= 2) {
+          for (var i=0; i<tree.choices.length-1; i++) {
+            var found = -1;
+            for (var j=i+1; j<tree.choices.length; j++) {
+              if (noam.util.areEquivalent(tree.choices[i], tree.choices[j])) {
+                found = j;
+                break;
+              }
+              
+              if (tree.choices[i].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[i].expr, tree.choices[j])) {
+                found = j;
+                break;
+              }
+              
+              if (tree.choices[j].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[j].expr, tree.choices[i])) {
+                found = i;
+                break;
+              }
+            }
+            
+            if (found >= 0) {
+              tree.choices.splice(found, 1);
+              return true;
+            }
+          }
+        }
+        
+        // a*a* = a*
+        if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
+          var found = -1;
+           
+          for (var i=0; i<tree.elements.length-1; i++) {
+            if (tree.elements[i].tag === tags.KSTAR && tree.elements[i+1].tag === tags.KSTAR && noam.util.areEquivalent(tree.elements[i], tree.elements[i+1])) {
+              found = i;
+              break;
+            }
+          }
+           
+          if (found >= 0) {
+            tree.elements.splice(found+1, 1);
+            return true;
+          }
+        }
+         
+        return false;
+      }
 
       // The choices parameter must be an array of expression trees.
       // Returns the root of a new tree that represents the expression that is the union of
@@ -2778,6 +3019,7 @@
         toString: toString,
 
         random: random,
+        simplify: simplify
       };
     })();
 
