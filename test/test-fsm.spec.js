@@ -3,9 +3,9 @@
 // something like http://stackoverflow.com/questions/4144686/how-to-write-a-test-which-expects-an-error-to-be-thrown
 
 describe("FSM", function() {
-  var noamFsm = require('../noam.js').fsm;
-  var noamUtil = require('../noam.js').util;
-  var noamRe = require('../noam.js').re;
+  var noamFsm = require('../src/noam.js').fsm;
+  var noamUtil = require('../src/noam.js').util;
+  var noamRe = require('../src/noam.js').re;
 
   describe("Constants", function() {
     it("DFA constant is valid", function() {
