@@ -2,7 +2,6 @@
 
 ## Functionality
 
-* conversion from FSM to regex
 * add Moore and Mealy machine support + minimization and Moore<->Mealy transformation functions
 * add push-down automata support + transformation to CFG functions
 * grammar-related functions: 
