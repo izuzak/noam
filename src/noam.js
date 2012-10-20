@@ -3044,6 +3044,13 @@
         RIGHT_PAREN: {},
         EPS: {},
       };
+      
+      // give objects their usual string representation
+      specials.ALT.toString = function() { return "+"; };
+      specials.KSTAR.toString = function() { return "*"; };
+      specials.LEFT_PAREN.toString = function() { return "("; };
+      specials.RIGHT_PAREN.toString = function() { return ")"; };
+      specials.EPS.toString = function() { return "$"; };
 
       // The next three functions are used to make a convenient array wrapper
       // used in the parsing code.
@@ -3081,16 +3088,10 @@
       // undefined if @a obj doesn't match any of them.
       function _replacementStr(obj) {
         // This can't be done with a dict because objects are not hashable...
-        if (obj === specials.ALT) {
-          return "+";
-        } else if (obj === specials.KSTAR) {
-          return "*";
-        } else if (obj === specials.LEFT_PAREN) {
-          return "(";
-        } else if (obj === specials.RIGHT_PAREN) {
-          return ")";
-        } else if (obj === specials.EPS) {
-          return "$";
+        if (obj === specials.ALT || obj === specials.KSTAR || 
+            obj === specials.LEFT_PAREN || obj === specials.RIGHT_PAREN ||
+            obj === specials.EPS) {
+          return obj.toString();
         } else {
           return undefined;
         }
