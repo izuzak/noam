@@ -2698,22 +2698,20 @@
         // (aa+b+a)* = (b+a)*
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
           for (var i=0; i<tree.expr.choices.length; i++) {
-            if (tree.expr.choices[i].tag === tags.LIT) {
-              for (var j=0; j<tree.expr.choices.length; j++) {
-                if (i !== j && tree.expr.choices[j].tag === tags.SEQ && tree.expr.choices[j].elements.length >= 2) {
-                  var found = true;
-                  
-                  for (var k=0; k<tree.expr.choices[j].elements.length; k++) {
-                    if (!(noam.util.areEquivalent(tree.expr.choices[i], tree.expr.choices[j].elements[k]))) {
-                      found = false;
-                      break;
-                    }
+            for (var j=0; j<tree.expr.choices.length; j++) {
+              if (i !== j && tree.expr.choices[j].tag === tags.SEQ && tree.expr.choices[j].elements.length >= 2) {
+                var found = true;
+                
+                for (var k=0; k<tree.expr.choices[j].elements.length; k++) {
+                  if (!(noam.util.areEquivalent(tree.expr.choices[i], tree.expr.choices[j].elements[k]))) {
+                    found = false;
+                    break;
                   }
-                  
-                  if (found) {
-                    tree.expr.choices.splice(j, 1);
-                    return true;
-                  }
+                }
+                
+                if (found) {
+                  tree.expr.choices.splice(j, 1);
+                  return true;
                 }
               }
             }
