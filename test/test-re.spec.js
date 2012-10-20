@@ -466,6 +466,25 @@ describe("regular expressions", function() {
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
       });
+      
+      it("handles (aa+b+a)* = (b+a)*", function() {
+        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", "a", specials.ALT, "b", specials.ALT, "a", specials.RIGHT_PAREN, specials.KSTAR]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "b", specials.ALT, "a", specials.RIGHT_PAREN, specials.KSTAR])).toBeTruthy();
+      });
+      
+      it("handles (a + $ + b)* = (a + b)*", function() {
+        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.ALT, specials.EPS, specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR])).toBeTruthy();
+      });
+      
+      // 
+      it("handles (ab+ac) = a(b+c)", function() {
+        var re1 = noamRe.array.toTree([ "a", "b", specials.ALT, "a", "c"]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a", specials.LEFT_PAREN, "b", specials.ALT, "c", specials.RIGHT_PAREN ])).toBeTruthy();
+      });
     });
   });
 });

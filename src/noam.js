@@ -2694,7 +2694,67 @@
             return true;
           }
         }
-         
+        
+        // (aa+b+a)* = (b+a)*
+        if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
+          for (var i=0; i<tree.expr.choices.length; i++) {
+            if (tree.expr.choices[i].tag === tags.LIT) {
+              for (var j=0; j<tree.expr.choices.length; j++) {
+                if (i !== j && tree.expr.choices[j].tag === tags.SEQ && tree.expr.choices[j].elements.length >= 2) {
+                  var found = true;
+                  
+                  for (var k=0; k<tree.expr.choices[j].elements.length; k++) {
+                    if (!(noam.util.areEquivalent(tree.expr.choices[i], tree.expr.choices[j].elements[k]))) {
+                      found = false;
+                      break;
+                    }
+                  }
+                  
+                  if (found) {
+                    tree.expr.choices.splice(j, 1);
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // (a + $ + b)* = (a + b)*
+        if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
+          for (var i=0; i<tree.expr.choices.length; i++) {
+            if (tree.expr.choices[i].tag === tags.EPS) {
+              tree.expr.choices.splice(i, 1);
+              return true;
+            }
+          }
+        }
+        
+        // (ab+ac) = a(b+c)
+        if (tree.tag === tags.ALT && tree.choices.length >=2) {
+          for (var i=0; i<tree.choices.length-1; i++) {
+            if (tree.choices[i].tag === tags.SEQ && tree.choices[i].elements.length >= 2) {
+              for (var j=i+1; j<tree.choices.length; j++) {
+                if (tree.choices[j].tag === tags.SEQ && tree.choices[j].elements.length >= 2) {
+                  if (noam.util.areEquivalent(tree.choices[j].elements[0], tree.choices[i].elements[0])) {
+                    var first = tree.choices[i].elements[0];
+                    var rest1 = makeSeq(tree.choices[i].elements.slice(1));
+                    var rest2 = makeSeq(tree.choices[j].elements.slice(1));
+                    
+                    var _alt = makeAlt([rest1, rest2]);
+                    var _seq = makeSeq([first, _alt]);
+                    
+                    tree.choices[i] = _seq;
+                    tree.choices.splice(j, 1);
+                    
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
         return false;
       }
 
