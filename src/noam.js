@@ -2753,6 +2753,45 @@
           }
         }
         
+        // a* a a* = a a*
+        if (tree.tag === tags.SEQ && tree.elements.length >=3) {
+          for (var i=1; i<tree.elements.length-1; i++) {
+            if (tree.elements[i-1].tag === tags.KSTAR && tree.elements[i+1].tag === tags.KSTAR) {
+              if (noam.util.areEquivalent(tree.elements[i-1], tree.elements[i+1]) &&
+                  noam.util.areEquivalent(tree.elements[i-1].expr, tree.elements[i])) {
+                tree.elements.splice(i-1, 1);
+                return true;
+              }
+            }
+          }
+        }
+        
+        // (ab+cb) = (a+c)b
+        if (tree.tag === tags.ALT && tree.choices.length >=2) {
+          for (var i=0; i<tree.choices.length-1; i++) {
+            if (tree.choices[i].tag === tags.SEQ && tree.choices[i].elements.length >= 2) {
+              for (var j=i+1; j<tree.choices.length; j++) {
+                if (tree.choices[j].tag === tags.SEQ && tree.choices[j].elements.length >= 2) {
+                  if (noam.util.areEquivalent(tree.choices[j].elements[tree.choices[j].elements.length-1],
+                                              tree.choices[i].elements[tree.choices[i].elements.length-1])) {
+                    var last = tree.choices[i].elements[tree.choices[i].elements.length-1];
+                    var rest1 = makeSeq(tree.choices[i].elements.slice(0, tree.choices[i].elements.length-1));
+                    var rest2 = makeSeq(tree.choices[j].elements.slice(0, tree.choices[j].elements.length-1));
+                    
+                    var _alt = makeAlt([rest1, rest2]);
+                    var _seq = makeSeq([_alt, last]);
+                    
+                    tree.choices[i] = _seq;
+                    tree.choices.splice(j, 1);
+                    
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
         return false;
       }
 
