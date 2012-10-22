@@ -2471,23 +2471,29 @@
         }
       }
       
-      function simplify(tree) {
+      function simplify(tree, numIterations, appliedPatterns) {
         var treeClone = noam.util.clone(tree);
         
-        // TODO -- possibly improve this procedure by doing a 
-        // regex -> fsm -> minimized fsm -> regex conversion first
+        var appliedPattern = "temp";
+        var iterCount = 0;
         
-        var changed = true;
-        while (changed) {
-          changed = _simplify_recursion(treeClone, simplify);
+        while (appliedPattern !== null && (typeof numIterations === "undefined" || iterCount < numIterations)) {
+          appliedPattern = _simplify_recursion(treeClone, simplify);
+          
+          if (appliedPattern !== null && typeof appliedPatterns !== "undefined") {
+            appliedPatterns.push(appliedPattern);
+          }
+          
+          iterCount += 1;
         }
         
         return treeClone;
       }
       
       function _simplify_recursion(tree) {
-        if (_simplify_main(tree)) {
-          return true;
+        var appliedPattern = _simplify_main(tree);
+        if (appliedPattern !== null) {
+          return appliedPattern;
         }
         
         var children = [];
@@ -2501,12 +2507,13 @@
         }
         
         for (var i=0; i<children.length; i++) {
-          if (_simplify_recursion(children[i])) {
-            return true;
+          appliedPattern = _simplify_recursion(children[i]);
+          if (appliedPattern !== null) {
+            return appliedPattern;
           }
         }
         
-        return false;
+        return null;
       }
       
       function _simplify_main(tree) {
@@ -2515,7 +2522,7 @@
            tree.tag = tree.elements[0].tag;
            
            copyAndDeleteProperties(tree, tree.elements[0]);
-           return true;
+           return "(a) => a";
          }
          
          // ((a)) = (a), alt
@@ -2523,20 +2530,20 @@
            tree.tag = tree.choices[0].tag;
            
            copyAndDeleteProperties(tree, tree.choices[0]);
-           return true;
+           return "(a) => a";
          }
          
          // eps* = eps
          if (tree.tag === tags.KSTAR && tree.expr.tag === tags.EPS) {
            tree.tag = tree.expr.tag;
            delete tree.expr;
-           return true;
+           return "$* => $";
          }
          
          // (a*)* = a*
          if (tree.tag === tags.KSTAR && tree.expr.tag === tags.KSTAR) {
            tree.expr = tree.expr.expr;
-           return true;
+           return "(a*)* => a*";
          }
          
          // (a+b*)* = (a+b)*
@@ -2545,12 +2552,8 @@
            for (var i=0; i<tree.expr.choices.length; i++) {
              if (tree.expr.choices[i].tag === tags.KSTAR) {
                tree.expr.choices[i] = tree.expr.choices[i].expr;
-               changed = true;
+               return "(a+b*)* => (a+b)*";
              }
-           }
-           
-           if (changed) {
-             return changed;
            }
          }
          
@@ -2569,7 +2572,7 @@
            
            if (epsIndex >= 0 && kstarIndex >= 0) {
              tree.choices.splice(epsIndex, 1);
-             return true;
+             return "$+a* => a*";
            }
          }
          
@@ -2587,7 +2590,7 @@
             tree.tag = tags.ALT;
             tree.choices = tree.elements;
             delete tree.elements;
-            return true;
+            return "(a*b*)* => (a*+b*)*";
           }
         }
          
@@ -2603,7 +2606,7 @@
            
           if (epsIndex >= 0) {
             tree.elements.splice(epsIndex, 1);
-            return true;
+            return "$ a => a";
           }
         }
          
@@ -2624,7 +2627,7 @@
                tree.choices.splice(found+i, 0, node.choices[i]);
              }
              
-             return true;
+             return "(a+(b+c)) => a+b+c";
            }
          }
          
@@ -2646,11 +2649,11 @@
               tree.elements.splice(found+i, 0, node.elements[i]);
             }
             
-            return true;
+            return "ab(cd) => abcd";
           }
         }
          
-        // a + b + a = b+a // a* + b + a* = b+a* // a + b + a* = b+a*
+        // a + b + a = b+a
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           for (var i=0; i<tree.choices.length-1; i++) {
             var found = -1;
@@ -2659,21 +2662,34 @@
                 found = j;
                 break;
               }
-              
-              if (tree.choices[i].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[i].expr, tree.choices[j])) {
-                found = j;
+            }
+            
+            if (found >= 0) {
+              tree.choices.splice(found, 1);
+              return "a+a => a";
+            }
+          }
+        }
+        
+        // a + b + a* = b+a*
+        if (tree.tag === tags.ALT && tree.choices.length >= 2) {
+          for (var i=0; i<tree.choices.length-1; i++) {
+            var found = -1;
+            for (var j=i+1; j<tree.choices.length; j++) {              
+              if (tree.choices[j].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[j].expr, tree.choices[i])) {
+                found = i;
                 break;
               }
               
-              if (tree.choices[j].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[j].expr, tree.choices[i])) {
-                found = i;
+              else if (tree.choices[i].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[i].expr, tree.choices[j])) {
+                found = j;
                 break;
               }
             }
             
             if (found >= 0) {
               tree.choices.splice(found, 1);
-              return true;
+              return "a+a* => a*";
             }
           }
         }
@@ -2691,7 +2707,7 @@
            
           if (found >= 0) {
             tree.elements.splice(found+1, 1);
-            return true;
+            return "a*a* => a*";
           }
         }
         
@@ -2711,7 +2727,7 @@
                 
                 if (found) {
                   tree.expr.choices.splice(j, 1);
-                  return true;
+                  return "(aa+a)* => (a)*";
                 }
               }
             }
@@ -2723,7 +2739,7 @@
           for (var i=0; i<tree.expr.choices.length; i++) {
             if (tree.expr.choices[i].tag === tags.EPS) {
               tree.expr.choices.splice(i, 1);
-              return true;
+              return "(a + $)* => (a)*";
             }
           }
         }
@@ -2745,7 +2761,7 @@
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
                     
-                    return true;
+                    return "(ab+cb) => (a+c)b";
                   }
                 }
               }
@@ -2760,7 +2776,7 @@
               if (noam.util.areEquivalent(tree.elements[i-1], tree.elements[i+1]) &&
                   noam.util.areEquivalent(tree.elements[i-1].expr, tree.elements[i])) {
                 tree.elements.splice(i-1, 1);
-                return true;
+                return "a*aa* => aa*";
               }
             }
           }
@@ -2784,7 +2800,7 @@
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
                     
-                    return true;
+                    return "(ab+ac) => a(b+c)";
                   }
                 }
               }
@@ -2792,7 +2808,7 @@
           }
         }
         
-        return false;
+        return null;
       }
 
       // The choices parameter must be an array of expression trees.
