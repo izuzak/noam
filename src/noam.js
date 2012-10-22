@@ -2761,7 +2761,7 @@
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
                     
-                    return "(ab+cb) => (a+c)b";
+                    return "(ab+ac) => a(b+c)";
                   }
                 }
               }
@@ -2800,7 +2800,7 @@
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
                     
-                    return "(ab+ac) => a(b+c)";
+                    return "(ab+cb) => (a+c)b";
                   }
                 }
               }
@@ -3332,6 +3332,12 @@
       function random(numSymbols, alphabet, cfg) {
         return noam.re.tree.toArray(noam.re.tree.random(numSymbols, alphabet, cfg));
       }
+      
+      function simplify(arr, numIterations, appliedPatterns) {
+        var tree = noam.re.array.toTree(arr);
+        var treeSimplified = noam.re.tree.simplify(tree, numIterations, appliedPatterns);
+        return noam.re.tree.toArray(treeSimplified);
+      }
 
       return {
         specials: specials,
@@ -3341,6 +3347,7 @@
         toAutomaton: toAutomaton,
 
         random: random,
+        simplify: simplify
       };
     })();
 
@@ -3431,6 +3438,12 @@
         }
         return noam.re.tree.toString(noam.re.tree.random(numSymbols, arr, cfg));
       }
+      
+      function simplify(str, numIterations, appliedPatterns) {
+        var tree = noam.re.string.toTree(str);
+        var treeSimplified = noam.re.tree.simplify(tree, numIterations, appliedPatterns);
+        return noam.re.tree.toString(treeSimplified);
+      }
 
       return {
         escapable: escapable, 
@@ -3440,6 +3453,7 @@
         toAutomaton: toAutomaton,
 
         random: random,
+        simplify: simplify
       };
 
     })();

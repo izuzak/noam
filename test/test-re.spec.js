@@ -387,6 +387,21 @@ describe("regular expressions", function() {
       var specials = noamRe.array.specials;
       // TODO -- add sanity checks using fsm equivalence?
       
+      it("works for trees, arrays and strings", function() {
+        var r1 = "(a+b*)*+(c*)*+d+d+g+g*+h*h*+$";
+        
+        var r1_tree = noamRe.string.toTree(r1);
+        var r1_tree_s = noamRe.tree.simplify(r1_tree);
+        
+        var r1_arr = noamRe.string.toArray(r1);
+        var r1_arr_s = noamRe.array.simplify(r1_arr);
+        
+        var r1_str_s = noamRe.string.simplify(r1);
+        
+        expect(noamRe.tree.toString(r1_tree_s) === noamRe.array.toString(r1_arr_s)).toBeTruthy();
+        expect(noamRe.tree.toString(r1_tree_s) === r1_str_s).toBeTruthy();
+      });
+      
       it("handles ((a)) = (a), seq and alt", function() {
         var re1 = noamRe.tree.makeSeq( [noamRe.tree.makeLit ("a")] );
         var re2 = noamRe.tree.makeAlt( [noamRe.tree.makeLit ("a")] );
