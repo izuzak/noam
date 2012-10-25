@@ -2,6 +2,13 @@
 
 ## Functionality
 
+* optimize regex simplification performance, especially the language subset patterns:
+  * fsms should not be generated until they are needed
+  * fsms should be cached and reused (once we have the new hashtable datastructure in place)
+  * language subset patterns should be done last, after all other patterns have been tested on all nodes in the regex tree
+* possibly improve regex simplification by doing a regex -> fsm -> minimized fsm -> regex conversion first
+* improve FSM->regex algo by trying out different approaches (the goal is to get as clean regex as possible)
+  * http://cs.stackexchange.com/questions/2016/how-to-convert-finite-automata-to-regular-expressions
 * add Moore and Mealy machine support + minimization and Moore<->Mealy transformation functions
 * add push-down automata support + transformation to CFG functions
 * grammar-related functions: 
