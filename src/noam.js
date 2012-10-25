@@ -957,7 +957,7 @@
 
   // pretty print the fsm transition function and accepting states as a table
   noam.fsm.printTable = function(fsm) {
-    var Table = require('/home/izuzak/cli-table');
+    var Table = require('cli-table');
     var colHeads = [""].concat(fsm.alphabet);
 
     if (noam.fsm.determineType(fsm) === noam.fsm.enfaType) {
