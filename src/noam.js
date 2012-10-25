@@ -2477,10 +2477,10 @@
         var appliedPattern = "temp";
         var iterCount = 0;
         
-        while (appliedPattern !== null && (typeof numIterations === "undefined" || iterCount < numIterations)) {
+        while (appliedPattern !== null && (typeof numIterations === "undefined" || numIteration === null || iterCount < numIterations)) {
           appliedPattern = _simplify_recursion(treeClone, simplify);
           
-          if (appliedPattern !== null && typeof appliedPatterns !== "undefined") {
+          if (appliedPattern !== null && typeof appliedPatterns !== "undefined" && appliedPatterns !== null) {
             appliedPatterns.push(appliedPattern);
           }
           
@@ -2610,26 +2610,26 @@
           }
         }
          
-         // (a + (b + c)) = a+b+c
-         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
-           var found = -1;
-           for (var i=0; i<tree.choices.length; i++) {
-             if (tree.choices[i].tag === tags.ALT) {
-               found = i;
-             }
-           }
+        // (a + (b + c)) = a+b+c
+        if (tree.tag === tags.ALT && tree.choices.length >= 2) {
+          var found = -1;
+          for (var i=0; i<tree.choices.length; i++) {
+            if (tree.choices[i].tag === tags.ALT) {
+              found = i;
+            }
+          }
            
-           if (found >= 0) {
-             var node = tree.choices[found];
-             tree.choices.splice(found, 1);
+          if (found >= 0) {
+            var node = tree.choices[found];
+            tree.choices.splice(found, 1);
 
-             for (var i=0; i<node.choices.length; i++) {
-               tree.choices.splice(found+i, 0, node.choices[i]);
-             }
+            for (var i=0; i<node.choices.length; i++) {
+              tree.choices.splice(found+i, 0, node.choices[i]);
+            }
              
-             return "(a+(b+c)) => a+b+c";
-           }
-         }
+            return "(a+(b+c)) => a+b+c";
+          }
+        }
          
         // a b ( c d ) = a b c d
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
@@ -2803,6 +2803,94 @@
                     return "(ab+cb) => (a+c)b";
                   }
                 }
+              }
+            }
+          }
+        }
+        
+        // L1+L2 => L2, if L1 is subset of L2
+        if (tree.tag === tags.ALT && tree.choices.length >= 2) {
+          var fsms = [];
+          
+          for (var i=0; i<tree.choices.length; i++) {
+            fsms.push(noam.fsm.minimize(noam.re.tree.toAutomaton(tree.choices[i])));
+          }
+          
+          var found = -1
+          
+          for (var i=0; i<tree.choices.length-1; i++) {
+            for (var j=i+1; j<tree.choices.length; j++) {                
+              try {
+                if (noam.fsm.isSubset(fsms[i], fsms[j]) ) {
+                  found = j;
+                } else if (noam.fsm.isSubset(fsms[j], fsms[i]) ) {
+                  found = i;
+                }
+              } catch (e) {
+              }
+              
+              if (found >= 0) {
+                tree.choices.splice(found, 1);
+                return "L1+L2 => L2, if L1 is subset of L2";
+              }
+            }
+          }
+        }
+          
+        // (L1+L2)* => L2, if L1 is subset of L2*
+        if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
+          var fsms = [];
+          
+          for (var i=0; i<tree.expr.choices.length; i++) {
+            var tree_kstar = makeKStar(tree.expr.choices[i]);
+            fsms.push(noam.fsm.minimize(noam.re.tree.toAutomaton(tree_kstar)));
+          }
+          
+          var found = -1
+          
+          for (var i=0; i<tree.expr.choices.length-1; i++) {
+            for (var j=i+1; j<tree.expr.choices.length; j++) {
+              try {
+                if (noam.fsm.isSubset(fsms[i], fsms[j]) ) {
+                  found = j;
+                } else if (noam.fsm.isSubset(fsms[j], fsms[i]) ) {
+                  found = i;
+                }
+              } catch (e) {
+              }
+              
+              if (found >= 0) {
+                tree.expr.choices.splice(found, 1);
+                return "(L1+L2)* => L2, if L1 is subset of L2*";
+              }
+            }
+          }
+        }
+          
+        // L1*L2* => L2, if L1 is subset of L2
+        if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
+          var fsms = [];
+          
+          for (var i=0; i<tree.elements.length; i++) {
+            fsms.push(noam.fsm.minimize(noam.re.tree.toAutomaton(tree.elements[i])));
+          }
+          
+          var found = -1;
+          
+          for (var i=0; i<tree.elements.length-1; i++) {
+            if (tree.elements[i].tag === tags.KSTAR && tree.elements[i+1].tag === tags.KSTAR) {
+              try {
+                if (noam.fsm.isSubset(fsms[i], fsms[i+1]) ) {
+                  found = i+1;
+                } else if (noam.fsm.isSubset(fsms[i+1], fsms[i]) ) {
+                  found = i;
+                }
+              } catch (e) {
+              }
+            
+              if (found >= 0) {
+                tree.choices.splice(found, 1);
+                return "L1*L2* => L2, if L1 is subset of L2";
               }
             }
           }

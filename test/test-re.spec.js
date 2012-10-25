@@ -511,6 +511,24 @@ describe("regular expressions", function() {
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "c", specials.RIGHT_PAREN, "b"])).toBeTruthy();
       });
+      
+      it("L1+L2 => L2, if L1 is subset of L2", function() {
+        var re1 = noamRe.array.toTree([ "a", "b", specials.ALT, specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
+      });
+      
+      it("(L1+L2)* => L2, if L1 is subset of L2*", function() {
+        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", "b", specials.ALT, specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.RIGHT_PAREN, specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
+      });
+      
+      it("L1*L2* => L2, if L1 is subset of L2", function() {
+        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", "a", specials.RIGHT_PAREN, specials.KSTAR, "a", specials.KSTAR ]);
+        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
+        expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
+      });
     });
   });
 });
