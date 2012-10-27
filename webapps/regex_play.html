@@ -1,0 +1,132 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title> I can has regex simplify </title>
+    
+    <script type="text/javascript" src="../src/noam.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" src="https://raw.github.com/twitter/bootstrap/gh-pages/assets/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css"/>
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+      
+      .monospaceRegex {
+        font-family: monospace;
+      }
+      
+      .deletedRegexPart {
+        color: red;
+        font-weight:bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Regular Expressions Gym</h1>
+      <p>Slim your regexes one step at a time!</p>
+      
+      <p>
+        <button id="generateRegex" class="btn">Generate a random regular expression</button>
+      </p>
+      <p>
+      	<input id="originalRegex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
+      </p>
+      <p>
+        <button id="simplifyRegex" class="btn" data-loading-text="Wait for it…">Simplify!</button>
+        <button id="simplifyRegexStep" class="btn">Step</button>
+        <button id="colorRegex" class="btn">Color</button>
+      </p>
+      <p>
+        <label for="sourceRegex">Source regex:</label>
+        <div id="sourceRegex" type="text" class="input-block-level monospaceRegex"></div>
+        <label for="resultRegex">Minimized regex:</label>
+        <div id="resultRegex" type="text" class="input-block-level monospaceRegex"></div>
+        <label for="appliedPatterns">Applied transformation pattern:</label>
+        <div id="appliedPatterns" type="text" class="input-block-level monospaceRegex"></div>
+        <label for="resultRegexList">Minimization history:</label>
+        <div id="resultRegexList" type="text" class="input-block-level monospaceRegex"></div>
+      </p>
+    
+    </div> <!-- /container -->
+    
+    <script type="text/javascript">
+      var currentRegex = null;
+      var sourceRegex = null;
+      $("#generateRegex").click(function() {
+        $("#originalRegex").val(noam.re.string.random(20, "abc", {}));
+        currentRegex = $("#originalRegex").val();
+        $("#resultRegex").html("");
+        $("#sourceRegex").html("");
+        $("#appliedPatterns").html("");
+        $("#resultRegexList").html("");
+        $("#simplifyRegex").attr("disabled", false);
+        $("#simplifyRegexStep").attr("disabled", false);
+      });
+    
+      $("#simplifyRegex").click(function() {
+      	$("#simplifyRegex").button('loading');
+      	setTimeout(function() {
+      	  var regex = $("#originalRegex").val();
+      	  var result = noam.re.string.simplify(regex);
+          sourceRegex = currentRegex;
+      	  currentRegex = result;
+          $("#sourceRegex").html(sourceRegex);
+          $("#resultRegex").html(result);
+          $("#simplifyRegex").button('reset');
+          setTimeout(function() {
+            $("#simplifyRegex").attr("disabled", true);
+            $("#simplifyRegexStep").attr("disabled", true);
+            }, 0);
+        }, 0);
+      });
+      
+      /* Should eventually color a meaningful (changed or deleted) part of the minimized regex */
+      $("#colorRegex").click(function() {
+        colorDiv("resultRegex", 2, 5, "deletedRegexPart");
+      });
+      
+      $("#simplifyRegexStep").click(function() {
+        console.log(currentRegex);
+        var stepResult = simplifyStep(currentRegex);
+        var result = stepResult[0];
+        var appliedPatterns = stepResult[1];
+        if (result === currentRegex) {
+          $("#simplifyRegexStep").attr("disabled", true);
+          $("#simplifyRegex").attr("disabled", true);
+        }
+        sourceRegex = currentRegex;
+        currentRegex = result;
+        $("#sourceRegex").html(sourceRegex);
+        $("#resultRegex").html(result);
+        $("#appliedPatterns").html(appliedPatterns[appliedPatterns.length - 1]);
+        var allResults =  $("#resultRegexList").html() + "<br/>" + result;
+        $("#resultRegexList").html(allResults);
+      });
+      
+      function colorDiv(divId, startIndex, endIndex, cssClass) {
+        var regex = $("#" + divId).html();
+        var regex1 = regex.slice(0, startIndex);
+        var regex2 = '<font class="' + cssClass + '">' + regex.slice(startIndex, endIndex) + '</font>';
+        var regex3 = regex.slice(endIndex);
+        $("#" + divId).html(regex1 + regex2 + regex3);        
+      }
+      
+      function simplifyStep(regex) {
+  	    var config = {numIterations : 1, appliedPatterns : []};
+	      var result = noam.re.string.simplify(regex, config);
+	      var numOfLastStepPatterns = config.appliedPatterns.length;
+	      while (result === regex) {
+	        config.numIterations += 1;
+	        config.appliedPatterns = [];
+	        var result = noam.re.string.simplify(regex, config);
+	        if (config.appliedPatterns.length == 0 || config.appliedPatterns.length == numOfLastStepPatterns)
+	          break;
+	        numOfLastStepPatterns = config.appliedPatterns.length;
+	    }
+	    return [result, config.appliedPatterns];
+      }
+      
+    </script>
+  </body>  
