@@ -30,7 +30,8 @@
     "cli-table" : ">=0.0.1"
   },
   "devDependencies": {
-    "jasmine-node" :  ">=1.0.23"
+    "jasmine-node" :  ">=1.0.23",
+    "benchtable" : ">=0.0.1"
   },
   "bundleDependencies": [],
   "licenses": [

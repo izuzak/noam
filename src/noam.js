@@ -2471,6 +2471,34 @@
         }
       }
       
+      /*
+        // ((a)) = (a), seq
+        // ((a)) = (a), alt
+        // eps* = eps
+        // (a*)* = a*
+        // (a+b*)* = (a+b)*
+        // eps+a* = a*
+        // (a*b*c*)* = (a*+b*+c*)*
+        // eps a = a        
+        // (a + (b + c)) = a+b+c        
+        // a b ( c d ) = a b c d
+        // a + b + a = b+a
+        // a + b + a* = b+a*
+        // a*a* = a*
+        // (aa+a)* = a*
+        // (a + $)* = a*
+        // (ab + ac) = a(b+c)
+        // a* a a* = a a*
+        // (ab+cb) = (a+c)b
+        
+        // if no pattern found a match, try matching using language subset tests
+        
+        // L1+L2 => L2, if L1 is subset of L2
+        // (L1+L2)* => L2, if L1 is subset of L2*
+        // L1*L2* => L2, if L1 is subset of L2
+      */
+      
+      
       function simplify(tree, numIterations, appliedPatterns) {
         var treeClone = noam.util.clone(tree);
         
