@@ -2477,7 +2477,7 @@
         var appliedPattern = "temp";
         var iterCount = 0;
         
-        while (appliedPattern !== null && (typeof numIterations === "undefined" || numIteration === null || iterCount < numIterations)) {
+        while (appliedPattern !== null && (typeof numIterations === "undefined" || numIterations === null || iterCount < numIterations)) {
           appliedPattern = _simplify_recursion(treeClone, simplify);
           
           if (appliedPattern !== null && typeof appliedPatterns !== "undefined" && appliedPatterns !== null) {
