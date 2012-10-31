@@ -13,7 +13,7 @@ See [TODO list](https://github.com/izuzak/noam/blob/master/TODO.md).
 
 ## Credits
 
-Noam is developed by [Ivan Zuzak](http://ivanzuzak.info) and [Ivan Budiselic](https://github.com/ibudiselic).
+Noam is developed by [Ivan Zuzak](http://ivanzuzak.info) and [Ivan Budiselic](https://github.com/ibudiselic). Contributors: [Vedrana Jankovic](http://vedri.ca/).
 
 Noam is built with many open-source projects:
 * [cli-table](https://github.com/LearnBoost/cli-table) - used for drawing ascii tables in the command-line version of noam

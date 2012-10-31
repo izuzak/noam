@@ -15,7 +15,8 @@
     "url": "https://github.com/izuzak/noam.git"
   },
   "contributors": [
-    "Ivan Budiselic <ibudiselic@gmail.com> (https://github.com/ibudiselic)"
+    "Ivan Budiselic <ibudiselic@gmail.com> (https://github.com/ibudiselic)",
+    "Vedrana Jankovic <vedrana.jankovic@gmail.com> (http://vedri.ca/)"
   ],
   "keywords": [
     "automata",
