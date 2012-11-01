@@ -44,9 +44,12 @@
   * https://github.com/mdaines/grammophone
   * http://smlweb.cpsc.ucalgary.ca/
 * add minified version of noam
+* split noam src into parts (util, fsm, grammar, re, ...) and make a script that compiles the parts into a single js file
 
 ## Performance and testing
 
+* make the new HashTable datastructure store the hash of an object into a "hidden" property of the object so that the HT doesn't have to recompute the hash again
+  * this will improve the performance of the HT, but will add more possibility of failure since it will be possible that the users of the HT change the object after the hash is computer and stored, as well as to change the value of the stored hash
 * add profiling capability
 * refactor internal code to use more optimized data structures
 * add performance testing
