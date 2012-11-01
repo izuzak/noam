@@ -1,7 +1,7 @@
 {
   "name": "noam",
   "preferGlobal": "false",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Ivan Zuzak <izuzak@gmail.com> (http://ivanzuzak.info)",
   "description": "JavaScript library for working with automata and formal grammars for regular and context-free languages",
   "bugs" : "https://github.com/izuzak/noam/issues",

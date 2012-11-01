@@ -31,6 +31,8 @@
 
 ## Refactoring and documentation
 
+* refactor regex tests to use re.string as input and output, not re.array (for clarity)
+* refactor regex tests to test a single regex simplification pattern, not the whole process (because there are multiple ways to simplify a regex, so errors may not be detected)
 * unify printAscii and printHtml tables
 * add more structured comments to functions (jsdoc?)
 * write API documentation for current code
@@ -45,13 +47,9 @@
 
 ## Performance and testing
 
+* add profiling capability
 * refactor internal code to use more optimized data structures
 * add performance testing
-* optimize regex simplification performance, especially the language subset patterns:
-  * fsms should not be generated until they are needed
-  * fsms should be cached and reused (once we have the new hashtable datastructure in place)
-  * language subset patterns should be done last, after all other patterns have been tested on all nodes in the regex tree
-* possibly improve regex simplification by doing a regex -> fsm -> minimized fsm -> regex conversion first
 * improve FSM->regex algo by trying out different approaches (the goal is to get as clean regex as possible)
   * http://cs.stackexchange.com/questions/2016/how-to-convert-finite-automata-to-regular-expressions
 

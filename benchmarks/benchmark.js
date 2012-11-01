@@ -5,12 +5,14 @@ var Benchtable = require('benchtable');
 
 var suite = new Benchtable();
 
-suite.addFunction("noam.fsm.grammar1", noam.fsm.grammar);
-suite.addFunction("noam.fsm.grammar2", noam.fsm.grammar);
-suite.addFunction("noam.fsm.grammar3", noam.fsm.grammar);
+suite.addFunction("simplify_new", function(tree) { return noam.re.tree.simplify_newds(tree); });
+suite.addFunction("simplify_new_nofsm", function(tree) { return noam.re.tree.simplify_newds(tree, {useFsmPatterns : false}); });
 
-for (var i=1; i<6; i++) {
-  suite.addInput(i*2, [noam.fsm.createRandomFsm(noam.fsm.dfaType, i*2, 4, 2)]);
+var regexLengths = [5, 10, 20, 30];
+
+for (var i=0; i<regexLengths.length; i++) {
+  var input = noam.re.tree.random(regexLengths[i], "ab", {});
+  suite.addInput(regexLengths[i], [input]);
 }
 
 suite.on('cycle', function(event) {
@@ -19,6 +21,10 @@ suite.on('cycle', function(event) {
 
 suite.on('complete', function() {
   console.log(this.table.toString());
+});
+
+suite.on('error', function(event) {
+  console.log("ERROR", JSON.stringity(event));
 });
 
 suite.run();

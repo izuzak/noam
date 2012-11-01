@@ -1,6 +1,6 @@
 /*
  * noam - JavaScript library for working with automata and grammars for 
- *        regular and context-free languages . https://github.com/izuzak/noam
+ *        regular and context-free languages. https://github.com/izuzak/noam
  *
  * Copyright 2012 Ivan Zuzak, Ivan Budiselic
  *
@@ -2472,157 +2472,162 @@
       }
       
       /*
-        // ((a)) = (a), seq
-        // ((a)) = (a), alt
-        // eps* = eps
-        // (a*)* = a*
-        // (a+b*)* = (a+b)*
-        // eps+a* = a*
-        // (a*b*c*)* = (a*+b*+c*)*
-        // eps a = a        
-        // (a + (b + c)) = a+b+c        
-        // a b ( c d ) = a b c d
-        // a + b + a = b+a
-        // a + b + a* = b+a*
-        // a*a* = a*
-        // (aa+a)* = a*
-        // (a + $)* = a*
-        // (ab + ac) = a(b+c)
-        // a* a a* = a a*
-        // (ab+cb) = (a+c)b
+        Simplifies the regular expression @a tree (a noam.re.tree object).
+        The goal of simplification is to obtain a regular expression which
+        defines the same language but has a smaller number of elements in
+        the tree structure and therefore less elements in array or string
+        form. Simplification is performed by iteratively transforming the 
+        tree using a set of known algebraic equivalences in Kleene algebra.
+        If specified, the @a numIterations integer limits the number of 
+        transformations that will be performed. Furthermore, if specified,
+        the @a appliedPatterns array will be filled with objects that 
+        describe which patterns were applied, i.e. which transformations
+        were performed. The original tree @a tree is not modified; a new
+        tree is returned as a result.
         
-        // if no pattern found a match, try matching using language subset tests
+        The current set of patterns that are checked are (small alphabet
+        letters represent any regular expression):
         
-        // L1+L2 => L2, if L1 is subset of L2
-        // (L1+L2)* => L2, if L1 is subset of L2*
-        // L1*L2* => L2, if L1 is subset of L2
+          # (a) => a (sequence of 1 element)
+          # (a) => a (choices with 1 element)
+          # $* => $
+          # (a*)* => a*
+          # (a+b*)* => (a+b)*
+          # $+a* => a*
+          # (a*b*c*)* => (a*+b*+c*)*
+          # $a => a
+          # (a+(b+c)) => a+b+c
+          # ab(cd) => abcd
+          # a+b+a => b+a
+          # a+b+a* => b+a*
+          # a*a* => a*
+          # (aa+a)* => a*
+          # (a+$)* => a*
+          # (ab+ac) => a(b+c)
+          # a*aa* => aa*
+          # (ab+cb) => (a+c)b
+        
+        If none of these "simple" patterns can be applied, the simplification
+        process tries to apply patterns based on language subset (via 
+        transformations to fsms):
+        
+          # L1+L2 => L2, if L1 is subset of L2
+          # (L1+L2)* => L2, if L1 is subset of L2*
+          # L1*L2* => L2, if L1 is subset of L2
+        
+        The tree transformation process is stopped after no transformation
+        can be applied to the tree.
       */
       
+      var _regex_simplification_patterns = [];
       
-      function simplify(tree, numIterations, appliedPatterns) {
-        var treeClone = noam.util.clone(tree);
-        
-        var appliedPattern = "temp";
-        var iterCount = 0;
-        
-        while (appliedPattern !== null && (typeof numIterations === "undefined" || numIterations === null || iterCount < numIterations)) {
-          appliedPattern = _simplify_recursion(treeClone, simplify);
+      // (a) => a (sequence)
+      function _regex_simplify_1(tree, fsmCache) {
+        if (tree.tag === tags.SEQ && tree.elements.length === 1){
+          tree.tag = tree.elements[0].tag;
           
-          if (appliedPattern !== null && typeof appliedPatterns !== "undefined" && appliedPatterns !== null) {
-            appliedPatterns.push(appliedPattern);
-          }
-          
-          iterCount += 1;
+          copyAndDeleteProperties(tree, tree.elements[0]);
+          return true;
         }
-        
-        return treeClone;
+
+        return false;
       }
       
-      function _simplify_recursion(tree) {
-        var appliedPattern = _simplify_main(tree);
-        if (appliedPattern !== null) {
-          return appliedPattern;
+      // (a) => a (choices)
+      function _regex_simplify_2(tree, fsmCache) {
+        if (tree.tag === tags.ALT && tree.choices.length === 1) {
+          tree.tag = tree.choices[0].tag;
+          
+          copyAndDeleteProperties(tree, tree.choices[0]);
+          return true;
         }
         
-        var children = [];
-        
-        if (tree.tag === tags.ALT) {
-          children = tree.choices;
-        } else if (tree.tag === tags.SEQ) {
-          children = tree.elements;
-        } else if (tree.tag === tags.KSTAR) {
-          children = [tree.expr];
-        }
-        
-        for (var i=0; i<children.length; i++) {
-          appliedPattern = _simplify_recursion(children[i]);
-          if (appliedPattern !== null) {
-            return appliedPattern;
-          }
-        }
-        
-        return null;
+        return false;
       }
       
-      function _simplify_main(tree) {
-         // ((a)) = (a), seq
-         if (tree.tag === tags.SEQ && tree.elements.length === 1){
-           tree.tag = tree.elements[0].tag;
-           
-           copyAndDeleteProperties(tree, tree.elements[0]);
-           return "(a) => a";
-         }
-         
-         // ((a)) = (a), alt
-         if (tree.tag === tags.ALT && tree.choices.length === 1) {
-           tree.tag = tree.choices[0].tag;
-           
-           copyAndDeleteProperties(tree, tree.choices[0]);
-           return "(a) => a";
-         }
-         
-         // eps* = eps
+      // $* => $
+      function _regex_simplify_3(tree, fsmCache) {
          if (tree.tag === tags.KSTAR && tree.expr.tag === tags.EPS) {
            tree.tag = tree.expr.tag;
            delete tree.expr;
-           return "$* => $";
+           return true;
          }
          
-         // (a*)* = a*
+         return false;
+      }
+      
+      // (a*)* => a*
+      function _regex_simplify_4(tree, fsmCache) { 
          if (tree.tag === tags.KSTAR && tree.expr.tag === tags.KSTAR) {
            tree.expr = tree.expr.expr;
-           return "(a*)* => a*";
+           return true;
          }
          
-         // (a+b*)* = (a+b)*
-         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT) {
-           var changed = false;
-           for (var i=0; i<tree.expr.choices.length; i++) {
-             if (tree.expr.choices[i].tag === tags.KSTAR) {
-               tree.expr.choices[i] = tree.expr.choices[i].expr;
-               return "(a+b*)* => (a+b)*";
-             }
-           }
-         }
+         return false;
+      }
+      
+      // (a+b*)* => (a+b)*
+      function _regex_simplify_5(tree, fsmCache) { 
+        if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT) {
+          var changed = false;
+          for (var i=0; i<tree.expr.choices.length; i++) {
+            if (tree.expr.choices[i].tag === tags.KSTAR) {
+              tree.expr.choices[i] = tree.expr.choices[i].expr;
+              return true;
+            }
+          }
+        }
+        
+        return false;
+      }
+      
+      // $+a* => a*
+      function _regex_simplify_6(tree, fsmCache) { 
+        if (tree.tag === tags.ALT && tree.choices.length >= 2) {
+          var epsIndex = -1;
+          var kstarIndex = -1;
          
-         // eps+a* = a*
-         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
-           var epsIndex = -1;
-           var kstarIndex = -1;
-           
-           for (var i=0; i<tree.choices.length; i++) {
-             if (tree.choices[i].tag === tags.EPS) {
-               epsIndex = i;
-             } else if (tree.choices[i].tag === tags.KSTAR) {
-               kstarIndex = i;
-             }
-           }
-           
-           if (epsIndex >= 0 && kstarIndex >= 0) {
-             tree.choices.splice(epsIndex, 1);
-             return "$+a* => a*";
-           }
-         }
+          for (var i=0; i<tree.choices.length; i++) {
+            if (tree.choices[i].tag === tags.EPS) {
+              epsIndex = i;
+            } else if (tree.choices[i].tag === tags.KSTAR) {
+              kstarIndex = i;
+            }
+          }
          
-        // (a*b*c*)* = (a*+b*+c*)*
-        if (tree.tag === tags.SEQ && tree.elements.length > 0) {
+          if (epsIndex >= 0 && kstarIndex >= 0) {
+            tree.choices.splice(epsIndex, 1);
+            return true;
+          }
+        }
+        
+        return false;
+      }
+      
+      // (a*b*)* => (a*+b*)*
+      function _regex_simplify_7(tree, fsmCache) { 
+        if (tree.tag === tags.KSTAR && tree.expr.tag === tags.SEQ && tree.expr.elements.length > 0) {
           var check = true;
-          for (var i=0; i<tree.elements.length; i++) {
-            if (tree.elements[i].tag !== tags.KSTAR) {
+          for (var i=0; i<tree.expr.elements.length; i++) {
+            if (tree.expr.elements[i].tag !== tags.KSTAR) {
               check = false;
               break;
             }
           }
            
           if (check) {
-            tree.tag = tags.ALT;
-            tree.choices = tree.elements;
-            delete tree.elements;
-            return "(a*b*)* => (a*+b*)*";
+            tree.expr.tag = tags.ALT;
+            tree.expr.choices = tree.expr.elements;
+            delete tree.expr.elements;
+            return true;
           }
         }
-         
-        // eps a = a
+        
+        return false;
+      }
+      
+      // $a => a
+      function _regex_simplify_8(tree, fsmCache) { 
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var epsIndex = -1;
            
@@ -2634,11 +2639,15 @@
            
           if (epsIndex >= 0) {
             tree.elements.splice(epsIndex, 1);
-            return "$ a => a";
+            return true;
           }
         }
-         
-        // (a + (b + c)) = a+b+c
+        
+        return false;
+      }
+      
+      // (a+(b+c)) => a+b+c
+      function _regex_simplify_9(tree, fsmCache) { 
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           var found = -1;
           for (var i=0; i<tree.choices.length; i++) {
@@ -2655,11 +2664,15 @@
               tree.choices.splice(found+i, 0, node.choices[i]);
             }
              
-            return "(a+(b+c)) => a+b+c";
+            return true;
           }
         }
-         
-        // a b ( c d ) = a b c d
+        
+        return false;
+      }
+      
+      // ab(cd) => abcd
+      function _regex_simplify_10(tree, fsmCache) { 
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var found = -1;
           for (var i=0; i<tree.elements.length; i++) {
@@ -2677,11 +2690,15 @@
               tree.elements.splice(found+i, 0, node.elements[i]);
             }
             
-            return "ab(cd) => abcd";
+            return true;
           }
         }
-         
-        // a + b + a = b+a
+        
+        return false;
+      }
+      
+      // a+a => a
+      function _regex_simplify_11(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           for (var i=0; i<tree.choices.length-1; i++) {
             var found = -1;
@@ -2694,12 +2711,16 @@
             
             if (found >= 0) {
               tree.choices.splice(found, 1);
-              return "a+a => a";
+              return true;
             }
           }
         }
         
-        // a + b + a* = b+a*
+        return false;
+      }
+      
+      // a+a* => a*
+      function _regex_simplify_12(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           for (var i=0; i<tree.choices.length-1; i++) {
             var found = -1;
@@ -2717,12 +2738,16 @@
             
             if (found >= 0) {
               tree.choices.splice(found, 1);
-              return "a+a* => a*";
+              return true;
             }
           }
         }
         
-        // a*a* = a*
+        return false;
+      }
+      
+      // a*a* => a*
+      function _regex_simplify_13(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var found = -1;
            
@@ -2735,11 +2760,15 @@
            
           if (found >= 0) {
             tree.elements.splice(found+1, 1);
-            return "a*a* => a*";
+            return true;
           }
         }
         
-        // (aa+b+a)* = (b+a)*
+        return false;
+      }
+      
+      // (aa+a)* => (a)*
+      function _regex_simplify_14(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
           for (var i=0; i<tree.expr.choices.length; i++) {
             for (var j=0; j<tree.expr.choices.length; j++) {
@@ -2755,24 +2784,32 @@
                 
                 if (found) {
                   tree.expr.choices.splice(j, 1);
-                  return "(aa+a)* => (a)*";
+                  return true;
                 }
               }
             }
           }
         }
         
-        // (a + $ + b)* = (a + b)*
+        return false;
+      }
+      
+      // (a + $)* => (a)*
+      function _regex_simplify_15(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
           for (var i=0; i<tree.expr.choices.length; i++) {
             if (tree.expr.choices[i].tag === tags.EPS) {
               tree.expr.choices.splice(i, 1);
-              return "(a + $)* => (a)*";
+              return true;
             }
           }
         }
         
-        // (ab+ac) = a(b+c)
+        return false;
+      }
+      
+      // (ab+ac) => a(b+c)
+      function _regex_simplify_16(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >=2) {
           for (var i=0; i<tree.choices.length-1; i++) {
             if (tree.choices[i].tag === tags.SEQ && tree.choices[i].elements.length >= 2) {
@@ -2789,7 +2826,7 @@
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
                     
-                    return "(ab+ac) => a(b+c)";
+                    return true;
                   }
                 }
               }
@@ -2797,20 +2834,28 @@
           }
         }
         
-        // a* a a* = a a*
+        return false;
+      }
+      
+      // a*aa* => aa*
+      function _regex_simplify_17(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >=3) {
           for (var i=1; i<tree.elements.length-1; i++) {
             if (tree.elements[i-1].tag === tags.KSTAR && tree.elements[i+1].tag === tags.KSTAR) {
               if (noam.util.areEquivalent(tree.elements[i-1], tree.elements[i+1]) &&
                   noam.util.areEquivalent(tree.elements[i-1].expr, tree.elements[i])) {
                 tree.elements.splice(i-1, 1);
-                return "a*aa* => aa*";
+                return true;
               }
             }
           }
         }
         
-        // (ab+cb) = (a+c)b
+        return false;
+      }
+      
+      // (ab+cb) => (a+c)b
+      function _regex_simplify_18(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >=2) {
           for (var i=0; i<tree.choices.length-1; i++) {
             if (tree.choices[i].tag === tags.SEQ && tree.choices[i].elements.length >= 2) {
@@ -2828,7 +2873,7 @@
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
                     
-                    return "(ab+cb) => (a+c)b";
+                    return true;
                   }
                 }
               }
@@ -2836,18 +2881,24 @@
           }
         }
         
-        // L1+L2 => L2, if L1 is subset of L2
+        return false;
+      }
+      
+      // L1+L2 => L2, if L1 is subset of L2
+      function _regex_simplify_19(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           var fsms = [];
           
-          for (var i=0; i<tree.choices.length; i++) {
-            fsms.push(noam.fsm.minimize(noam.re.tree.toAutomaton(tree.choices[i])));
-          }
+          fsms.push(getFromCacheOrCreateFsm(tree.choices[0], fsmCache));
           
           var found = -1
           
           for (var i=0; i<tree.choices.length-1; i++) {
-            for (var j=i+1; j<tree.choices.length; j++) {                
+            for (var j=i+1; j<tree.choices.length; j++) {  
+              if (fsms.length <= j) {
+                fsms.push(getFromCacheOrCreateFsm(tree.choices[j], fsmCache));
+              }
+              
               try {
                 if (noam.fsm.isSubset(fsms[i], fsms[j]) ) {
                   found = j;
@@ -2859,25 +2910,30 @@
               
               if (found >= 0) {
                 tree.choices.splice(found, 1);
-                return "L1+L2 => L2, if L1 is subset of L2";
+                return true;
               }
             }
           }
         }
-          
-        // (L1+L2)* => L2, if L1 is subset of L2*
+        
+        return false;
+      }
+      
+      // (L1+L2)* => L2, if L1 is subset of L2*
+      function _regex_simplify_20(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
           var fsms = [];
           
-          for (var i=0; i<tree.expr.choices.length; i++) {
-            var tree_kstar = makeKStar(tree.expr.choices[i]);
-            fsms.push(noam.fsm.minimize(noam.re.tree.toAutomaton(tree_kstar)));
-          }
+          fsms.push(getFromCacheOrCreateFsm(makeKStar(tree.expr.choices[0]), fsmCache));
           
           var found = -1
           
           for (var i=0; i<tree.expr.choices.length-1; i++) {
             for (var j=i+1; j<tree.expr.choices.length; j++) {
+              if (fsms.length <= j) {
+                fsms.push(getFromCacheOrCreateFsm(makeKStar(tree.expr.choices[j]), fsmCache));
+              }
+              
               try {
                 if (noam.fsm.isSubset(fsms[i], fsms[j]) ) {
                   found = j;
@@ -2889,23 +2945,37 @@
               
               if (found >= 0) {
                 tree.expr.choices.splice(found, 1);
-                return "(L1+L2)* => L2, if L1 is subset of L2*";
+                return true;
               }
             }
           }
         }
-          
-        // L1*L2* => L2, if L1 is subset of L2
+        
+        return false;
+      }
+      
+      function getFromCacheOrCreateFsm(key, ht) {
+        var fsm = ht.get(key);
+        
+        if (!(fsm)) {
+          fsm = noam.fsm.minimize(noam.re.tree.toAutomaton(key));
+          ht.put(key, fsm);
+        }
+        
+        return fsm;
+      }
+      
+      // L1*L2* => L2, if L1 is subset of L2
+      function _regex_simplify_21(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var fsms = [];
-          
-          for (var i=0; i<tree.elements.length; i++) {
-            fsms.push(noam.fsm.minimize(noam.re.tree.toAutomaton(tree.elements[i])));
-          }
+          fsms.push(getFromCacheOrCreateFsm(tree.elements[0], fsmCache));
           
           var found = -1;
           
           for (var i=0; i<tree.elements.length-1; i++) {
+            fsms.push(getFromCacheOrCreateFsm(tree.elements[i+1], fsmCache));
+            
             if (tree.elements[i].tag === tags.KSTAR && tree.elements[i+1].tag === tags.KSTAR) {
               try {
                 if (noam.fsm.isSubset(fsms[i], fsms[i+1]) ) {
@@ -2917,14 +2987,122 @@
               }
             
               if (found >= 0) {
-                tree.choices.splice(found, 1);
-                return "L1*L2* => L2, if L1 is subset of L2";
+                tree.elements.splice(found, 1);
+                return true;
               }
             }
           }
         }
         
-        return null;
+        return false;
+      }
+      
+      _regex_simplification_patterns.push({ 'pattern' : "(a) => a", 'type' : 'structure', 'function' : _regex_simplify_1 });
+      _regex_simplification_patterns.push({ 'pattern' : "(a) => a", 'type' : 'structure', 'function' : _regex_simplify_2 });
+      _regex_simplification_patterns.push({ 'pattern' : "$* => $", 'type' : 'structure', 'function' : _regex_simplify_3});
+      _regex_simplification_patterns.push({ 'pattern' : "(a*)* => a*", 'type' : 'structure', 'function' : _regex_simplify_4});
+      _regex_simplification_patterns.push({ 'pattern' : "(a+b*)* => (a+b)*", 'type' : 'structure', 'function' : _regex_simplify_5});
+      _regex_simplification_patterns.push({ 'pattern' : "$+a* => a*", 'type' : 'structure', 'function' : _regex_simplify_6});
+      _regex_simplification_patterns.push({ 'pattern' : "(a*b*)* => (a*+b*)*", 'type' : 'structure', 'function' : _regex_simplify_7});
+      _regex_simplification_patterns.push({ 'pattern' : "$a => a", 'type' : 'structure', 'function' : _regex_simplify_8});
+      _regex_simplification_patterns.push({ 'pattern' : "ab(cd) => abcd", 'type' : 'structure', 'function' : _regex_simplify_10});
+      _regex_simplification_patterns.push({ 'pattern' : "a+a => a", 'type' : 'structure', 'function' : _regex_simplify_11});
+      _regex_simplification_patterns.push({ 'pattern' : "a+a* => a*", 'type' : 'structure', 'function' : _regex_simplify_12});
+      _regex_simplification_patterns.push({ 'pattern' : "a*a* => a*", 'type' : 'structure', 'function' : _regex_simplify_13});
+      _regex_simplification_patterns.push({ 'pattern' : "(aa+a)* => (a)*", 'type' : 'structure', 'function' : _regex_simplify_14});
+      _regex_simplification_patterns.push({ 'pattern' : "(a + $)* => (a)*", 'type' : 'structure', 'function' : _regex_simplify_15});
+      _regex_simplification_patterns.push({ 'pattern' : "(ab+ac) => a(b+c)", 'type' : 'structure', 'function' : _regex_simplify_16});
+      _regex_simplification_patterns.push({ 'pattern' : "a*aa* => aa*", 'type' : 'structure', 'function' : _regex_simplify_17});
+      _regex_simplification_patterns.push({ 'pattern' : "(ab+cb) => (a+c)b", 'type' : 'structure', 'function' : _regex_simplify_18});
+      _regex_simplification_patterns.push({ 'pattern' : "L1+L2 => L2, if L1 is subset of L2", 'type' : 'fsm', 'function' : _regex_simplify_19});
+      _regex_simplification_patterns.push({ 'pattern' : "(L1+L2)* => L2, if L1 is subset of L2*", 'type' : 'fsm', 'function' : _regex_simplify_20});
+      _regex_simplification_patterns.push({ 'pattern' : "L1*L2* => L2, if L1 is subset of L2", 'type' : 'fsm', 'function' : _regex_simplify_21});
+      _regex_simplification_patterns.push({ 'pattern' : "(a+(b+c)) => a+b+c", 'type' : 'structure', 'function' : _regex_simplify_9});
+      
+      function simplify(tree, config) {
+        var treeClone = noam.util.clone(tree);
+        
+        if (typeof config === "undefined") {
+          config = {};
+        }
+        
+        var opts = noam.util.clone(config);
+        
+        if (typeof opts.numIterations === "undefined") {
+          opts.numIterations = null;
+        }
+        
+        if (typeof opts.appliedPatterns === 'undefined') {
+          opts.appliedPatterns = null;
+        }
+        
+        if (typeof opts.useFsmPatterns === "undefined") {
+          opts.useFsmPatterns = true;
+        }
+                
+        var appliedPattern = "temp";
+        var iterCount = 0;
+        var fsmCache = new noam.util.HashTable();
+        
+        while (appliedPattern !== null && (opts.numIterations === null || iterCount < opts.numIterations)) {
+          appliedPattern = _simplify_iteration(treeClone, fsmCache, opts.useFsmPatterns);
+          
+          if (appliedPattern !== null && opts.appliedPatterns !== null) {
+            opts.appliedPatterns.push(appliedPattern);
+          }
+          
+          iterCount += 1;
+        }
+                
+        return treeClone;
+      }
+      
+      function _simplify_iteration(tree, fsmCache, useFsmPatterns) {
+        var pattern = null;
+        var result = null;
+        
+        for (var i=0; i<_regex_simplification_patterns.length; i++) {
+          pattern = _regex_simplification_patterns[i];
+          
+          if (useFsmPatterns === false && pattern.type === "fsm") {
+            continue;
+          }
+          
+          result = _simplify_recursion(tree, pattern['function'], fsmCache);
+          
+          if (result) {
+            return pattern.pattern;
+          }
+        }
+                
+        return null
+      }
+      
+      function _simplify_recursion(tree, patternFunction, fsmCache) {
+        var appliedPattern = patternFunction(tree, fsmCache);
+        
+        if (appliedPattern) {
+          return appliedPattern;
+        }
+        
+        var children = [];
+        
+        if (tree.tag === tags.ALT) {
+          children = tree.choices;
+        } else if (tree.tag === tags.SEQ) {
+          children = tree.elements;
+        } else if (tree.tag === tags.KSTAR) {
+          children = [tree.expr];
+        }
+        
+        for (var i=0; i<children.length; i++) {
+          appliedPattern = _simplify_recursion(children[i], patternFunction, fsmCache);
+          if (appliedPattern) {
+            return appliedPattern;
+          }
+        }
+        
+        return false;
       }
 
       // The choices parameter must be an array of expression trees.
