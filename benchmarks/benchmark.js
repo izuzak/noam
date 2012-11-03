@@ -5,8 +5,8 @@ var Benchtable = require('benchtable');
 
 var suite = new Benchtable();
 
-suite.addFunction("simplify_new", function(tree) { return noam.re.tree.simplify_newds(tree); });
-suite.addFunction("simplify_new_nofsm", function(tree) { return noam.re.tree.simplify_newds(tree, {useFsmPatterns : false}); });
+suite.addFunction("simplify_new", function(tree) { return noam.re.tree.simplify(tree); });
+suite.addFunction("simplify_new_nofsm", function(tree) { return noam.re.tree.simplify(tree, {useFsmPatterns : false}); });
 
 var regexLengths = [5, 10, 20, 30];
 
@@ -24,7 +24,7 @@ suite.on('complete', function() {
 });
 
 suite.on('error', function(event) {
-  console.log("ERROR", JSON.stringity(event));
+  console.log("ERROR"); //JSON.stringify(event));
 });
 
 suite.run();
