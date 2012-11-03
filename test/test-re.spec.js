@@ -59,7 +59,7 @@ describe("regular expressions", function() {
         var eps = noamRe.tree.makeEps();
         var automaton = noamRe.tree.toAutomaton(eps);
         expect(noamFsm.isStringInLanguage(automaton, [])).toBeTruthy();
-        expect(noamFsm.isStringInLanguage(automaton, ["a"])).toBeFalsy();
+        expect(function(){ noamFsm.isStringInLanguage(automaton, ["a"]); }).toThrow();
       });
 
       it("handles alteration in the regular expression", function() {
@@ -86,7 +86,7 @@ describe("regular expressions", function() {
         expect(noamFsm.isStringInLanguage(automaton, ["a"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "a"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "a", "a"])).toBeTruthy();
-        expect(noamFsm.isStringInLanguage(automaton, ["a", "a", "b"])).toBeFalsy();
+        expect(function(){ noamFsm.isStringInLanguage(automaton, ["a", "a", "b"]); }).toThrow();
       });
 
       it("handles any combination of the above", function() {

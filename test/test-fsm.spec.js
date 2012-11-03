@@ -271,55 +271,55 @@ describe("FSM", function() {
     it("Should not be valid - must have initial state", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.initialState = null;
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function() { noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - must have at least one state", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.states = [];
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - must have at least one symbol", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.alphabet = null;
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - symbols and states mut not overlap", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.states.push("a");
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - no duplicate states", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.states.push("s1");
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - no duplicate symbols", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.alphabet.push("a");
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - must have no duplicate states in transition toStates", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.transitions.push({fromState : "s1", symbol : "a", toStates : ["s1", "s1"]});
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - must have no duplicate transitions", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.transitions.push({fromState : "s1", symbol : "b", toStates : ["s3"]});
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
 
     it("Should not be valid - must have no overlaping transitions", function() {
       var fsm2 = noamUtil.clone(fsm1);
       fsm2.transitions.push({fromState : "s2", symbol : "a", toStates : ["s2"]});
-      expect(noamFsm.validate(fsm2)).not.toEqual(true);
+      expect(function(){ noamFsm.validate(fsm2); }).toThrow();
     });
   });
 
