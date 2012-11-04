@@ -3151,12 +3151,14 @@
         
         if (typeof opts.appliedPatterns === 'undefined') {
           opts.appliedPatterns = null;
+        } else {
+          opts.appliedPatterns = config.appliedPatterns;
         }
         
         if (typeof opts.useFsmPatterns === "undefined") {
           opts.useFsmPatterns = true;
         }
-                
+        
         var appliedPattern = "temp";
         var iterCount = 0;
         var fsmCache = new noam.util.HashTable();
