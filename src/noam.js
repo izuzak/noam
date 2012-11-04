@@ -191,6 +191,21 @@
     }
     return res;
   };
+  
+  // returns an unsorted array representation of the intersection of the two
+  // arrays arr1 and arr2 with each element included exactly once, regardless
+  // of the count in arr1 and arr2
+  noam.util.setIntersection = function(arr1, arr2) {
+    var res = [];
+    var i;
+    for (i=0; i<arr1.length; i++) {
+      if (noam.util.contains(arr2, arr1[i])) { 
+        res.push(arr1[i]);
+      }
+    }
+    
+    return res;
+  };
 
   // make a deep clone of an object
   noam.util.clone = function(obj) {
@@ -1868,13 +1883,11 @@
   // get a new fsm which accepts the language L=L1/L2 (set intersection) where
   // L1 is the language accepted by fsma and
   // L2 is the language accepted by fsmB
-  noam.fsm.intersection = function(fsmA, fsmB) {
-    if (!(noam.util.areEquivalent(fsmA.alphabet, fsmB.alphabet))) {
-      throw new Error("Alphabets must be the same");
-    }
+  noam.fsm.intersection = function(fsmA, fsmB) {    
+    var new_alphabet = noam.util.clone(noam.util.setIntersection(fsmA.alphabet, fsmB.alphabet));
 
     var newFsm = {
-      alphabet : noam.util.clone(fsmA.alphabet),
+      alphabet : new_alphabet,
       states : [],
       initialState : [noam.util.clone(fsmA.initialState), noam.util.clone(fsmB.initialState)],
       acceptingStates : [],
@@ -2059,7 +2072,7 @@
   // the language accepted by fsmA
   noam.fsm.isSubset = function(fsmA, fsmB) {
     var fsmIntersection = noam.fsm.intersection(fsmA, fsmB);
-
+    
     return noam.fsm.areEquivalentFSMs(fsmB, fsmIntersection);
   };
 
