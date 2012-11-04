@@ -512,22 +512,40 @@ describe("regular expressions", function() {
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "c", specials.RIGHT_PAREN, "b"])).toBeTruthy();
       });
       
-      it("L1+L2 => L2, if L1 is subset of L2", function() {
+      it("handles L1+L2 => L2, if L1 is subset of L2", function() {
         var re1 = noamRe.array.toTree([ "a", "b", specials.ALT, specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
       });
             
-      it("(L1+L2)* => L2, if L1 is subset of L2*", function() {
-        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", "b", specials.ALT, specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.RIGHT_PAREN, specials.KSTAR ]);
-        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
-        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
+      it("handles (L1+L2)* => L2*, if L1* is subset of L2*", function() {
+        var re1 = noamRe.string.toTree("(ab+(a+b))*");
+        var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
+        expect(re1_s).toEqual("(a+b)*");
       });
       
-      it("L1*L2* => L2, if L1 is subset of L2", function() {
-        var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", "b", "a", "b", specials.RIGHT_PAREN, specials.KSTAR, specials.LEFT_PAREN, "a", "b", specials.RIGHT_PAREN, specials.KSTAR ]);
-        var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
-        expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
+      it("handles L1*L2* => L2*, if L1* is subset of L2*", function() {
+        var re1 = noamRe.string.toTree("(abab)*(ab)*");
+        var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
+        expect(re1_s).toEqual("(ab)*");
+      });
+        
+      it("handles a*($+b(a+b)*) => (a+b)*", function() {
+        var re1 = noamRe.string.toTree("a*($+b(a+b)*)");
+        var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
+        expect(re1_s).toEqual("(a+b)*");
+      });
+      
+      it("handles ($+(a+b)*a)b* => (a+b)*", function() {
+        var re1 = noamRe.string.toTree("($+(a+b)*a)b*");
+        var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
+        expect(re1_s).toEqual("(a+b)*");
+      });
+      
+      it("handles $+L => L, if L contains $", function() {
+        var re1 = noamRe.string.toTree("$+b*($+c)");
+        var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
+        expect(re1_s).toEqual("b*($+c)");
       });
     });
   });
