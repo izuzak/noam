@@ -68,7 +68,7 @@ describe("UTIL", function() {
       expect(noamUtil.containsAll(x, y)).toEqual(true);
       expect(noamUtil.containsAll(x, w)).toEqual(true);
       expect(noamUtil.containsAll(x, z)).toEqual(false);
-    })
+    });
   });
 
   describe("containsAny", function() {
@@ -126,7 +126,7 @@ describe("UTIL", function() {
       expect(counter.getAndAdvance()).toBe(1);
       expect(counter.value).toBe(2);
 
-      var counter = noamUtil.makeCounter(5);
+      counter = noamUtil.makeCounter(5);
       expect(counter.getAndAdvance()).toBe(5);
     });
   });

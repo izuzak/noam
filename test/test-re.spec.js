@@ -188,10 +188,10 @@ describe("regular expressions", function() {
     describe("specials", function() {
       it("holds distinct constants for the alteration operator, the Kleene star," +
          " parentheses and epsilon", function() {
-        expect(specials.ALT !== specials.KSTAR).toBeTruthy()
-        expect(specials.KSTAR !== specials.LEFT_PAREN).toBeTruthy()
-        expect(specials.LEFT_PAREN !== specials.RIGHT_PAREN).toBeTruthy()
-        expect(specials.RIGHT_PAREN !== specials.EPS).toBeTruthy()
+        expect(specials.ALT !== specials.KSTAR).toBeTruthy();
+        expect(specials.KSTAR !== specials.LEFT_PAREN).toBeTruthy();
+        expect(specials.LEFT_PAREN !== specials.RIGHT_PAREN).toBeTruthy();
+        expect(specials.RIGHT_PAREN !== specials.EPS).toBeTruthy();
       });
     });
 

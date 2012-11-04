@@ -16,6 +16,8 @@
         Array.isArray(grammar.productions))) {
       throw new Error('Grammar must be defined and have nonterminals, terminals, initialNonterminal and productions array properties!');
     }
+    
+    var i, j;
 
     if (grammar.nonterminals.length < 1) {
       throw new Error('Set of nonterminals must not be empty.');
@@ -25,19 +27,19 @@
       throw new Error('Set of terminals must not be empty.');
     }
 
-    for (var i=0; i<grammar.nonterminals.length; i++) {
+    for (i=0; i<grammar.nonterminals.length; i++) {
       if (noam.util.contains(grammar.nonterminals, grammar.nonterminals[i], i+1)) {
         throw new Error('Equivalent nonterminals');
       }
     }
 
-    for (var i=0; i<grammar.terminals.length; i++) {
+    for (i=0; i<grammar.terminals.length; i++) {
       if (noam.util.contains(grammar.terminals, grammar.terminals[i], i+1)) {
         throw new Error('Equivalent terminals');
       }
     }
 
-    for (var i=0; i<grammar.terminals.length; i++) {
+    for (i=0; i<grammar.terminals.length; i++) {
       if (noam.util.contains(grammar.nonterminals, grammar.terminals[i])) {
         throw new Error('Terminals and nonterminals must not overlap');
       }
@@ -47,7 +49,7 @@
       throw new Error('InitialNonterminal must be in nonterminals');
     }
 
-    for (var i=0; i<grammar.productions.length; i++) {
+    for (i=0; i<grammar.productions.length; i++) {
       var production = grammar.productions[i];
 
       if (!(Array.isArray(production.left))) {
@@ -58,7 +60,7 @@
         throw new Error('Left side of production must have at least one terminal or nonterminal');
       }
 
-      for (var j=0; j<production.left.length; j++) {
+      for (j=0; j<production.left.length; j++) {
         if (!(noam.util.contains(grammar.nonterminals, production.left[j])) &&
             !(noam.util.contains(grammar.terminals, production.left[j]))) {
           throw new Error('Left side of production must be in nonterminals or terminals');
@@ -70,13 +72,13 @@
       }
 
       if (production.right.length === 1 && production.right[0] === noam.grammar.epsilonSymbol) {
-        ;
+        
       } else {
         if (production.right.length === 0) {
           throw new Error('Right side of production must have at least one terminal or nonterminal or epsilon symbol');
         }
 
-        for (var j=0; j<production.right.length; j++) {
+        for (j=0; j<production.right.length; j++) {
           if (!(noam.util.contains(grammar.nonterminals, production.right[j])) &&
               !(noam.util.contains(grammar.terminals, production.right[j]))) {
             throw new Error('Right side of production must be in nonterminals or terminals');
@@ -97,8 +99,9 @@
   noam.grammar.determineType = function(grammar) {
     var type = noam.grammar.regType;
     var isRightRegular = null;
+    var i, j, indexOfNonterminal;
 
-    for (var i=0; i<grammar.productions.length; i++) {
+    for (i=0; i<grammar.productions.length; i++) {
       var production = grammar.productions[i];
 
       // handle both left-regular and right-regular
@@ -110,9 +113,9 @@
             continue;
           } else {
             var rightNonTerminalCount = 0;
-            var indexOfNonterminal = -1;
+            indexOfNonterminal = -1;
 
-            for (var j=0; j<production.right.length; j++) {
+            for (j=0; j<production.right.length; j++) {
               if (noam.util.contains(grammar.nonterminals, production.right[j])) {
                 rightNonTerminalCount += 1;
                 indexOfNonterminal = j;
@@ -158,9 +161,9 @@
 
       if (type === noam.grammar.csgType) {
         var leftNonTerminalCount = 0;
-        var indexOfNonterminal = -1;
+        indexOfNonterminal = -1;
 
-        for (var j=0; j<production.left.length; j++) {
+        for (j=0; j<production.left.length; j++) {
           if (noam.util.contains(grammar.nonterminals, production.left[j])) {
             leftNonTerminalCount += 1;
             indexOfNonterminal = j;
@@ -174,13 +177,13 @@
         var prefix = production.left.slice(0, indexOfNonterminal-1);
         var sufix = production.left.slice(indexOfNonterminal);
 
-        for (var j=0; j<prefix.length; j++) {
+        for (j=0; j<prefix.length; j++) {
           if (!(noam.util.areEquivalent(prefix[j], production.right[j]))) {
             return noam.grammar.unrestrictedType;
           }
         }
 
-        for (var j=0; j<sufix.length; j++) {
+        for (j=0; j<sufix.length; j++) {
           if (!(noam.util.areEquivalent(sufix[sufix.length-j-1], production.right[production.right.length-j-1]))) {
             return noam.grammar.unrestrictedType;
           }
@@ -201,12 +204,12 @@
 
     str.push("Initial nonterminal: " + "<" + grammar.initialNonterminal + ">");
 
-    var slimProds = [];
+    var slimProds = [], i, j, k;
 
-    for (var i=0; i<grammar.productions.length; i++) {
+    for (i=0; i<grammar.productions.length; i++) {
       var foundSlim = -1;
 
-      for (var j=0; j<slimProds.length; j++) {
+      for (j=0; j<slimProds.length; j++) {
         if (noam.util.areEquivalent(slimProds[j][0], grammar.productions[i].left)) {
           foundSlim = j;
           break;
@@ -220,10 +223,10 @@
       }
     }
 
-    for (var i=0; i<slimProds.length; i++) {
+    for (i=0; i<slimProds.length; i++) {
       var prod = [];
 
-      for (var j=0; j<slimProds[i][0].length; j++) {
+      for (j=0; j<slimProds[i][0].length; j++) {
         if (noam.util.contains(grammar.nonterminals, slimProds[i][0][j])) {
           prod.push("<" + slimProds[i][0][j].toString() + ">");
         } else {
@@ -237,8 +240,8 @@
 
       prod.push("->");
 
-      for (var j=0; j<slimProds[i][1].length; j++) {
-        for (var k=0; k<slimProds[i][1][j].length; k++) {
+      for (j=0; j<slimProds[i][1].length; j++) {
+        for (k=0; k<slimProds[i][1][j].length; k++) {
           if (noam.util.contains(grammar.nonterminals, slimProds[i][1][j][k])) {
             prod.push("<" + slimProds[i][1][j][k].toString() + ">");
           } else {

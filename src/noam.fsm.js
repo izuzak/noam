@@ -15,7 +15,7 @@
       alphabet: [],
       acceptingStates: [],
       initialState: undefined,
-      transitions: [],
+      transitions: []
     };
   };
 
@@ -123,6 +123,8 @@
 
   // validates a FSM definition
   noam.fsm.validate = function(fsm) {
+    var i, j, k;
+    
     if (!(typeof fsm !== 'undefined' &&
         Array.isArray(fsm.states) &&
         Array.isArray(fsm.alphabet) &&
@@ -136,7 +138,7 @@
       throw new Error('Set of states must not be empty.');
     }
 
-    for (var i=0; i<fsm.states.length; i++) {
+    for (i=0; i<fsm.states.length; i++) {
       if (noam.util.contains(fsm.states, fsm.states[i], i+1)) {
         throw new Error('Equivalent states');
       }
@@ -146,7 +148,7 @@
       throw new Error('Alphabet must not be empty.');
     }
 
-    for (var i=0; i<fsm.alphabet.length; i++) {
+    for (i=0; i<fsm.alphabet.length; i++) {
       if (noam.util.contains(fsm.alphabet, fsm.alphabet[i], i+1)) {
         throw new Error('Equivalent alphabet symbols');
       }
@@ -156,13 +158,13 @@
       throw new Error('FSM alphabet must not contain the epsilon symbol');
     }
 
-    for (var i=0; i<fsm.alphabet.length; i++) {
+    for (i=0; i<fsm.alphabet.length; i++) {
       if (noam.util.contains(fsm.states, fsm.alphabet[i])) {
         throw new Error('States and alphabet symbols must not overlap');
       }
     }
 
-    for (var i=0; i<fsm.acceptingStates.length; i++) {
+    for (i=0; i<fsm.acceptingStates.length; i++) {
       if (noam.util.contains(fsm.acceptingStates, fsm.acceptingStates[i], i+1)) {
         throw new Error('Equivalent acceptingStates');
       }
@@ -176,7 +178,7 @@
       throw new Error('Initial state must be in states');
     }
 
-    for (var i=0; i<fsm.transitions.length; i++) {
+    for (i=0; i<fsm.transitions.length; i++) {
       var transition = fsm.transitions[i];
 
       if (typeof transition.fromState === 'undefined' ||
@@ -194,7 +196,7 @@
         throw new Error('Transition symbol must be in alphabet.');
       }
 
-      for (var k=0; k<transition.toStates.length; k++) {
+      for (k=0; k<transition.toStates.length; k++) {
         if (!(noam.util.contains(fsm.states, transition.toStates[k]))) {
           throw new Error('Transition toStates must be in states.');
         }
@@ -205,8 +207,8 @@
       }
     }
 
-    for (var i=0; i<fsm.transitions.length; i++) {
-      for (var j=i+1; j<fsm.transitions.length; j++) {
+    for (i=0; i<fsm.transitions.length; i++) {
+      for (j=i+1; j<fsm.transitions.length; j++) {
         if (fsm.transitions[i].fromState === fsm.transitions[j].fromState &&
             fsm.transitions[i].symbol === fsm.transitions[j].symbol) {
           throw new Error('Transitions for the same fromState and symbol must be defined in a single trainsition.');
@@ -253,7 +255,7 @@
       throw new Error('FSM must contain all states for which epsilon closure is being computed');
     }
 
-    var unprocessedStates = states
+    var unprocessedStates = states;
     var targetStates = [];
 
     while (unprocessedStates.length !== 0) {
@@ -368,7 +370,7 @@
     var states = noam.fsm.readString(fsm, inputSymbolStream);
 
     return noam.util.containsAny(fsm.acceptingStates, states);
-  }
+  };
 
   // pretty print the fsm transition function and accepting states as a table
   noam.fsm.printTable = function(fsm) {
@@ -402,10 +404,10 @@
        truncate: '~'
     });
 
-    var tableRows = [];
-    for (var i=0; i<fsm.states.length; i++) {
+    var tableRows = [], i, j;
+    for (i=0; i<fsm.states.length; i++) {
       tableRows.push(new Array(colHeads.length));
-      for (var j=0; j<colHeads.length; j++) {
+      for (j=0; j<colHeads.length; j++) {
         tableRows[i][j] = "";
       }
       tableRows[i][0] = fsm.states[i].toString();
@@ -415,13 +417,13 @@
       table.push(tableRows[i]);
     }
 
-    for (var i=0; i<fsm.transitions.length; i++) {
+    for (i=0; i<fsm.transitions.length; i++) {
       var transition = fsm.transitions[i];
 
       var colNum = null;
       var rowNum = null;
 
-      for (var j=0; j<fsm.states.length; j++) {
+      for (j=0; j<fsm.states.length; j++) {
         if (noam.util.areEquivalent(fsm.states[j], transition.fromState)) {
           rowNum = j;
           break;
@@ -431,7 +433,7 @@
       if (transition.symbol === noam.fsm.epsilonSymbol) {
         colNum = colHeads.length-2;
       } else {
-        for (var j=0; j<fsm.alphabet.length; j++) {
+        for (j=0; j<fsm.alphabet.length; j++) {
           if (noam.util.areEquivalent(fsm.alphabet[j], transition.symbol)) {
             colNum = j+1;
             break;
@@ -457,11 +459,11 @@
     }
     headers.push("");
 
-    var tableRows = [];
+    var tableRows = [], i, j;
     
-    for (var i=0; i<fsm.states.length; i++) {
+    for (i=0; i<fsm.states.length; i++) {
       tableRows.push(new Array(headers.length));
-      for (var j=0; j<headers.length; j++) {
+      for (j=0; j<headers.length; j++) {
         tableRows[i][j] = { text : []};
       }
       tableRows[i][0] = { text : fsm.states[i].toString() };
@@ -470,13 +472,13 @@
         { text : ["1"] } : { text : ["0"] };
     }
 
-    for (var i=0; i<fsm.transitions.length; i++) {
+    for (i=0; i<fsm.transitions.length; i++) {
       var transition = fsm.transitions[i];
 
       var colNum = null;
       var rowNum = null;
 
-      for (var j=0; j<fsm.states.length; j++) {
+      for (j=0; j<fsm.states.length; j++) {
         if (noam.util.areEquivalent(fsm.states[j], transition.fromState)) {
           rowNum = j;
           break;
@@ -486,7 +488,7 @@
       if (transition.symbol === noam.fsm.epsilonSymbol) {
         colNum = headers.length-2;
       } else {
-        for (var j=0; j<fsm.alphabet.length; j++) {
+        for (j=0; j<fsm.alphabet.length; j++) {
           if (noam.util.areEquivalent(fsm.alphabet[j], transition.symbol)) {
             colNum = j+1;
             break;
@@ -506,15 +508,15 @@
     htmlString.push("<table border='1'>");
     htmlString.push("  <tr>");
     
-    for(var i=0; i<headers.length; i++) {
+    for (i=0; i<headers.length; i++) {
       htmlString.push("    <th>" + headers[i].toString() + "</th>");
     }
 
     htmlString.push("  </tr>");
 
-    for (var i=0; i<tableRows.length; i++) {
+    for (i=0; i<tableRows.length; i++) {
       htmlString.push("  <tr>");
-      for (var j=0; j<tableRows[i].length; j++) {
+      for (j=0; j<tableRows[i].length; j++) {
         htmlString.push("    <td>" + tableRows[i][j].text + "</td>");
       }
 
@@ -528,10 +530,11 @@
   // print the fsm in the graphviz dot format
   noam.fsm.printDotFormat = function(fsm) {
     var result = ["digraph finite_state_machine {", "  rankdir=LR;"];
-
     var accStates = ["  node [shape = doublecircle];"];
     
-    for (var i=0; i<fsm.acceptingStates.length; i++) {
+    var i, j, k, trans;
+    
+    for (i=0; i<fsm.acceptingStates.length; i++) {
       accStates.push(fsm.acceptingStates[i].toString());
     }
 
@@ -544,18 +547,18 @@
     //initState.push('" "secret_node"}');
     //result.push(initState.join(""));
 
-    var initStateArrow = ["  secret_node ->"]
+    var initStateArrow = ["  secret_node ->"];
     initStateArrow.push(fsm.initialState.toString());
     initStateArrow.push("[style=bold];");
     result.push(initStateArrow.join(" "));
 
     var newTransitions = [];
 
-    for (var i=0; i<fsm.transitions.length; i++) {
-      for (var j=0; j<fsm.transitions[i].toStates.length; j++) {
+    for (i=0; i<fsm.transitions.length; i++) {
+      for (j=0; j<fsm.transitions[i].toStates.length; j++) {
         var found = null;
 
-        for (var k=0; k<newTransitions.length; k++) {
+        for (k=0; k<newTransitions.length; k++) {
           if (noam.util.areEquivalent(newTransitions[k].fromState, fsm.transitions[i].fromState) &&
               noam.util.areEquivalent(newTransitions[k].toStates, [fsm.transitions[i].toStates[j]])) {
             found = newTransitions[k];
@@ -572,9 +575,9 @@
       }
     }
 
-    for (var i=0; i<newTransitions.length; i++) {
+    for (i=0; i<newTransitions.length; i++) {
       if (noam.util.areEquivalent(newTransitions[i].toStates[0], fsm.initialState)) {
-        var trans = [" "];
+        trans = [" "];
         trans.push(newTransitions[i].toStates[0].toString());
         trans.push("->");
         trans.push(newTransitions[i].fromState.toString());
@@ -584,7 +587,7 @@
         trans.push(" dir = back];");
         result.push(trans.join(" "));
       } else {
-        var trans = [" "];
+        trans = [" "];
         trans.push(newTransitions[i].fromState.toString());
         trans.push("->");
         trans.push(newTransitions[i].toStates[0].toString());
@@ -603,17 +606,17 @@
 
   // determine reachable states
   noam.fsm.getReachableStates = function(fsm, state, shouldIncludeInitialState) {
-    var unprocessedStates = [state];
+    var unprocessedStates = [state], i, j;
     var reachableStates = shouldIncludeInitialState ? [state] : [];
 
     while (unprocessedStates.length !== 0) {
       var currentState = unprocessedStates.pop();
 
-      for (var i=0; i<fsm.transitions.length; i++) {
+      for (i=0; i<fsm.transitions.length; i++) {
         var transition = fsm.transitions[i];
 
         if (noam.util.areEquivalent(currentState, transition.fromState)) {
-          for (var j=0; j<transition.toStates.length; j++) {
+          for (j=0; j<transition.toStates.length; j++) {
             if (!(noam.util.contains(reachableStates, transition.toStates[j]))) {
               reachableStates.push(transition.toStates[j]);
               
@@ -632,24 +635,24 @@
   // determine and remove unreachable states
   noam.fsm.removeUnreachableStates = function (fsm) {
     var reachableStates = noam.fsm.getReachableStates(fsm, fsm.initialState, true);
-    var newFsm = noam.util.clone(fsm);
+    var newFsm = noam.util.clone(fsm), i;
     newFsm.states = [];
     newFsm.acceptingStates = [];
     newFsm.transitions = [];
 
-    for (var i=0; i<fsm.states.length; i++) {
+    for (i=0; i<fsm.states.length; i++) {
       if(noam.util.contains(reachableStates, fsm.states[i])) {
         newFsm.states.push(noam.util.clone(fsm.states[i]));
       }
     }
 
-    for (var i=0; i<fsm.acceptingStates.length; i++) {
+    for (i=0; i<fsm.acceptingStates.length; i++) {
       if (noam.util.contains(reachableStates, fsm.acceptingStates[i])) {
         newFsm.acceptingStates.push(noam.util.clone(fsm.acceptingStates[i]));
       }
     }
 
-    for (var i=0; i<fsm.transitions.length; i++) {
+    for (i=0; i<fsm.transitions.length; i++) {
       if (noam.util.contains(reachableStates, fsm.transitions[i].fromState)) {
         newFsm.transitions.push(noam.util.clone(fsm.transitions[i]));
       }
@@ -684,7 +687,7 @@
     }
 
     var unprocessedPairs = [[stateA, stateB]];
-    var processedPairs = [];
+    var processedPairs = [], i, j;
 
     while (unprocessedPairs.length !== 0) {
       var currentPair = unprocessedPairs.pop();
@@ -695,8 +698,8 @@
 
       processedPairs.push(currentPair);
 
-      for (var i=0; i<fsmA.alphabet.length; i++) {
-        for (var j=0; j<fsmA.alphabet.length; j++) {
+      for (i=0; i<fsmA.alphabet.length; i++) {
+        for (j=0; j<fsmA.alphabet.length; j++) {
           var pair = [noam.fsm.makeTransition(fsmA, [currentPair[0]], fsmA.alphabet[j])[0],
                       noam.fsm.makeTransition(fsmB, [currentPair[1]], fsmA.alphabet[j])[0]];
 
@@ -722,14 +725,14 @@
       throw new Error('FSM must be DFA');
     }
 
-    var equivalentPairs = [];
+    var equivalentPairs = [], i, j, k;
 
-    for (var i=0; i<fsm.states.length; i++) {
-      for (var j=i+1; j<fsm.states.length; j++) {
+    for (i=0; i<fsm.states.length; i++) {
+      for (j=i+1; j<fsm.states.length; j++) {
         if (noam.fsm.areEquivalentStates(fsm, fsm.states[i], fsm, fsm.states[j])) {
           var pair = [fsm.states[i], fsm.states[j]];
 
-          for (var k=0; k<equivalentPairs.length; k++) {
+          for (k=0; k<equivalentPairs.length; k++) {
             if (noam.util.areEquivalent(equivalentPairs[k][1], pair[0])) {
               pair[0] = equivalentPairs[k][1];
               break;
@@ -752,7 +755,7 @@
     };
 
     function isOneOfEquivalentStates(s) {
-      for (var i=0; i<equivalentPairs.length; i++) {
+      for (i=0; i<equivalentPairs.length; i++) {
         if (noam.util.areEquivalent(equivalentPairs[i][1], s)) {
           return true;
         }
@@ -762,7 +765,7 @@
     }
 
     function getEquivalentState(s) {
-      for (var i=0; i<equivalentPairs.length; i++) {
+      for (i=0; i<equivalentPairs.length; i++) {
         if (noam.util.areEquivalent(equivalentPairs[i][1], s)) {
           return equivalentPairs[i][0];
         }
@@ -771,13 +774,13 @@
       return s;
     }
 
-    for (var i=0; i<fsm.states.length; i++) {
+    for (i=0; i<fsm.states.length; i++) {
       if (!(isOneOfEquivalentStates(fsm.states[i]))) {
         newFsm.states.push(noam.util.clone(fsm.states[i]));
       }
     }
 
-    for (var i=0; i<fsm.acceptingStates.length; i++) {
+    for (i=0; i<fsm.acceptingStates.length; i++) {
       if (!(isOneOfEquivalentStates(fsm.acceptingStates[i]))) {
         newFsm.acceptingStates.push(noam.util.clone(fsm.acceptingStates[i]));
       }
@@ -785,14 +788,14 @@
 
     newFsm.initialState = noam.util.clone(getEquivalentState(fsm.initialState));
 
-    for (var i=0; i<fsm.transitions.length; i++) {
+    for (i=0; i<fsm.transitions.length; i++) {
       var transition = noam.util.clone(fsm.transitions[i]);
 
       if (isOneOfEquivalentStates(transition.fromState)) {
         continue;
       }
 
-      for (var j=0; j<transition.toStates.length; j++) {
+      for (j=0; j<transition.toStates.length; j++) {
         transition.toStates[j] = getEquivalentState(transition.toStates[j]);
       }
 
@@ -821,12 +824,12 @@
 
   // generate random fsm
   noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet, maxNumToStates) {
-    var newFsm = {};
+    var newFsm = {}, i, j, k;
 
     function prefix(ch, num, str) {
       var retStr = str;
 
-      for (var i=0; i<str.length - num; i++) {
+      for (i=0; i<str.length - num; i++) {
         retStr = ch + str;
       }
 
@@ -834,20 +837,20 @@
     }
 
     newFsm.states = [];
-    for (var i=0, len=numStates.toString().length; i<numStates; i++) {
+    for (i=0, len=numStates.toString().length; i<numStates; i++) {
       newFsm.states.push("s" + prefix("0", len, i.toString()));
     }
 
     newFsm.alphabet = [];
-    for (var i=0, len=numAlphabet.toString().length; i<numAlphabet; i++) {
+    for (i=0, len=numAlphabet.toString().length; i<numAlphabet; i++) {
       newFsm.alphabet.push("a" + prefix("0", len, i.toString()));
     }
 
     newFsm.initialState = newFsm.states[0];
 
     newFsm.acceptingStates = [];
-    for (var i=0; i<numStates; i++) {
-      if(Math.round(Math.random())) {
+    for (i=0; i<numStates; i++) {
+      if (Math.round(Math.random())) {
         newFsm.acceptingStates.push(newFsm.states[i]);
       }
     }
@@ -857,8 +860,8 @@
     }
 
     newFsm.transitions = [];
-    for (var i=0; i<numStates; i++) {
-      for (var j=0; j<newFsm.alphabet.length; j++) {
+    for (i=0; i<numStates; i++) {
+      for (j=0; j<newFsm.alphabet.length; j++) {
         var numToStates = 1;
 
         if (fsmType !== noam.fsm.dfaType) {
@@ -867,7 +870,7 @@
 
         if (numToStates > 0) {
           var toStates = [];
-          for (var k=0; k<newFsm.states.length && toStates.length < numToStates; k++) {
+          for (k=0; k<newFsm.states.length && toStates.length < numToStates; k++) {
             var diff = (newFsm.states.length-k)-(numToStates-toStates.length) + 1;
 
             if (diff <= 0) {
@@ -903,7 +906,7 @@
       return fsm; // no need to convert it
     }
 
-    var newFsm = {};
+    var newFsm = {}, i, j, k, transition;
 
     newFsm.alphabet = noam.util.clone(fsm.alphabet);
     newFsm.states = [];
@@ -911,19 +914,19 @@
     newFsm.initialState = [noam.util.clone(fsm.initialState)];
     newFsm.transitions = [];
 
-    for (var i=0; i<fsm.states.length; i++) {
+    for (i=0; i<fsm.states.length; i++) {
       newFsm.states.push([noam.util.clone(fsm.states[i])]);
     }
 
-    for (var i=0; i<fsm.acceptingStates.length; i++) {
+    for (i=0; i<fsm.acceptingStates.length; i++) {
       newFsm.acceptingStates.push([noam.util.clone(fsm.acceptingStates[i])]);
     }
 
     var newStates = [];
     var multiStates = [];
 
-    for (var i=0; i<fsm.transitions.length; i++) {
-      var transition = noam.util.clone(fsm.transitions[i]);
+    for (i=0; i<fsm.transitions.length; i++) {
+      transition = noam.util.clone(fsm.transitions[i]);
       transition.fromState = [transition.fromState];
 
       transition.toStates = [transition.toStates];
@@ -946,17 +949,17 @@
         newFsm.acceptingStates.push(state);
       }
 
-      for (var i=0; i<newFsm.alphabet.length; i++) {
+      for (i=0; i<newFsm.alphabet.length; i++) {
         var ts = noam.fsm.makeTransition(fsm, state, newFsm.alphabet[i]).sort();
 
-        for (var j=0; j<newFsm.states.length; j++) {
+        for (j=0; j<newFsm.states.length; j++) {
           if (noam.util.areEqualSets(ts, newFsm.states[j])) {
             ts = newFsm.states[j];
             break;
           }
         }
         
-        for (var j=0; j<newStates.length; j++) {
+        for (j=0; j<newStates.length; j++) {
           if (noam.util.areEqualSets(ts, newStates[j])) {
             ts = newStates[j];
             break;
@@ -976,11 +979,11 @@
     var errorAdded = false;
     var errorState = "ERROR";
 
-    for (var i=0; i<newFsm.states.length; i++) {
-      for (var j=0; j<newFsm.alphabet.length; j++) {
+    for (i=0; i<newFsm.states.length; i++) {
+      for (j=0; j<newFsm.alphabet.length; j++) {
         var found = false;
-        for (var k=0; k<newFsm.transitions.length; k++) {
-          var transition = newFsm.transitions[k];
+        for (k=0; k<newFsm.transitions.length; k++) {
+          transition = newFsm.transitions[k];
 
           if (noam.util.areEquivalent(transition.symbol, newFsm.alphabet[j]) &&
               noam.util.areEquivalent(transition.fromState, newFsm.states[i])) {
@@ -1008,7 +1011,7 @@
       return fsm; // this is already an NFA (or a DFA which is also an NFA)
     }
 
-    var newFsm = noam.util.clone(fsm);
+    var newFsm = noam.util.clone(fsm), i, j;
 
     var initialEpsilon = noam.fsm.computeEpsilonClosure(fsm, [fsm.initialState]);
 
@@ -1019,8 +1022,8 @@
 
     var newTransitions = [];
 
-    for (var i=0; i<newFsm.states.length; i++) {
-      for (var j=0; j<newFsm.alphabet.length; j++) {
+    for (i=0; i<newFsm.states.length; i++) {
+      for (j=0; j<newFsm.alphabet.length; j++) {
         var toStates = noam.fsm.makeTransition(newFsm, [newFsm.states[i]], newFsm.alphabet[j]).sort();
 
         if (toStates.length > 0) {
@@ -1037,13 +1040,13 @@
 
     var multiStateTransitions = [];
 
-    for (var i=0; i<newFsm.transitions.length; i++) {
+    for (i=0; i<newFsm.transitions.length; i++) {
       var transition = newFsm.transitions[i];
 
       if (transition.toStates.length > 1) {
         var existing = false;
 
-        for (var j=0; j<multiStateTransitions.length; j++) {
+        for (j=0; j<multiStateTransitions.length; j++) {
           if (noam.util.areEqualSets(transition.toStates, multiStateTransitions[j])) {
             transition.toStates = multiStateTransitions[j];
             existing = true;
@@ -1090,14 +1093,14 @@
 
     newFsm = noam.fsm.minimize(newFsm);
 
-    var deadState = null;
+    var deadState = null, i, reachable;
 
-    for (var i=0; i<newFsm.states.length; i++) {
+    for (i=0; i<newFsm.states.length; i++) {
       if (noam.util.contains(newFsm.acceptingStates, newFsm.states[i])) {
         continue;
       }
 
-      var reachable = noam.fsm.getReachableStates(newFsm, newFsm.states[i], true);
+      reachable = noam.fsm.getReachableStates(newFsm, newFsm.states[i], true);
 
       if (noam.util.containsAny(newFsm.acceptingStates, reachable)) {
         continue;
@@ -1111,12 +1114,12 @@
       return true;
     }
 
-    for (var i=0; i<newFsm.states.length; i++) {
+    for (i=0; i<newFsm.states.length; i++) {
       if (noam.util.areEquivalent(deadState, newFsm.states[i])) {
         continue;
       }
 
-      var reachable = noam.fsm.getReachableStates(newFsm, newFsm.states[i], false);
+      reachable = noam.fsm.getReachableStates(newFsm, newFsm.states[i], false);
 
       if (noam.util.contains(reachable, newFsm.states[i])) {
         return true;
@@ -1154,9 +1157,9 @@
         }
       }
 
-      var transitions = [];
+      var transitions = [], i;
 
-      for (var i=0; i<newFsm.transitions.length; i++) {
+      for (i=0; i<newFsm.transitions.length; i++) {
         if (noam.util.areEquivalent(newFsm.transitions[i].toStates[0], currentState)) {
           transitions.push(newFsm.transitions[i]);
         }
@@ -1191,9 +1194,9 @@
 
     newFsm = noam.fsm.minimize(newFsm);
 
-    var nonAcceptingStates = [];
+    var nonAcceptingStates = [], i;
 
-    for (var i=0; i<newFsm.states.length; i++) {
+    for (i=0; i<newFsm.states.length; i++) {
       if (!(noam.util.contains(newFsm.acceptingStates, newFsm.states[i]))) {
         nonAcceptingStates.push(newFsm.states[i]);
       }
@@ -1215,7 +1218,7 @@
 
       var transitions = [];
 
-      for (var i=0; i<newFsm.transitions.length; i++) {
+      for (i=0; i<newFsm.transitions.length; i++) {
         if (noam.util.areEquivalent(newFsm.transitions[i].toStates[0], currentState)) {
           transitions.push(newFsm.transitions[i]);
         }
@@ -1251,9 +1254,11 @@
       acceptingStates : [],
       transitions : []
     };
+    
+    var i, j, k;
 
-    for (var i=0; i<fsmA.states.length; i++) {
-      for (var j=0; j<fsmB.states.length; j++) {
+    for (i=0; i<fsmA.states.length; i++) {
+      for (j=0; j<fsmB.states.length; j++) {
         var newState = [noam.util.clone(fsmA.states[i]), noam.util.clone(fsmB.states[j])];
         newFsm.states.push(newState);
 
@@ -1262,7 +1267,7 @@
           newFsm.acceptingStates.push(newState);
         }
 
-        for (var k=0; k<newFsm.alphabet.length; k++) {
+        for (k=0; k<newFsm.alphabet.length; k++) {
           newFsm.transitions.push({
             fromState : newState,
             symbol : newFsm.alphabet[k],
@@ -1289,9 +1294,11 @@
       acceptingStates : [],
       transitions : []
     };
+    
+    var i, j, k;
 
-    for (var i=0; i<fsmA.states.length; i++) {
-      for (var j=0; j<fsmB.states.length; j++) {
+    for (i=0; i<fsmA.states.length; i++) {
+      for (j=0; j<fsmB.states.length; j++) {
         var newState = [noam.util.clone(fsmA.states[i]), noam.util.clone(fsmB.states[j])];
         newFsm.states.push(newState);
 
@@ -1300,7 +1307,7 @@
           newFsm.acceptingStates.push(newState);
         }
 
-        for (var k=0; k<newFsm.alphabet.length; k++) {
+        for (k=0; k<newFsm.alphabet.length; k++) {
           newFsm.transitions.push({
             fromState : newState,
             symbol : newFsm.alphabet[k],
@@ -1329,9 +1336,11 @@
       acceptingStates : [],
       transitions : []
     };
+    
+    var i, j, k;
 
-    for (var i=0; i<fsmA.states.length; i++) {
-      for (var j=0; j<fsmB.states.length; j++) {
+    for (i=0; i<fsmA.states.length; i++) {
+      for (j=0; j<fsmB.states.length; j++) {
         var newState = [noam.util.clone(fsmA.states[i]), noam.util.clone(fsmB.states[j])];
         newFsm.states.push(newState);
 
@@ -1340,7 +1349,7 @@
           newFsm.acceptingStates.push(newState);
         }
 
-        for (var k=0; k<newFsm.alphabet.length; k++) {
+        for (k=0; k<newFsm.alphabet.length; k++) {
           newFsm.transitions.push({
             fromState : newState,
             symbol : newFsm.alphabet[k],
@@ -1359,9 +1368,9 @@
   noam.fsm.complement = function(fsm) {
     var newFsm = noam.util.clone(fsm);
 
-    var newAccepting = [];
+    var newAccepting = [], i;
 
-    for (var i=0; i<newFsm.states.length; i++) {
+    for (i=0; i<newFsm.states.length; i++) {
       if (!(noam.util.contains(newFsm.acceptingStates, newFsm.states[i]))) {
         newAccepting.push(newFsm.states[i]);
       }
@@ -1391,7 +1400,7 @@
       acceptingStates : noam.util.clone(fsmB.acceptingStates),
       transitions : noam.util.clone(fsmA.transitions).concat(noam.util.clone(fsmB.transitions))
     };
-
+    
     for (var i=0; i<fsmA.acceptingStates.length; i++) {
       newFsm.transitions.push({
         fromState : noam.util.clone(fsmA.acceptingStates[i]),
@@ -1480,8 +1489,10 @@
       initialNonterminal : noam.util.clone(fsm.initialState),
       productions : []
     };
+    
+    var i;
 
-    for (var i=0; i<fsm.transitions.length; i++) {
+    for (i=0; i<fsm.transitions.length; i++) {
       if (fsm.transitions[i].symbol === noam.fsm.epsilonSymbol) {
         grammar.productions.push({
           left : [noam.util.clone(fsm.transitions[i].fromState)],
@@ -1496,7 +1507,7 @@
       }
     }
 
-    for (var i=0; i<fsm.acceptingStates.length; i++) {
+    for (i=0; i<fsm.acceptingStates.length; i++) {
       grammar.productions.push({
         left : [noam.util.clone(fsm.acceptingStates[i])],
         right : [noam.grammar.epsilonSymbol]
@@ -1514,7 +1525,7 @@
       
       if (noam.util.areEquivalent(transition.fromState, stateA) &&
           noam.util.contains(transition.toStates, stateB)) {
-        res.push(transition.symbol)
+        res.push(transition.symbol);
       }
     }
     
@@ -1525,18 +1536,20 @@
     var r = [];
     var n = fsm.states.length;
     
-    for (var k=0; k<n+1; k++) {
-      r[k] = []
-      for (var i=0; i<n; i++) {
-        r[k][i] = []
+    var i, j, k, z;
+    
+    for (k=0; k<n+1; k++) {
+      r[k] = [];
+      for (i=0; i<n; i++) {
+        r[k][i] = [];
       }
     }
     
-    for (var i=0; i<n; i++) {
-      for (var j=0; j<n; j++) {
+    for (i=0; i<n; i++) {
+      for (j=0; j<n; j++) {
         var symbols = noam.fsm.symbolsForTransitions(fsm, fsm.states[i], fsm.states[j]);
         
-        for (var z=0; z<symbols.length; z++) {
+        for (z=0; z<symbols.length; z++) {
           symbols[z] = noam.re.tree.makeLit(symbols[z]);
         }
         
@@ -1548,18 +1561,18 @@
       }
     }
     
-    for (var k=1; k<n+1; k++) {
-      for (var i=0; i<n; i++) {
-        for (var j=0; j<n; j++) {
-          r[k][i][j] = noam.re.tree.makeAlt([r[k-1][i][j], noam.re.tree.makeSeq([r[k-1][i][k-1], noam.re.tree.makeKStar(r[k-1][k-1][k-1]), r[k-1][k-1][j]])])
+    for (k=1; k<n+1; k++) {
+      for (i=0; i<n; i++) {
+        for (j=0; j<n; j++) {
+          r[k][i][j] = noam.re.tree.makeAlt([r[k-1][i][j], noam.re.tree.makeSeq([r[k-1][i][k-1], noam.re.tree.makeKStar(r[k-1][k-1][k-1]), r[k-1][k-1][j]])]);
         }
       }
     }
     
     var startStateIndex = -1;
-    var acceptableStatesIndexes = []
+    var acceptableStatesIndexes = [];
     
-    for (var i=0; i<fsm.states.length; i++) {
+    for (i=0; i<fsm.states.length; i++) {
       if (noam.util.areEquivalent(fsm.states[i], fsm.initialState)) {
         startStateIndex = i;
       }
@@ -1569,10 +1582,10 @@
       }
     }
     
-    var elements = []
+    var elements = [];
     
-    for (var i=0; i<acceptableStatesIndexes.length; i++) {
-      elements.push(r[n][startStateIndex][acceptableStatesIndexes[i]])
+    for (i=0; i<acceptableStatesIndexes.length; i++) {
+      elements.push(r[n][startStateIndex][acceptableStatesIndexes[i]]);
     }
 
     return noam.re.tree.makeAlt(elements);

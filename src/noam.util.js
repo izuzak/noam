@@ -76,7 +76,7 @@
       i++;
     }
     return -1;
-  }
+  };
 
   // check if array arr1 contains all elements from array arr2
   noam.util.containsAll = function(arr1, arr2) {
@@ -178,9 +178,9 @@
     function makeCounter(init) {
       return {
         value: init,
-        getAndAdvance: getAndAdvance,
+        getAndAdvance: getAndAdvance
       };
-    };
+    }
 
     return makeCounter;
   })();
@@ -444,7 +444,7 @@
       if (this.loadFactor() < LF_LOW) {
         _resize(this, this.capacity_index - 1);
       }
-    }
+    };
 
     // Returns true iff the HashTable is empty.
     // O(1) time.
@@ -460,7 +460,7 @@
       this.numkeys = 0;
       this.keys = [];
       this.values = [];
-    }
+    };
 
     // Returns the number of mappings in the HashTable.
     // O(1) time.
@@ -493,7 +493,7 @@
         var retval = extract_next(this);
         ++this.idx;
         return retval;
-      },
+      }
     };
 
     function _KeyIterator(H) {

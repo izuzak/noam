@@ -26,17 +26,19 @@
         SEQ: 'sequence',
         KSTAR: 'kleene_star',
         LIT: 'literal',
-        EPS: 'epsilon',
+        EPS: 'epsilon'
       };
       
       function copyAndDeleteProperties(o1, o2) {
-        for (var p in o1) {
+        var p;
+        
+        for (p in o1) {
           if (o1.hasOwnProperty(p)) {
             delete o1[p];
           }
         }
         
-        for (var p in o2) {
+        for (p in o2) {
           if (o2.hasOwnProperty(p)) {
             o1[p] = o2[p];
           }
@@ -224,8 +226,8 @@
       // (a+(b+c)) => a+b+c
       function _regex_simplify_9(tree, fsmCache) { 
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
-          var found = -1;
-          for (var i=0; i<tree.choices.length; i++) {
+          var found = -1, i;
+          for (i=0; i<tree.choices.length; i++) {
             if (tree.choices[i].tag === tags.ALT) {
               found = i;
             }
@@ -235,7 +237,7 @@
             var node = tree.choices[found];
             tree.choices.splice(found, 1);
 
-            for (var i=0; i<node.choices.length; i++) {
+            for (i=0; i<node.choices.length; i++) {
               tree.choices.splice(found+i, 0, node.choices[i]);
             }
              
@@ -249,8 +251,8 @@
       // ab(cd) => abcd
       function _regex_simplify_10(tree, fsmCache) { 
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
-          var found = -1;
-          for (var i=0; i<tree.elements.length; i++) {
+          var found = -1, i;
+          for (i=0; i<tree.elements.length; i++) {
             if (tree.elements[i].tag === tags.SEQ) {
               found = i;
               break;
@@ -261,7 +263,7 @@
             var node = tree.elements[i];
             tree.elements.splice(i, 1);
 
-            for (var i=0; i<node.elements.length; i++) {
+            for (i=0; i<node.elements.length; i++) {
               tree.elements.splice(found+i, 0, node.elements[i]);
             }
             
@@ -466,7 +468,7 @@
           
           fsms.push(getFromCacheOrCreateFsm(tree.choices[0], fsmCache));
           
-          var found = -1
+          var found = -1;
           
           for (var i=0; i<tree.choices.length-1; i++) {
             for (var j=i+1; j<tree.choices.length; j++) {  
@@ -506,7 +508,7 @@
           
           fsms.push(getFromCacheOrCreateFsm(makeKStar(tree.expr.choices[0]), fsmCache));
           
-          var found = -1
+          var found = -1;
           
           for (var i=0; i<tree.expr.choices.length-1; i++) {
             for (var j=i+1; j<tree.expr.choices.length; j++) {
@@ -752,7 +754,7 @@
           }
         }
                 
-        return null
+        return null;
       }
       
       function _simplify_recursion(tree, patternFunction, fsmCache) {
@@ -788,7 +790,7 @@
       function makeAlt(choices) {
         return {
           tag: tags.ALT,
-          choices: choices,
+          choices: choices
         };
       }
 
@@ -798,7 +800,7 @@
       function makeSeq(elements) {
         return {
           tag: tags.SEQ,
-          elements: elements,
+          elements: elements
         };
       }
 
@@ -807,7 +809,7 @@
       function makeKStar(expr) {
         return {
           tag: tags.KSTAR,
-          expr: expr,
+          expr: expr
         };
       }
 
@@ -815,12 +817,12 @@
       function makeLit(obj) {
         return {
           tag: tags.LIT,
-          obj: obj,
+          obj: obj
         };
       }
 
       var epsNode = {
-        tag: tags.EPS,
+        tag: tags.EPS
       };
       // Returns a node representing the empty string regular expression.
       function makeEps() {
@@ -888,7 +890,7 @@
         try {
           noam.fsm.addSymbol(automaton, regex.obj);
         } catch (err) {
-          ; // addSymbol can throw if the symbol already exists - that's ok but
+            // addSymbol can throw if the symbol already exists - that's ok but
             // would like to be able to avoid catching other exceptions
             // TODO: use a custom exception class instead of Error
         }
@@ -1070,7 +1072,7 @@
       }
 
       function _randomExpr(numSymbols, alphabet, altp, kleenep, epsp) {
-        if (numSymbols == 0) {
+        if (numSymbols === 0) {
           return makeEps();
         } else if (numSymbols == 1) {
           return makeLit(alphabet[noam.util.randint(0, alphabet.length-1)]);
@@ -1126,7 +1128,7 @@
         KSTAR: {},
         LEFT_PAREN: {},
         RIGHT_PAREN: {},
-        EPS: {},
+        EPS: {}
       };
       
       // give objects their usual string representation
@@ -1152,7 +1154,7 @@
           arr: arr,
           idx: 0,
           peek: _peek,
-          advance: _advance,
+          advance: _advance
         };
       }
 
@@ -1432,6 +1434,6 @@
     return {
       tree: tree,
       array: array,
-      string: string,
+      string: string
     };
   })();

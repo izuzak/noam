@@ -325,7 +325,7 @@ describe("FSM", function() {
 
   describe("DetermineType", function() {
     var fsm1 = {
-      states : ["s1", "s2", "s3",],
+      states : ["s1", "s2", "s3"],
       alphabet : ["a", "b"],
       acceptingStates : ["s2", "s3"],
       initialState : "s3",
@@ -739,7 +739,7 @@ describe("FSM", function() {
         { fromState : "1", symbol : "a", toStates : ["2"] },
         { fromState : "2", symbol : "a", toStates : ["2"] }
       ]
-    }
+    };
     
     it("Works", function() {
       expect(noamFsm.areEquivalentFSMs(fsm1, noamFsm.minimize(noamRe.tree.toAutomaton(noamFsm.toRegex(fsm1))))).toEqual(true);
