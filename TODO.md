@@ -2,6 +2,14 @@
 
 ## Functionality
 
+* add noam.re.tree/array/string.areEquivalent, isSubset, intersection, etc etc
+* extend HashTable with prototypes:
+    * containsAllKeys, containsAnyKey, hasEqualSetOfKeys, containsSetOfKeys, union
+* add regex simplification patterns that do not simplify but make the regex more "nice"
+  * a*a -> aa*, (ab)*a -> a(ba)* (push star to the right)
+  * (L1L2)* => (L1+L2)* if both L1 and L2 can generate $ (favor choice over concats)
+* add functions to compute regex length - alphabetic and reverse polish notation length
+* improve hashtable to ignore certain properties of objects (e.g. ignore __startIndex property)
 * add Moore and Mealy machine support + minimization and Moore<->Mealy transformation functions
 * add push-down automata support + transformation to CFG functions
 * grammar-related functions: 
