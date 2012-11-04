@@ -41,13 +41,7 @@
 }((function () {
   var noam = {};
 
-  noam.fsm = {};
   noam.util = {};
-
-  noam.fsm.epsilonSymbol = '$';
-  noam.fsm.dfaType = 'DFA';
-  noam.fsm.nfaType = 'NFA';
-  noam.fsm.enfaType = 'eNFA';
 
   // "deep" compare of two objects
   // taken from http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
@@ -607,8 +601,13 @@
     };
 
   })();
+  noam.fsm = {};
 
-
+  noam.fsm.epsilonSymbol = '$';
+  noam.fsm.dfaType = 'DFA';
+  noam.fsm.nfaType = 'NFA';
+  noam.fsm.enfaType = 'eNFA';
+  
   // FSM creation API
 
   // Creates and returns an empty FSM that can then be manipulated through the other 
@@ -1003,7 +1002,7 @@
          'right': '|',
          'right-mid': '+'
        },
-       truncate: '…'
+       truncate: '85'
     });
 
     var tableRows = [];
