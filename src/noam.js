@@ -1278,7 +1278,7 @@
         !(noam.util.contains(fsmB.states, stateB))) {
       throw new Error('FSMs must contain states');
     }
-
+    
     function doBothStatesHaveSameAcceptance(fsmX, stateX, fsmY, stateY) {
       var stateXAccepting = noam.util.contains(fsmX.acceptingStates, stateX);
       var stateYAccepting = noam.util.contains(fsmY.acceptingStates, stateY);
@@ -1292,14 +1292,14 @@
 
     while (unprocessedPairs.length !== 0) {
       var currentPair = unprocessedPairs.pop();
-
-      for (var i=0; i<fsmA.alphabet.length; i++) {
-        if (!(doBothStatesHaveSameAcceptance(fsmA, currentPair[0], fsmB, currentPair[1]))) {
+      
+      if (!(doBothStatesHaveSameAcceptance(fsmA, currentPair[0], fsmB, currentPair[1]))) {
           return false;
         }
 
-        processedPairs.push(currentPair);
+      processedPairs.push(currentPair);
 
+      for (var i=0; i<fsmA.alphabet.length; i++) {
         for (var j=0; j<fsmA.alphabet.length; j++) {
           var pair = [noam.fsm.makeTransition(fsmA, [currentPair[0]], fsmA.alphabet[j])[0],
                       noam.fsm.makeTransition(fsmB, [currentPair[1]], fsmA.alphabet[j])[0]];
