@@ -56,6 +56,7 @@
 
 ## Performance and testing
 
+* make specific benchmarks e.g. benchmarking the quality of regex simplification by regex length
 * make the new HashTable datastructure store the hash of an object into a "hidden" property of the object so that the HT doesn't have to recompute the hash again
   * this will improve the performance of the HT, but will add more possibility of failure since it will be possible that the users of the HT change the object after the hash is computer and stored, as well as to change the value of the stored hash
 * add profiling capability
