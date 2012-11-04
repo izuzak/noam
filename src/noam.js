@@ -2523,14 +2523,17 @@
           # (ab+ac) => a(b+c)
           # a*aa* => aa*
           # (ab+cb) => (a+c)b
-        
+          # a*($+b(a+b)*) => (a+b)*
+          # ($+(a+b)*a)b* => (a+b)*
+          
         If none of these "simple" patterns can be applied, the simplification
         process tries to apply patterns based on language subset (via 
         transformations to fsms):
         
           # L1+L2 => L2, if L1 is subset of L2
-          # (L1+L2)* => L2, if L1 is subset of L2*
-          # L1*L2* => L2, if L1 is subset of L2
+          # (L1+L2)* => L2, if L1* is subset of L2*
+          # L1*L2* => L2, if L1* is subset of L2*
+          # $+L => L, if L contains $
         
         The tree transformation process is stopped after no transformation
         can be applied to the tree.
