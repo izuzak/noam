@@ -51,8 +51,6 @@
   * https://github.com/fschaefer/Stately.js
   * https://github.com/mdaines/grammophone
   * http://smlweb.cpsc.ucalgary.ca/
-* add minified version of noam
-* split noam src into parts (util, fsm, grammar, re, ...) and make a script that compiles the parts into a single js file
 
 ## Performance and testing
 

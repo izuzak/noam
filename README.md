@@ -11,6 +11,18 @@ Horrible performance, only functions for working with FSMs implemented.
 Stay tuned.
 See [TODO list](https://github.com/izuzak/noam/blob/master/TODO.md).
 
+## Development
+
+1. Clone repo: `git clone https://github.com/izuzak/noam.git`
+2. Change dir to noam: `cd noam`
+3. Install dependencies: 
+  * `npm install cli-table benchtable grunt-jasmine-node`
+  * `npm install -g jasmine-node grunt`
+4. Make changes to noam sources (`./src`), tests (`./test`) or benchmarks (`./benchmarks)
+5. Build using grunt (builds lib, lints, tests and minifies): `grunt` (on linux), `grunt.cmd` (on windows)
+6. Fix issues reported in 5)
+7. Commit and make pull request
+
 ## Credits
 
 Noam is developed by [Ivan Zuzak](http://ivanzuzak.info) and [Ivan Budiselic](https://github.com/ibudiselic). Contributors: [Vedrana Jankovic](http://vedri.ca/).
