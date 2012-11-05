@@ -21,16 +21,12 @@ module.exports = function(grunt) {
     },
     
     jasmine_node: {
-      specFolderName: "./test",
-      projectRoot: ".",
+      specFolderName: "",
+      projectRoot: "./test",
       requirejs: false,
       forceExit: true,
-      jUnit: {
-        report: false,
-        savePath : "./build/reports/jasmine/",
-        useDotNotation: true,
-        consolidate: true
-      }
+      matchall: true,
+      verbose: false
     }
   });
   
