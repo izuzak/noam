@@ -829,7 +829,7 @@
     function prefix(ch, num, str) {
       var retStr = str;
 
-      for (i=0; i<str.length - num; i++) {
+      for (var i=0; i<str.length - num; i++) {
         retStr = ch + str;
       }
 
