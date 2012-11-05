@@ -724,9 +724,9 @@
     if (noam.fsm.determineType(fsm) !== noam.fsm.dfaType) {
       throw new Error('FSM must be DFA');
     }
-
+    
     var equivalentPairs = [], i, j, k;
-
+    
     for (i=0; i<fsm.states.length; i++) {
       for (j=i+1; j<fsm.states.length; j++) {
         if (noam.fsm.areEquivalentStates(fsm, fsm.states[i], fsm, fsm.states[j])) {
@@ -745,7 +745,7 @@
         }
       }
     }
-
+    
     var newFsm = {
       states : [],
       alphabet : noam.util.clone(fsm.alphabet),
@@ -755,7 +755,7 @@
     };
 
     function isOneOfEquivalentStates(s) {
-      for (i=0; i<equivalentPairs.length; i++) {
+      for (var i=0; i<equivalentPairs.length; i++) {
         if (noam.util.areEquivalent(equivalentPairs[i][1], s)) {
           return true;
         }
@@ -765,7 +765,7 @@
     }
 
     function getEquivalentState(s) {
-      for (i=0; i<equivalentPairs.length; i++) {
+      for (var i=0; i<equivalentPairs.length; i++) {
         if (noam.util.areEquivalent(equivalentPairs[i][1], s)) {
           return equivalentPairs[i][0];
         }
@@ -779,13 +779,13 @@
         newFsm.states.push(noam.util.clone(fsm.states[i]));
       }
     }
-
+    
     for (i=0; i<fsm.acceptingStates.length; i++) {
       if (!(isOneOfEquivalentStates(fsm.acceptingStates[i]))) {
         newFsm.acceptingStates.push(noam.util.clone(fsm.acceptingStates[i]));
       }
     }
-
+    
     newFsm.initialState = noam.util.clone(getEquivalentState(fsm.initialState));
 
     for (i=0; i<fsm.transitions.length; i++) {
@@ -801,7 +801,7 @@
 
       newFsm.transitions.push(transition);
     }
-
+    
     return newFsm;
   };
 
