@@ -10,7 +10,7 @@ module.exports = function(grunt) {
     },
     
     lint: {
-      all: ['lib/noam.js', 'test/*.js', 'benchmarks/*.js']
+      all: ['src/exports.js', 'src/noam.util.js', 'src/noam.fsm.js', 'src/noam.grammar.js', 'src/noam.re.js', 'test/*.js', 'benchmarks/*.js']
     },
 
     min: {
