@@ -1,4 +1,4 @@
-var noam = require('./../src/noam.js');
+var noam = require('./../lib/noam.js');
 var Benchtable = require('benchtable');
 
 // TEST SUITES
