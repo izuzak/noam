@@ -6,6 +6,7 @@
 * extend HashTable with prototypes:
     * containsAllKeys, containsAnyKey, hasEqualSetOfKeys, containsSetOfKeys, union
 * add regex simplification patterns that do not simplify but make the regex more "nice"
+  * ab+ac => a(b+c) 
   * a*a -> aa*, (ab)*a -> a(ba)* (push star to the right)
   * (L1L2)* => (L1+L2)* if both L1 and L2 can generate $ (favor choice over concats)
 * add functions to compute regex length - alphabetic and reverse polish notation length
@@ -65,6 +66,16 @@
 
 ## Webapps and examples
 
+* regex minification
+  * improve coloring of regex parts:
+    * by making the simplification functions return the substituted strings
+    * by "marking" the subtrees that were changed, deleted, added or used for the transformation as a precondition
+  * add usage docs
+  * add links to noam
+  * add credits
+  * add some settings for generating regexes (regex size, alphabet, etc.)
+  * add error handling for user-defined regexes
+  * when the input is changed - reenable the simplify buttons
 * develop playground webapp for working with FSMs and grammars
   * defining languages
   * minimizing/transforming languages
