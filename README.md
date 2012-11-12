@@ -11,6 +11,10 @@ Horrible performance, only functions for working with FSMs implemented.
 Stay tuned.
 See [TODO list](https://github.com/izuzak/noam/blob/master/TODO.md).
 
+## Web apps
+
+* [Regular Expressions Gym](https://github.com/izuzak/noam/blob/master/webapps/regex_play.html) - Slim your regexes one step at a time!
+
 ## Development
 
 1. Clone repo: `git clone https://github.com/izuzak/noam.git`
