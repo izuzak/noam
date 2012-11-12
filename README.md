@@ -36,7 +36,12 @@ Noam is built with many open-source projects:
 * [jQuery](http://jquery.com/) - used for the FSM Web application playgrounds
 * [NodeJS](http://nodejs.org/) - used for running the command-line version of noam
 * [viz.js](https://github.com/mdaines/viz.js) - used for drawing FSM graphs in Web applications
+* [Bootstrap](http://twitter.github.com/bootstrap/) - used for styles in regex simplification webapp
 * [jasmine-node](https://github.com/mhevery/jasmine-node) - used for unit testing
+* [benchtable](https://github.com/izuzak/benchtable) and [benchmark.js](http://benchmarkjs.com/) - used for performance benchmarking
+* [grunt](http://gruntjs.com/) - used as the build tool for the project
+* [JSHint](http://www.jshint.com/) - used for linting the noam lib
+* [UglifyJS](https://github.com/mishoo/UglifyJS/) - used for minifying the noam lib
 
 ## License
 
