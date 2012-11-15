@@ -55,6 +55,7 @@
 
 ## Performance and testing
 
+* in webapps - run noam inside a web worker so that noam doesn't block the UI
 * make specific benchmarks e.g. benchmarking the quality of regex simplification by regex length
 * make the new HashTable datastructure store the hash of an object into a "hidden" property of the object so that the HT doesn't have to recompute the hash again
   * this will improve the performance of the HT, but will add more possibility of failure since it will be possible that the users of the HT change the object after the hash is computer and stored, as well as to change the value of the stored hash
@@ -68,6 +69,9 @@
 
 * regex minification
   * improve coloring of regex parts:
+    * by using an existing implementation for diff-ing strings
+      * http://code.google.com/p/google-diff-match-patch/
+      * https://github.com/kpdecker/jsdiff
     * by making the simplification functions return the substituted strings
     * by "marking" the subtrees that were changed, deleted, added or used for the transformation as a precondition
   * add usage docs
