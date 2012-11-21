@@ -22,7 +22,7 @@ See [TODO list](https://github.com/izuzak/noam/blob/master/TODO.md).
 3. Install dependencies: 
   * `npm install cli-table benchtable grunt-jasmine-node`
   * `npm install -g jasmine-node grunt`
-4. Make changes to noam sources (`./src`), tests (`./test`) or benchmarks (`./benchmarks)
+4. Make changes to noam sources (`./src`), tests (`./test`) or benchmarks (`./benchmarks`)
 5. Build using grunt (builds lib, lints, tests and minifies): `grunt` (on linux), `grunt.cmd` (on windows)
 6. Fix issues reported in 5)
 7. Commit and make pull request

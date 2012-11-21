@@ -202,9 +202,9 @@
    * actual time.
    */
   (function() {
-    // can handle at most around 5 million keys efficiently
-    var CAPACITY_CHOICES = [5, 11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853, 
-        25717, 51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983]; 
+    var CAPACITY_CHOICES = [5, 11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853,
+        25717, 51437, 102877, 205759, 411527, 823117, 1646237, 3292489, 6584983,
+        13169977, 26339969, 52679969, 105359939]; 
 
     var DEFAULT_INITIAL_CAPACITY_IDX = 0;
     var HASH_MASK = (1<<31) - 1; // keeps everything nonnegative int32
@@ -279,6 +279,139 @@
       return h;
     }
 
+    /* Constructor for hash chain nodes.
+     *
+     * Each node has three properties:
+     *  - key: the key of the key-value pair
+     *  - value: the value of the key-value pair
+     *  - next: either another _HashChainNode or undefined if this is the last node
+     *          of the chain
+     */
+    function _HashChainNode(key, value) {
+      this.key = key;
+      this.value = value;
+    }
+
+    /* Constructor for an empty hash chain used for collision resolution.
+     *
+     * Every _HashChain has just one property:
+     *  - head: the first _HashChainNode of the chain or undefined if the chain is
+     *          empty
+     */
+    function _HashChain() {
+      // intentionally empty
+    }
+
+    // Returns true iff the chain is empty.
+    _HashChain.prototype.isEmpty = function() {
+      return this.head === undefined;
+    };
+    
+    // Adds the new node to the front of the chain.
+    _HashChain.prototype.insertHead = function(node) {
+      node.next = this.head;
+      this.head = node;
+    };
+
+    /* Removes the successor of @a node from the chain. It is assumed that
+     * the successor exists.
+     *
+     * If @a node equals undefined, removes the head of the chain.
+     */
+    _HashChain.prototype.removeSuccessor = function(node) {
+      if (node === undefined) {
+        this.head = this.head.next;
+      } else {
+        node.next = node.next.next;
+      }
+    };
+
+    /* Inserts the key-value pair into the chain.
+     * @a H is the HashTable that contains this chain.
+     * 
+     * Returns true iff @a key is a new key that was not previously in the table.
+     */
+    _HashChain.prototype.put = function(H, key, value) {
+      // first search for the key
+      var iter = this.iterator();
+      while (iter.hasNext()) {
+        var node = iter.next();
+        if (H.equals(key, node.key)) {
+          // old key; just replace the value
+          node.value = value;
+          return false;
+        }
+      }
+      // new key
+      this.insertHead(new _HashChainNode(key, value));
+      return true;
+    };
+
+    /* Returns the value associated with @a key in the chain or undefined
+     * if @a key is not found in the chain.
+     */
+    _HashChain.prototype.get = function(H, key) {
+      var iter = this.iterator();
+      while (iter.hasNext()) {
+        var node = iter.next();
+        if (H.equals(key, node.key)) {
+          return node.value;
+        }
+      }
+      return undefined;
+    };
+
+    /* Removes the key-value pair with the given key from the chain. Does nothing
+     * if there is no key-value pair with the given key in the chain.
+     *
+     * Returns true iff a key-value pair was actually removed.
+     */
+    _HashChain.prototype.remove = function(H, key) {
+      var iter = this.iterator();
+      var prev; // intentionally undefined
+      while (iter.hasNext()) {
+        var node = iter.next();
+        if (H.equals(key, node.key)) {
+          this.removeSuccessor(prev);
+          return true;
+        }
+        prev = node;
+      }
+      return false;
+    };
+
+    /* Constructor for a hash chain iterator.
+     *
+     * Every iterator has two methods:
+     *  - hasNext: returns true iff there is another node in the chain
+     *  - next: returns the next node in the chain or throws if the iterator is 
+     *          exhausted
+     * 
+     * If the hash chain changes in any way between the construction of the 
+     * iterator and a call to one of its methods, the behavior is undefined.
+     */
+    function _HashChainIterator(chain) {
+      this.node = chain.head;
+    }
+    _HashChainIterator.prototype.hasNext = function() {
+      return this.node !== undefined;
+    };
+    _HashChainIterator.prototype.next = function() {
+      if (!this.hasNext()) {
+        throw new Error("HashTable internal error: " +
+            "called _HashChainIterator.next on exhausted iterator");
+      }
+      var retval = this.node;
+      this.node = retval.next;
+      return retval;
+    };
+
+    // Returns a new iterator for the hash chain.
+    _HashChain.prototype.iterator = function() {
+      return new _HashChainIterator(this);
+    };
+
+
     /* Resizes the HashTable @a H to have capacity CAPACITY_CHOICES[to_cap_idx].
      * Throws if @a to_cap_idx >= CAPACITY_CHOICES.length.
      * Does nothing if @a to_cap_idx < 0, i.e. the HashTable never decreases below
@@ -292,34 +425,28 @@
       }
       if (to_cap_idx >= 0) {
         var old_cap = H.capacity;
-        var old_keys = H.keys;
-        var old_values = H.values;
+        var old_slots = H.slots;
         var old_numkeys = H.numkeys;
 
         H.capacity_index = to_cap_idx;
         H.capacity = CAPACITY_CHOICES[to_cap_idx];
-        H.keys = [];
-        H.values = [];
+        H.slots = [];
         H.numkeys = 0;
         for (var i=0; i<old_cap; i++) {
-          if (old_keys[i] !== undefined) {
-            H.put(old_keys[i], old_values[i]);
+          if (old_slots[i] !== undefined) {
+            var chain_iter = old_slots[i].iterator();
+            while (chain_iter.hasNext()) {
+              H._putNodeRsz(chain_iter.next());
+            }
           }
         }
         //assert(old_numkeys === H.numkeys);
       }
     }
 
-    // Returns the cell index for @a key in hashtable @a H according to the linear probing
-    // strategy of collision resolution.
-    function _linearProbe(H, key) {
-      var h = H.hash(key) % H.capacity;
-      while (H.keys[h]!==undefined && !H.equals(key, H.keys[h])) {
-        if (++h == H.capacity) {
-          h = 0;
-        }
-      }
-      return h;
+    // Returns the slot index for @a key in the hashtable @a H.
+    function _getSlotIndex(H, key) {
+      return H.hash(key) % H.capacity; // division method
     }
 
     /* Constructor for HashTable. To create an empty HashTable, do something like
@@ -328,7 +455,7 @@
      * @a cfg is optional and can contain any or all of the following properties
      *    - initial_capacity: a number that is a hint for the initial capacity
      *        - defaults to an implementation defined number
-     *    - hash: a function that takes an object and returns an integer
+     *    - hash: a function that takes an object and returns a nonnegative 32-bit integer
      *        - the usual requirements for this function apply
      *           - it must be consistent, i.e. return the same value for the same object
      *             (if the object doesn't change)
@@ -366,10 +493,9 @@
       // we don't actually need to "allocate" the capacity because
       // JS arrays don't actually have bounds and a[i] returns
       // undefined if the ith element is "out of bounds"...
-      // however, take care to never use this.keys.length or 
-      // this.values.length as they will be meaningless
-      this.keys = [];
-      this.values = [];
+      // however, take care to never use this.slots.length as it will
+      // be meaningless
+      this.slots = [];
     };
 
     // defaults for hash and equals
@@ -383,7 +509,7 @@
     };
 
     /* Add the key-value pair to the HashTable.
-     * Throws if key equals undefined.
+     * Throws if @a key or @a value equals undefined.
      *
      * Takes O(1) time amortized, assuming uniform hashing.
      *
@@ -398,15 +524,38 @@
       if (key === undefined) {
         throw new Error("called HashTable.put with key === undefined");
       }
-      var h = _linearProbe(this, key);
-      if (this.keys[h] === undefined) {
-        ++this.numkeys; // otherwise, we're also deleting one key so numkey shouldn't change
+      if (value === undefined) {
+        throw new Error("called HashTable.put with value === undefined");
       }
-      this.keys[h] = key;
-      this.values[h] = value;
-      if (this.loadFactor() > LF_HIGH) {
-        _resize(this, this.capacity_index + 1);
+      var h = _getSlotIndex(this, key);
+      if (this.slots[h] === undefined) {
+        this.slots[h] = new _HashChain();
       }
+      if (this.slots[h].put(this, key, value)) {
+        ++this.numkeys;
+        if (this.loadFactor() > LF_HIGH) {
+          _resize(this, this.capacity_index + 1);
+        }
+      }
+    };
+
+    /* This is an internal put method that reuses existing _HashChainNode objects
+     * to reduce garbage generation when the table gets resized.
+     *
+     * Don't use this outside of resizing functionality!
+     */
+    noam.util.HashTable.prototype._putNodeRsz = function(node) {
+      // we don't check the validity of node.key and node.value because
+      // it is assumed they are valid as they are already in a preexisting node
+      var h = _getSlotIndex(this, node.key);
+      if (this.slots[h] === undefined) {
+        this.slots[h] = new _HashChain();
+      }
+      // don't need to actually iterate the chain to search for matching keys
+      // because we know that the keys were unique prior to resizing
+      this.slots[h].insertHead(node);
+      // we don't check the load factor because we know that we have just
+      // recently resized so no further resizing will be needed
     };
 
     /* Returns the value associated with @a key in the HashTable or
@@ -420,8 +569,9 @@
       if (key === undefined) {
         throw new Error("called HashTable.get with key === undefined");
       }
-      var h = _linearProbe(this, key);
-      return this.values[h];
+      var h = _getSlotIndex(this, key);
+      var slot = this.slots[h];
+      return slot===undefined ? undefined : slot.get(this, key);
     };
 
     /* Removes @a key from the HashTable. If @a key is not in the HashTable, 
@@ -435,14 +585,16 @@
       if (key === undefined) {
         throw new Error("called HashTable.remove with key === undefined");
       }
-      var h = _linearProbe(this, key);
-      if (this.keys[h] === undefined) {
+      var h = _getSlotIndex(this, key);
+      var slot = this.slots[h];
+      if (slot === undefined) {
         return;
       }
-      this.keys[h] = this.values[h] = undefined;
-      --this.numkeys;
-      if (this.loadFactor() < LF_LOW) {
-        _resize(this, this.capacity_index - 1);
+      if (slot.remove(this, key)) {
+        --this.numkeys;
+        if (this.loadFactor() < LF_LOW) {
+          _resize(this, this.capacity_index - 1);
+        }
       }
     };
 
@@ -458,8 +610,7 @@
       this.capacity_index = DEFAULT_INITIAL_CAPACITY_IDX;
       this.capacity = CAPACITY_CHOICES[this.capacity_index];
       this.numkeys = 0;
-      this.keys = [];
-      this.values = [];
+      this.slots = [];
     };
 
     // Returns the number of mappings in the HashTable.
@@ -469,18 +620,26 @@
     };
 
     // Returns true iff @a key is in the HashTable.
-    // Equivalent to get(key) === undefined.
+    // Equivalent to get(key) !== undefined.
     noam.util.HashTable.prototype.containsKey = function(key) {
-      return this.get(key) === undefined;
+      return this.get(key) !== undefined;
     };
     
     // Iterators internals. The API is below.
     var Iterator = {
       hasNext: function() {
-        while (this.idx<this.H.capacity && this.H.keys[this.idx]===undefined) {
+        // first try the current chain iterator
+        if (this.cur_chain_iterator!==undefined && this.cur_chain_iterator.hasNext()) {
+          return true;
+        }
+        // if that's empty, try to find another chain
+        while (this.idx<this.H.capacity && 
+            (this.H.slots[this.idx]===undefined || // no chain OR
+             this.H.slots[this.idx].isEmpty())) {  // empty chain
           ++this.idx;
         }
-        return this.H.keys[this.idx] !== undefined;
+        this.cur_chain_iterator = this.H.slots[this.idx];
+        return this.cur_chain_iterator!==undefined && this.cur_chain_iterator.hasNext();
       },
       // @a err_msg is the message to throw if the iterator is empty
       // @a extract_next is a function that takes the iterator as its only 
@@ -491,7 +650,6 @@
         }
         //assert(this.H.keys[this.idx] !== undefined);
         var retval = extract_next(this);
-        ++this.idx;
         return retval;
       }
     };
@@ -503,7 +661,7 @@
     _KeyIterator.prototype = Object.create(Iterator);
     _KeyIterator.prototype.next = function() {
       return this._next("KeyIterator.next called on empty iterator", function(it) {
-        return it.H.keys[it.idx];
+        return it.cur_chain_iterator.next().key;
       });
     };
 
@@ -514,7 +672,7 @@
     _ValueIterator.prototype = Object.create(Iterator);
     _ValueIterator.prototype.next = function() {
       return this._next("ValueIterator.next called on empty iterator", function(it) {
-        return it.H.values[it.idx];
+        return it.cur_chain_iterator.next().value;
       });
     };
 
@@ -525,7 +683,8 @@
     _KeyValueIterator.prototype = Object.create(Iterator);
     _KeyValueIterator.prototype.next = function() {
       return this._next("KeyValueIterator.next called on empty iterator", function(it) {
-        return [it.H.keys[it.idx], it.H.values[it.idx]];
+        var node = it.cur_chain_iterator.next();
+        return [node.key, node.value];
       });
     };
 
