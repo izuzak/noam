@@ -632,14 +632,22 @@
         if (this.cur_chain_iterator!==undefined && this.cur_chain_iterator.hasNext()) {
           return true;
         }
-        // if that's empty, try to find another chain
+        if (this.cur_chain_iterator !== undefined) {
+          ++this.idx; // this chain iterator was exhausted
+        }
+        // try to find another chain
         while (this.idx<this.H.capacity && 
             (this.H.slots[this.idx]===undefined || // no chain OR
              this.H.slots[this.idx].isEmpty())) {  // empty chain
           ++this.idx;
         }
-        this.cur_chain_iterator = this.H.slots[this.idx];
-        return this.cur_chain_iterator!==undefined && this.cur_chain_iterator.hasNext();
+        var slotval = this.H.slots[this.idx];
+        if (slotval === undefined) { // no more chains in the table
+          this.cur_chain_iterator = undefined;
+          return false;
+        }
+        this.cur_chain_iterator = slotval.iterator();
+        return true; // we know this chain isn't empty so just return true
       },
       // @a err_msg is the message to throw if the iterator is empty
       // @a extract_next is a function that takes the iterator as its only 
