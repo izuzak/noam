@@ -144,7 +144,7 @@
     }
     return res;
   };
-  
+
   // returns an unsorted array representation of the intersection of the two
   // arrays arr1 and arr2 with each element included exactly once, regardless
   // of the count in arr1 and arr2
@@ -156,7 +156,7 @@
         res.push(arr1[i]);
       }
     }
-    
+
     return res;
   };
 
@@ -260,7 +260,7 @@
         }
         return h;
       }
-      
+
       // objects
       var props = [];
       for (i in obj) {
@@ -306,7 +306,7 @@
     _HashChain.prototype.isEmpty = function() {
       return this.head === undefined;
     };
-    
+
     // Adds the new node to the front of the chain.
     _HashChain.prototype.insertHead = function(node) {
       node.next = this.head;
@@ -426,12 +426,10 @@
       if (to_cap_idx >= 0) {
         var old_cap = H.capacity;
         var old_slots = H.slots;
-        var old_numkeys = H.numkeys;
 
         H.capacity_index = to_cap_idx;
         H.capacity = CAPACITY_CHOICES[to_cap_idx];
         H.slots = [];
-        H.numkeys = 0;
         for (var i=0; i<old_cap; i++) {
           if (old_slots[i] !== undefined) {
             var chain_iter = old_slots[i].iterator();
@@ -440,7 +438,6 @@
             }
           }
         }
-        //assert(old_numkeys === H.numkeys);
       }
     }
 
@@ -665,7 +662,7 @@
 
       return entries;
     };
-    
+
     // Iterators internals. The API is below.
     var Iterator = {
       hasNext: function() {
