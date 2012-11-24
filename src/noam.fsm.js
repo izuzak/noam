@@ -7,7 +7,7 @@
   
   // FSM creation API
 
-  // Creates and returns an empty FSM that can then be manipulated through the other 
+  // Creates and returns an empty FSM that can then be manipulated through the other
   // functions in the API.
   noam.fsm.makeNew = function() {
     return {
@@ -23,7 +23,7 @@
   noam.fsm._addStateOrSymbol = function(arr, obj, undefErrorMsg, existsErrorMsg) {
     // need to check this because undefined would otherwise be added as a state
     // or symbol which is probably not what you want
-    if (obj === undefined) { 
+    if (obj === undefined) {
       throw new Error(undefErrorMsg);
     }
     if (noam.util.contains(arr, obj)) {
@@ -38,7 +38,7 @@
   // Throws an Error if no stateObj is passed or if the same state already exists.
   // Returns the added state object.
   noam.fsm.addState = function(fsm, stateObj) {
-    return noam.fsm._addStateOrSymbol(fsm.states, stateObj, 
+    return noam.fsm._addStateOrSymbol(fsm.states, stateObj,
         "No state object specified", "State already exists");
   };
 
@@ -49,7 +49,7 @@
     if (noam.util.areEquivalent(symObj, noam.fsm.epsilonSymbol)) {
       throw new Error("Can't add the epsilon symbol to the alphabet");
     }
-    return noam.fsm._addStateOrSymbol(fsm.alphabet, symObj, 
+    return noam.fsm._addStateOrSymbol(fsm.alphabet, symObj,
         "No symbol object specified", "Symbol already exists");
   };
 
@@ -60,7 +60,7 @@
     if (!noam.util.contains(fsm.states, stateObj)) {
       throw new Error("The specified object is not a state of the FSM");
     }
-    noam.fsm._addStateOrSymbol(fsm.acceptingStates, stateObj, "", 
+    noam.fsm._addStateOrSymbol(fsm.acceptingStates, stateObj, "",
         "The specified state is already accepting");
   };
 
@@ -78,7 +78,7 @@
     if (!Array.isArray(toStates)) {
       throw new Error("The toStates argument must be an array");
     }
-    if (!noam.util.contains(fsm.states, fromState) || 
+    if (!noam.util.contains(fsm.states, fromState) ||
         !noam.util.containsAll(fsm.states, toStates)) {
       throw new Error("One of the specified objects is not a state of the FSM");
     }
@@ -191,7 +191,7 @@
         throw new Error('Transition fromState must be in states.');
       }
 
-      if (!(noam.util.contains(fsm.alphabet, transition.symbol)) && 
+      if (!(noam.util.contains(fsm.alphabet, transition.symbol)) &&
           transition.symbol !== noam.fsm.epsilonSymbol) {
         throw new Error('Transition symbol must be in alphabet.');
       }
@@ -1284,7 +1284,7 @@
   // get a new fsm which accepts the language L=L1/L2 (set intersection) where
   // L1 is the language accepted by fsma and
   // L2 is the language accepted by fsmB
-  noam.fsm.intersection = function(fsmA, fsmB) {    
+  noam.fsm.intersection = function(fsmA, fsmB) {
     var new_alphabet = noam.util.clone(noam.util.setIntersection(fsmA.alphabet, fsmB.alphabet));
 
     var newFsm = {
@@ -1363,7 +1363,7 @@
     return newFsm;
   };
 
-  // get a new fsm which accepts the complement language of the 
+  // get a new fsm which accepts the complement language of the
   // langauge accepted by the input fsm
   noam.fsm.complement = function(fsm) {
     var newFsm = noam.util.clone(fsm);
@@ -1473,7 +1473,7 @@
     return newFsm;
   };
 
-  // check whether the language accepted by fsmB is a subset of 
+  // check whether the language accepted by fsmB is a subset of
   // the language accepted by fsmA
   noam.fsm.isSubset = function(fsmA, fsmB) {
     var fsmIntersection = noam.fsm.intersection(fsmA, fsmB);
