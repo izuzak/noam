@@ -5,7 +5,11 @@
 * add noam.re.tree/array/string.areEquivalent, isSubset, intersection, etc etc
 * extend HashTable with prototypes:
     * containsAllKeys, containsAnyKey, hasEqualSetOfKeys, containsSetOfKeys, union
+    * clone method
+    * put, get, remove for multiple keys
 * add regex simplification patterns that do not simplify but make the regex more "nice"
+  * if sub(alfa, beta*) && sub(beta, alfa) => % + alfa beta* == beta*
+  * if sub(beta, alfa*) && sub(alfa, beta) => % + alfa* beta == alfa*
   * ab+ac => a(b+c) 
   * a*a -> aa*, (ab)*a -> a(ba)* (push star to the right)
   * (L1L2)* => (L1+L2)* if both L1 and L2 can generate $ (favor choice over concats)
