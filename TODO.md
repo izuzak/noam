@@ -2,6 +2,7 @@
 
 ## Functionality
 
+* update noam.util.areEquivalent to be foolproof (e.g. use QUnit implementation or similar)
 * add noam.re.tree/array/string.areEquivalent, isSubset, intersection, etc etc
 * extend HashTable with prototypes:
     * containsAllKeys, containsAnyKey, hasEqualSetOfKeys, containsSetOfKeys, union
@@ -10,26 +11,26 @@
 * add regex simplification patterns that do not simplify but make the regex more "nice"
   * if sub(alfa, beta*) && sub(beta, alfa) => % + alfa beta* == beta*
   * if sub(beta, alfa*) && sub(alfa, beta) => % + alfa* beta == alfa*
-  * ab+ac => a(b+c) 
+  * ab+ac => a(b+c)
   * a*a -> aa*, (ab)*a -> a(ba)* (push star to the right)
   * (L1L2)* => (L1+L2)* if both L1 and L2 can generate $ (favor choice over concats)
 * add functions to compute regex length - alphabetic and reverse polish notation length
 * improve hashtable to ignore certain properties of objects (e.g. ignore __startIndex property)
 * add Moore and Mealy machine support + minimization and Moore<->Mealy transformation functions
 * add push-down automata support + transformation to CFG functions
-* grammar-related functions: 
+* grammar-related functions:
   * printHtml
   * isRegular (not possible in general, http://members.fortunecity.com/boroday/Automatatools.html)
-  * removeDeadSymbols 
+  * removeDeadSymbols
   * removeUnreachableSymbols
   * removeUselessSymbols
   * removeEpsilonProductions
   * removeUnitProductions
-  * chomskyForm 
+  * chomskyForm
   * greibachForm
-  * tofsm 
-  * llgToRlg 
-  * rlgToLlg 
+  * tofsm
+  * llgToRlg
+  * rlgToLlg
   * isAmbiguous (not possible in general)
   * reverse
   * isGenerativeTreeValidForGrammar
@@ -44,13 +45,14 @@
 
 ## Refactoring and documentation
 
+* refactor noam submodules (fsm, re) to classes
 * refactor regex tests to use re.string as input and output, not re.array (for clarity)
 * refactor regex tests to test a single regex simplification pattern, not the whole process (because there are multiple ways to simplify a regex, so errors may not be detected)
 * unify printAscii and printHtml tables
 * add more structured comments to functions (jsdoc?)
 * write API documentation for current code
 * write overview/list of implemented functionality
-* add similar and related projects list: 
+* add similar and related projects list:
   * http://code.google.com/p/fsmjs/
   * https://github.com/jakesgordon/javascript-state-machine/
   * https://github.com/fschaefer/Stately.js
