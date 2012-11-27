@@ -5,15 +5,27 @@
   // "deep" compare of two objects
   // taken from http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
   noam.util.areEquivalent = function(object1, object2) {
-    if (typeof object1 === 'undefined' || typeof object2 === 'undefined') {
-      return false;
-    }
-
     if (object1 === object2) {
       return true;
     }
 
+    if (object1 instanceof Date && object2 instanceof Date) {
+      return object1.getTime() === object2.getTime();
+    }
+
+    if (object1 instanceof RegExp && object2 instanceof RegExp) {
+      return object1.source === object2.source &&
+             object1.global === object2.global &&
+             object1.multiline === object2.multiline &&
+             object1.lastIndex === object2.lastIndex &&
+             object1.ignoreCase === object2.ignoreCase;
+    }
+
     if (!(object1 instanceof Object) || !(object2 instanceof Object) ) {
+      return false;
+    }
+
+    if (typeof object1 === 'undefined' || typeof object2 === 'undefined') {
       return false;
     }
 
@@ -22,11 +34,7 @@
     }
 
     for (var p in object1) {
-      if (!(object1.hasOwnProperty(p))) {
-        continue;
-      }
-
-      if (!(object2.hasOwnProperty(p))) {
+      if (!(p in object2)) {
         return false;
       }
 
@@ -44,7 +52,7 @@
     }
 
     for (p in object2) {
-      if (object2.hasOwnProperty(p) && !(object1.hasOwnProperty(p))) {
+      if (!(p in object1)) {
         return false;
       }
     }
