@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         dest: 'lib/noam.js'
       }
     },
-    
+
     lint: {
       all: ['src/exports.js', 'src/noam.util.js', 'src/noam.fsm.js', 'src/noam.grammar.js', 'src/noam.re.js', 'test/*.js', 'benchmarks/*.js']
     },
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
         dest: 'lib/noam.min.js'
       }
     },
-    
+
     jasmine_node: {
       specFolderName: "",
       projectRoot: "./test",
@@ -29,10 +29,10 @@ module.exports = function(grunt) {
       verbose: false
     }
   });
-  
+
   grunt.loadNpmTasks('grunt-jasmine-node');
 
   // Default task.
-  grunt.registerTask('default', 'concat jasmine_node min lint');
+  grunt.registerTask('default', 'lint concat jasmine_node min');
 
 };
