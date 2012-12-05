@@ -1,0 +1,107 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Finite State Machine Simulator Wannabe</title>
+    
+    <script type="text/javascript" src="../lib/noam.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" src="https://raw.github.com/twitter/bootstrap/gh-pages/assets/js/bootstrap.js"></script>
+    <script type="text/javascript" src="https://raw.github.com/mdaines/viz.js/master/viz.js"></script>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css"/>
+    
+    <style>
+      .activeState {
+        fill: red;
+      }
+
+      .inactiveState {
+        fill: white;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div class="container">
+      <p>
+        <button id="generateRegex" class="btn">Generate a random regular expression</button>
+      </p>
+      <p>
+        <input id="regex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
+      </p>
+      <p>
+        <input id="inputString" type="text" class="input-block-level monospaceRegex" placeholder="See if this fits">
+      </p>
+      <p>
+        <button id="makeFsmTransition" class="btn">Try next state</button>
+      </p>
+    <div id="automatonGraph"></div>
+    </div> <!-- /container -->
+
+    <script type="application/javascript">
+
+    // TODOs
+    // color the initial state (and all the epsilon transitions from it)
+    // fwd, back button
+    // previous states - color them differently?
+    // make the current input symbol visible
+    // color the edges! hint: title tag (start node -> end node) + text tag (contains symbol)
+    // handle the end of string :D
+    // mark the final state conditionally - acceptable or not acceptable
+    // prettify the acceptable state coloring (atm the double edge disappears)
+
+
+      var automaton = null;
+      var inputStringLeft = null;
+      var currentStates = [];
+      var inactiveStates = [];
+
+      $("#generateRegex").click(function() {
+        var regex = noam.re.string.random(10, "abcd", {});
+        regex = noam.re.string.simplify(regex);
+        automaton = noam.re.string.toAutomaton(regex);
+        currentStates.push(automaton.initialState);
+        var dotString = noam.fsm.printDotFormat(automaton);
+        var gvizXml = Viz(dotString, "svg");
+        $("#regex").val(regex);
+        $("#automatonGraph").html(gvizXml);
+        inputStringLeft = null;      
+        });
+
+      var inputSet = false;
+      $("#makeFsmTransition").click(function() {
+        if (!inputSet) {
+          inputStringLeft = $("#inputString").val();
+          inputSet = true;
+        }
+        makeTransition();
+        for (var i = inactiveStates.length - 1; i >= 0; i--) {
+          colorStates(inactiveStates[i], "inactiveState");
+        };
+        for (var i = currentStates.length - 1; i >= 0; i--) {
+          colorStates(currentStates[i], "activeState");
+        };
+      });
+
+      function makeTransition () {
+        if (inputStringLeft === null) {
+          inputStringLeft = $("#inputString").val();
+        }
+        var inputSymbol = inputStringLeft.substring(0, 1);
+        inputStringLeft = inputStringLeft.substring(1);
+        inactiveStates = currentStates;
+        currentStates = noam.fsm.makeTransition(automaton, currentStates, inputSymbol);
+      }
+
+      function colorStates(stateText, cssClass) {
+        $("title:contains('" + stateText + "')").each(function(index, element)  {
+          if ($(this).text() == stateText)  {
+            $(this).siblings("ellipse").each(function() {
+              $(this).attr("class", cssClass);
+            });
+          }
+        });
+      }
+      
+    </script>
+  </body>
+</html>
