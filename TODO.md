@@ -73,6 +73,16 @@
 
 ## Webapps and examples
 
+* fsm simulation
+  * colorize next states or transitions so that it is visible which transitions will be made
+  * explain the colors to the user
+  * tell the user if the currently read string is acceptable or not by the fsm
+  * add usage docs
+  * add links to noam
+  * add credits
+  * add some settings for generating regexes (regex size, alphabet, etc.)
+  * add support to enter an automaton by hand, without entering a regex
+  * add pretty icons to buttons
 * regex minification
   * improve coloring of regex parts:
     * by using an existing implementation for diff-ing strings
@@ -86,6 +96,7 @@
   * add some settings for generating regexes (regex size, alphabet, etc.)
   * add error handling for user-defined regexes
   * when the input is changed - reenable the simplify buttons
+  * add link to fsm simulation app
 * develop playground webapp for working with FSMs and grammars
   * defining languages
   * minimizing/transforming languages
