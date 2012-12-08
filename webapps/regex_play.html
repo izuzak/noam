@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8" />
     <title> I can has regex simplify </title>
-    
+
     <script type="text/javascript" src="../lib/noam.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
     <script type="text/javascript" src="https://raw.github.com/twitter/bootstrap/gh-pages/assets/js/bootstrap.js"></script>
@@ -11,18 +11,18 @@
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
-      
+
       .monospaceRegex {
         font-family: monospace;
       }
-      
+
       .deletedRegexPart {
         background-color: lightpink;
         font-weight:bold;
       }
-      
+
       .addedRegexPart {
-        color: lightgreen;
+        background-color: lightgreen;
         font-weight:bold;
       }
     </style>
@@ -31,7 +31,7 @@
     <div class="container">
       <h1>Regular Expressions Gym</h1>
       <p>Slim your regexes one step at a time!</p>
-      
+
       <p>
         <button id="generateRegex" class="btn">Generate a random regular expression</button>
       </p>
@@ -54,9 +54,9 @@
         <br>
         <div style="margin-left: 20px;" id="resultRegexList" type="text" class="input-block-level monospaceRegex"></div>
       </p>
-    
+
     </div> <!-- /container -->
-    
+
     <script type="text/javascript">
       // taken from http://rosettacode.org/wiki/Longest_common_subsequence#JavaScript
       function lcs(x,y){
@@ -94,7 +94,7 @@
         }
         return lcs.join('');
       }
-      
+
       var currentRegex = null;
       var sourceRegex = null;
       $("#generateRegex").click(function() {
@@ -107,7 +107,7 @@
         $("#simplifyRegex").attr("disabled", false);
         $("#simplifyRegexStep").attr("disabled", false);
       });
-    
+
       $("#simplifyRegex").click(function() {
       	$("#simplifyRegex").button('loading');
       	setTimeout(function() {
@@ -125,15 +125,15 @@
             }, 0);
         }, 0);
       });
-      
+
       function lcs_intervals(str1, str2) {
         var intervals = [];
-        
+
         var start = 0;
         var end = 0;
-        
+
         var i=0;
-        
+
         while (i < str2.length) {
           if (str2[i] !== str1[end]) {
             end += 1
@@ -141,34 +141,34 @@
             if (start !== end) {
               intervals.push([start, end]);
             }
-            
+
             start = end;
             i += 1;
             end += 1;
             start += 1;
           }
         }
-        
+
         if (end < str1.length) {
           intervals.push([end, str1.length]);
         }
-        
+
         return intervals;
       }
-      
+
       /* Should eventually color a meaningful (changed or deleted) part of the minimized regex */
       function colorize() {
         var sourceText = $("#sourceRegex").text();
         var resultText = $("#resultRegex").text();
         var lcsText = lcs(sourceText, resultText);
-        
+
         var deletedIntervals = lcsText.length > sourceText.length ? [] : lcs_intervals(sourceText, lcsText);
         var addedIntervals = resultText.length > lcsText.length ? [] : lcs_intervals(lcsText, resultText);
-        
+
         colorDiv("sourceRegex", deletedIntervals, "deletedRegexPart");
         colorDiv("resultRegex", addedIntervals, "addedRegexPart");
       }
-      
+
       $("#simplifyRegexStep").click(function() {
         console.log(currentRegex);
         var stepResult = simplifyStep(currentRegex);
@@ -180,7 +180,7 @@
         } else {
           sourceRegex = currentRegex;
           currentRegex = result;
-          
+
           $("#sourceRegex").html(sourceRegex);
           $("#resultRegex").html(result);
           $("#appliedPatterns").html(appliedPatterns[appliedPatterns.length - 1]);
@@ -189,24 +189,24 @@
           setTimeout(colorize, 0);
         }
       });
-      
+
       function colorDiv(divId, intervals, cssClass) {
         var regex = $("#" + divId).html();
-        
+
         var start = 0;
         var out = "";
-        
+
         for (var i=0; i<intervals.length; i++) {
           out += regex.slice(start, intervals[i][0]);
           out += '<font class="' + cssClass + '">' + regex.slice(intervals[i][0], intervals[i][1]) + '</font>';
           start = intervals[i][1];
         }
-        
+
         out += regex.slice(start);
-        
-        $("#" + divId).html(out);        
+
+        $("#" + divId).html(out);
       }
-      
+
       function simplifyStep(regex) {
   	    var config = {numIterations : 1, appliedPatterns : []};
 	      var result = noam.re.string.simplify(regex, config);
@@ -221,11 +221,11 @@
         }
         return [result, config.appliedPatterns];
       }
-      
+
       $("#originalRegex").change(function() {
         currentRegex = $("#originalRegex").val();
       });
-    </script> 
+    </script>
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-36346935-1']);
@@ -239,4 +239,4 @@
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
     </script>
-  </body>  
+  </body>
