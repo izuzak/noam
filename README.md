@@ -14,7 +14,7 @@ See [TODO list](https://github.com/izuzak/noam/blob/master/TODO.md).
 ## Web apps
 
 * [Regular Expressions Gym](http://izuzak.github.com/noam/webapps/regex_play.html) - Slim your regexes one step at a time! Source is [here](https://github.com/izuzak/noam/blob/master/webapps/regex_play.html).
-* [FSM Simulator](http://izuzak.github.com/noam/webapps/regex_play.html) - Visually simulate the operation of your DFAs, NFAs and eNFAs one input symbol at a time! Source is [here](https://github.com/izuzak/noam/blob/master/webapps/fsm_simulation.html).
+* [FSM Simulator](http://izuzak.github.com/noam/webapps/fsm_simulation.html) - Visually simulate the operation of your DFAs, NFAs and eNFAs one input symbol at a time! Source is [here](https://github.com/izuzak/noam/blob/master/webapps/fsm_simulation.html).
 
 ## Development
 
