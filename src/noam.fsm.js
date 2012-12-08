@@ -4,7 +4,7 @@
   noam.fsm.dfaType = 'DFA';
   noam.fsm.nfaType = 'NFA';
   noam.fsm.enfaType = 'eNFA';
-  
+
   // FSM creation API
 
   // Creates and returns an empty FSM that can then be manipulated through the other
@@ -124,7 +124,7 @@
   // validates a FSM definition
   noam.fsm.validate = function(fsm) {
     var i, j, k;
-    
+
     if (!(typeof fsm !== 'undefined' &&
         Array.isArray(fsm.states) &&
         Array.isArray(fsm.alphabet) &&
@@ -460,7 +460,7 @@
     headers.push("");
 
     var tableRows = [], i, j;
-    
+
     for (i=0; i<fsm.states.length; i++) {
       tableRows.push(new Array(headers.length));
       for (j=0; j<headers.length; j++) {
@@ -507,7 +507,7 @@
 
     htmlString.push("<table border='1'>");
     htmlString.push("  <tr>");
-    
+
     for (i=0; i<headers.length; i++) {
       htmlString.push("    <th>" + headers[i].toString() + "</th>");
     }
@@ -531,9 +531,9 @@
   noam.fsm.printDotFormat = function(fsm) {
     var result = ["digraph finite_state_machine {", "  rankdir=LR;"];
     var accStates = ["  node [shape = doublecircle];"];
-    
+
     var i, j, k, trans;
-    
+
     for (i=0; i<fsm.acceptingStates.length; i++) {
       accStates.push(fsm.acceptingStates[i].toString());
     }
@@ -601,7 +601,7 @@
 
     result.push("}");
 
-    return result.join("\n").replace(/\$/g, "?");
+    return result.join("\n").replace(/\$/g, "$");
   };
 
   // determine reachable states
@@ -619,7 +619,7 @@
           for (j=0; j<transition.toStates.length; j++) {
             if (!(noam.util.contains(reachableStates, transition.toStates[j]))) {
               reachableStates.push(transition.toStates[j]);
-              
+
               if (!(noam.util.contains(unprocessedStates, transition.toStates[j]))) {
                 unprocessedStates.push(transition.toStates[j]);
               }
@@ -677,7 +677,7 @@
         !(noam.util.contains(fsmB.states, stateB))) {
       throw new Error('FSMs must contain states');
     }
-    
+
     function doBothStatesHaveSameAcceptance(fsmX, stateX, fsmY, stateY) {
       var stateXAccepting = noam.util.contains(fsmX.acceptingStates, stateX);
       var stateYAccepting = noam.util.contains(fsmY.acceptingStates, stateY);
@@ -691,7 +691,7 @@
 
     while (unprocessedPairs.length !== 0) {
       var currentPair = unprocessedPairs.pop();
-      
+
       if (!(doBothStatesHaveSameAcceptance(fsmA, currentPair[0], fsmB, currentPair[1]))) {
           return false;
         }
@@ -724,9 +724,9 @@
     if (noam.fsm.determineType(fsm) !== noam.fsm.dfaType) {
       throw new Error('FSM must be DFA');
     }
-    
+
     var equivalentPairs = [], i, j, k;
-    
+
     for (i=0; i<fsm.states.length; i++) {
       for (j=i+1; j<fsm.states.length; j++) {
         if (noam.fsm.areEquivalentStates(fsm, fsm.states[i], fsm, fsm.states[j])) {
@@ -745,7 +745,7 @@
         }
       }
     }
-    
+
     var newFsm = {
       states : [],
       alphabet : noam.util.clone(fsm.alphabet),
@@ -779,13 +779,13 @@
         newFsm.states.push(noam.util.clone(fsm.states[i]));
       }
     }
-    
+
     for (i=0; i<fsm.acceptingStates.length; i++) {
       if (!(isOneOfEquivalentStates(fsm.acceptingStates[i]))) {
         newFsm.acceptingStates.push(noam.util.clone(fsm.acceptingStates[i]));
       }
     }
-    
+
     newFsm.initialState = noam.util.clone(getEquivalentState(fsm.initialState));
 
     for (i=0; i<fsm.transitions.length; i++) {
@@ -801,7 +801,7 @@
 
       newFsm.transitions.push(transition);
     }
-    
+
     return newFsm;
   };
 
@@ -958,7 +958,7 @@
             break;
           }
         }
-        
+
         for (j=0; j<newStates.length; j++) {
           if (noam.util.areEqualSets(ts, newStates[j])) {
             ts = newStates[j];
@@ -1254,7 +1254,7 @@
       acceptingStates : [],
       transitions : []
     };
-    
+
     var i, j, k;
 
     for (i=0; i<fsmA.states.length; i++) {
@@ -1294,7 +1294,7 @@
       acceptingStates : [],
       transitions : []
     };
-    
+
     var i, j, k;
 
     for (i=0; i<fsmA.states.length; i++) {
@@ -1336,7 +1336,7 @@
       acceptingStates : [],
       transitions : []
     };
-    
+
     var i, j, k;
 
     for (i=0; i<fsmA.states.length; i++) {
@@ -1400,7 +1400,7 @@
       acceptingStates : noam.util.clone(fsmB.acceptingStates),
       transitions : noam.util.clone(fsmA.transitions).concat(noam.util.clone(fsmB.transitions))
     };
-    
+
     for (var i=0; i<fsmA.acceptingStates.length; i++) {
       newFsm.transitions.push({
         fromState : noam.util.clone(fsmA.acceptingStates[i]),
@@ -1477,7 +1477,7 @@
   // the language accepted by fsmA
   noam.fsm.isSubset = function(fsmA, fsmB) {
     var fsmIntersection = noam.fsm.intersection(fsmA, fsmB);
-    
+
     return noam.fsm.areEquivalentFSMs(fsmB, fsmIntersection);
   };
 
@@ -1489,7 +1489,7 @@
       initialNonterminal : noam.util.clone(fsm.initialState),
       productions : []
     };
-    
+
     var i;
 
     for (i=0; i<fsm.transitions.length; i++) {
@@ -1519,48 +1519,48 @@
 
   noam.fsm.symbolsForTransitions = function(fsm, stateA, stateB) {
     var res = [];
-    
+
     for (var i=0; i<fsm.transitions.length; i++) {
       var transition = fsm.transitions[i];
-      
+
       if (noam.util.areEquivalent(transition.fromState, stateA) &&
           noam.util.contains(transition.toStates, stateB)) {
         res.push(transition.symbol);
       }
     }
-    
+
     return res;
   };
 
   noam.fsm.toRegex = function(fsm) {
     var r = [];
     var n = fsm.states.length;
-    
+
     var i, j, k, z;
-    
+
     for (k=0; k<n+1; k++) {
       r[k] = [];
       for (i=0; i<n; i++) {
         r[k][i] = [];
       }
     }
-    
+
     for (i=0; i<n; i++) {
       for (j=0; j<n; j++) {
         var symbols = noam.fsm.symbolsForTransitions(fsm, fsm.states[i], fsm.states[j]);
-        
+
         for (z=0; z<symbols.length; z++) {
           symbols[z] = noam.re.tree.makeLit(symbols[z]);
         }
-        
+
         if (i === j) {
           symbols.push(noam.re.tree.makeEps());
         }
-        
+
         r[0][i][j] = noam.re.tree.makeAlt(symbols);
       }
     }
-    
+
     for (k=1; k<n+1; k++) {
       for (i=0; i<n; i++) {
         for (j=0; j<n; j++) {
@@ -1568,22 +1568,22 @@
         }
       }
     }
-    
+
     var startStateIndex = -1;
     var acceptableStatesIndexes = [];
-    
+
     for (i=0; i<fsm.states.length; i++) {
       if (noam.util.areEquivalent(fsm.states[i], fsm.initialState)) {
         startStateIndex = i;
       }
-      
+
       if (noam.util.contains(fsm.acceptingStates, fsm.states[i])) {
         acceptableStatesIndexes.push(i);
       }
     }
-    
+
     var elements = [];
-    
+
     for (i=0; i<acceptableStatesIndexes.length; i++) {
       elements.push(r[n][startStateIndex][acceptableStatesIndexes[i]]);
     }
