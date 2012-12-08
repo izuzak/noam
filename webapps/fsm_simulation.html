@@ -2,106 +2,324 @@
   <head>
     <meta charset="utf-8" />
     <title>Finite State Machine Simulator Wannabe</title>
-    
+
     <script type="text/javascript" src="../lib/noam.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
     <script type="text/javascript" src="https://raw.github.com/twitter/bootstrap/gh-pages/assets/js/bootstrap.js"></script>
     <script type="text/javascript" src="https://raw.github.com/mdaines/viz.js/master/viz.js"></script>
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css"/>
-    
+
     <style>
-      .activeState {
-        fill: red;
+      body {
+        padding-top: 40px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+
+      .input-div {
+        -webkit-appearance: none;
+        -webkit-border-image: none;
+        -webkit-box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset;
+        -webkit-rtl-ordering: logical;
+        -webkit-transition-delay: 0s, 0s;
+        -webkit-transition-duration: 0.20000000298023224s, 0.20000000298023224s;
+        -webkit-transition-property: border, box-shadow;
+        -webkit-transition-timing-function: linear, linear;
+        -webkit-user-select: text;
+        -webkit-writing-mode: horizontal-tb;
+        background-color: rgb(255, 255, 255);
+        border-bottom-color: rgb(204, 204, 204);
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-left-color: rgb(204, 204, 204);
+        border-left-style: solid;
+        border-left-width: 1px;
+        border-right-color: rgb(204, 204, 204);
+        border-right-style: solid;
+        border-right-width: 1px;
+        border-top-color: rgb(204, 204, 204);
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-top-style: solid;
+        border-top-width: 1px;
+        box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset;
+        box-sizing: border-box;
+        color: rgb(85, 85, 85);
+        cursor: auto;
+        display: inline-block;
+        font-family: monospace;
+        font-size: 14px;
+        font-weight: normal;
+        min-height: 30px;
+        letter-spacing: normal;
+        line-height: 20px;
+        margin-bottom: 10px;
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-top: 0px;
+        min-height: 30px;
+        padding-bottom: 4px;
+        padding-left: 6px;
+        padding-right: 6px;
+        padding-top: 4px;
+        text-align: start;
+        text-indent: 0px;
+        text-shadow: none;
+        text-transform: none;
+        vertical-align: middle;
+        width: 460px;
+        word-spacing: 0px;
+        writing-mode: lr-tb;
+      }
+
+      .currentState {
+        fill: lightpink;
+        stroke-width: 2;
+      }
+
+      .nextState {
+        fill: lightgreen;
+      }
+
+      .previousState {
+        fill: lightblue;
+      }
+
+      .activeTransition {
+        stroke: blue;
+        stroke-width: 2;
       }
 
       .inactiveState {
         fill: white;
+      }
+
+      .nextSymbol {
+        background-color: lightgreen;
+        font-weight:bold;
       }
     </style>
 
   </head>
   <body>
     <div class="container">
-      <p>
-        <button id="generateRegex" class="btn">Generate a random regular expression</button>
-      </p>
-      <p>
-        <input id="regex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
-      </p>
-      <p>
-        <input id="inputString" type="text" class="input-block-level monospaceRegex" placeholder="See if this fits">
-      </p>
-      <p>
-        <button id="makeFsmTransition" class="btn">Try next state</button>
-      </p>
-    <div id="automatonGraph"></div>
-    </div> <!-- /container -->
+      <h1>FSM simulator</h1>
+
+      <p> Visually simulate the operation of your DFAs, NFAs and eNFAs one input symbol at a time! </p>
+
+      <div class="row-fluid">
+        <div class="span6">
+          <h3> Create automaton </h3>
+
+          <p>
+            <button id="generateRegex" class="btn">Generate a random regular expression</button>
+          </p>
+
+          <p>
+            <input id="regex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
+          </p>
+
+           <p>
+            <button id="createAutomaton" class="btn">Create automaton from regex</button>
+          </p>
+
+        </div>
+
+        <div class="span6">
+          <h3> Simulate automaton </h3>
+
+          <p>
+            <button id="generateRandomString" class="btn"> Random string </button>
+            <button id="generateRandomAcceptableString" class="btn"> Acceptable string </button>
+            <button id="generateRandomUnacceptableString" class="btn"> Unacceptable string </button>
+          </p>
+
+          <p>
+            <div contenteditable id="inputString" type="text" class="input-div input-block-level monospaceRegex" placeholder="See if this fits"></div>
+          </p>
+
+          <p>
+            <button id="inputFirst" class="btn"> |< </button>
+            <button id="inputPrevious" class="btn"> << </button>
+            <button id="inputNext" class="btn"> >> </button>
+            <button id="inputLast" class="btn"> >| </button>
+          </p>
+
+        </div>
+      </div>
+
+      <hr />
+
+      <div id="automatonGraph"> </div>
+    </div>
 
     <script type="application/javascript">
+      function colorStates(states, cssClass) {
+        if (states === undefined || states === null) {
+          return;
+        }
 
-    // TODOs
-    // color the initial state (and all the epsilon transitions from it)
-    // fwd, back button
-    // previous states - color them differently?
-    // make the current input symbol visible
-    // color the edges! hint: title tag (start node -> end node) + text tag (contains symbol)
-    // handle the end of string :D
-    // mark the final state conditionally - acceptable or not acceptable
-    // prettify the acceptable state coloring (atm the double edge disappears)
+        states = getElementsOfStates(states);
 
+        for (var i=0; i<states.length; i++) {
+          states[i].children("ellipse").each(function() {
+            $(this).attr("class", cssClass);
+          });
+        }
+      }
 
-      var automaton = null;
-      var inputStringLeft = null;
-      var currentStates = [];
-      var inactiveStates = [];
+      function colorDiv(divId, intervals, cssClass) {
+        var regex = $("#" + divId).html();
 
-      $("#generateRegex").click(function() {
-        var regex = noam.re.string.random(10, "abcd", {});
-        regex = noam.re.string.simplify(regex);
-        automaton = noam.re.string.toAutomaton(regex);
-        currentStates.push(automaton.initialState);
+        var start = 0;
+        var out = "";
+
+        for (var i=0; i<intervals.length; i++) {
+          out += regex.slice(start, intervals[i][0]);
+          out += '<font class="' + cssClass + '">' + regex.slice(intervals[i][0], intervals[i][1]) + '</font>';
+          start = intervals[i][1];
+        }
+
+        out += regex.slice(start);
+
+        $("#" + divId).html(out);
+      }
+
+      function getElementsOfStates(states) {
+        var retVal = [];
+
+        for (var i=0; i<states.length; i++) {
+          $("title:contains('" + states[i].toString() + "')").each(function(index, element)  {
+            if ($(this).text() === states[i].toString()) {
+              retVal.push($(this).parent());
+            }
+          });
+        }
+
+        return retVal;
+      }
+
+      function reorderCirclesInAcceptingStates(states) {
+        var stateElements = getElementsOfStates(states);
+
+        for (var i=0; i<stateElements.length; i++) {
+          var e1 = $(stateElements[i].children("ellipse")[0]);
+          var e2 = $(stateElements[i].children("ellipse")[1]);
+          e1.insertAfter(e2);
+        }
+      }
+
+      function drawGraph() {
         var dotString = noam.fsm.printDotFormat(automaton);
         var gvizXml = Viz(dotString, "svg");
-        $("#regex").val(regex);
         $("#automatonGraph").html(gvizXml);
-        inputStringLeft = null;      
-        });
+        reorderCirclesInAcceptingStates(automaton.acceptingStates);
+        $("#automatonGraph svg").width($("#automatonGraph").width());
+      }
 
-      var inputSet = false;
-      $("#makeFsmTransition").click(function() {
-        if (!inputSet) {
-          inputStringLeft = $("#inputString").val();
-          inputSet = true;
-        }
-        makeTransition();
-        for (var i = inactiveStates.length - 1; i >= 0; i--) {
-          colorStates(inactiveStates[i], "inactiveState");
-        };
-        for (var i = currentStates.length - 1; i >= 0; i--) {
-          colorStates(currentStates[i], "activeState");
-        };
+      function colorize() {
+        colorStates(automaton.states, "inactiveStates");
+        colorStates(previousStates, "previousState");
+        colorStates(nextStates, "nextState");
+        colorStates(currentStates, "currentState");
+      }
+
+      $("#generateRandomString").click(function(){
+        $("#inputString").html(Math.random() >= 0.5 ?
+          noam.fsm.randomStringInLanguage(automaton) :
+          noam.fsm.randomStringNotInLanguage(automaton));
+        resetAutomaton();
       });
 
-      function makeTransition () {
-        if (inputStringLeft === null) {
-          inputStringLeft = $("#inputString").val();
+      $("#generateRandomAcceptableString").click(function(){
+        $("#inputString").html(noam.fsm.randomStringInLanguage(automaton));
+        resetAutomaton();
+      });
+
+      $("#generateRandomUnacceptableString").click(function(){
+        $("#inputString").html(noam.fsm.randomStringNotInLanguage(automaton));
+        resetAutomaton();
+      });
+
+      function colorNextSymbol() {
+        $("#inputString").html(inputString);
+        if (nextSymbolIndex < inputString.length) {
+          colorDiv("inputString", [[nextSymbolIndex, nextSymbolIndex+1]], "nextSymbol");
         }
-        var inputSymbol = inputStringLeft.substring(0, 1);
-        inputStringLeft = inputStringLeft.substring(1);
-        inactiveStates = currentStates;
-        currentStates = noam.fsm.makeTransition(automaton, currentStates, inputSymbol);
       }
 
-      function colorStates(stateText, cssClass) {
-        $("title:contains('" + stateText + "')").each(function(index, element)  {
-          if ($(this).text() == stateText)  {
-            $(this).siblings("ellipse").each(function() {
-              $(this).attr("class", cssClass);
-            });
-          }
-        });
+      function resetAutomaton() {
+        currentStates = noam.fsm.computeEpsilonClosure(automaton, [automaton.initialState]);
+        inputString = $("#inputString").text();
+        nextSymbolIndex = 0;
+        colorize();
+        colorNextSymbol();
+      };
+
+      $("#inputFirst").click(function(){
+        resetAutomaton();
+      });
+
+      $("#inputPrevious").click(function(){
+        if (nextSymbolIndex > 0) {
+          currentStates = noam.fsm.readString(automaton, inputString.substring(0, nextSymbolIndex-1).split(""));
+          nextSymbolIndex = nextSymbolIndex-1;
+          colorize();
+          colorNextSymbol();
+        }
+      });
+
+      $("#inputNext").click(function(){
+        if (nextSymbolIndex < inputString.length) {
+          currentStates = noam.fsm.makeTransition(automaton, currentStates, inputString[nextSymbolIndex]);
+          nextSymbolIndex += 1;
+          colorize();
+          colorNextSymbol();
+        }
+      });
+
+      $("#inputLast").click(function(){
+        while(nextSymbolIndex < inputString.length) {
+          currentStates = noam.fsm.makeTransition(automaton, currentStates, inputString[nextSymbolIndex]);
+          nextSymbolIndex += 1;
+          colorize();
+          colorNextSymbol();
+        }
+      });
+
+      function initialize() {
+        inputStringLeft = null;
+        currentStates = null;
+        inactiveStates = null;
+        previousStates = null;
+        nextStates = null;
       }
-      
+
+      var regex = null;
+      var automaton = null;
+      var inputString = null;
+      var nextSymbolIndex = 0;
+      var currentStates = null;
+      var inactiveStates = null;
+      var previousStates = null;
+      var nextStates = null;
+
+      $("#generateRegex").click(function() {
+        regex = noam.re.string.random(5, "abcd", {});
+        regex = noam.re.string.simplify(regex);
+        $("#regex").val(regex);
+      });
+
+      $("#createAutomaton").click(function() {
+        regex = $("#regex").val();
+        automaton = noam.re.string.toAutomaton(regex);
+        initialize();
+        drawGraph();
+        resetAutomaton();
+      });
+
+      var inputSet = false;
+
     </script>
   </body>
 </html>
