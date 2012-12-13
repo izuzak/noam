@@ -1,4 +1,3 @@
-
   noam.grammar = {};
 
   noam.grammar.epsilonSymbol = '$';

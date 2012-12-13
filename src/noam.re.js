@@ -1,4 +1,3 @@
-
   /* 
    * Regular expressions module.
    *
