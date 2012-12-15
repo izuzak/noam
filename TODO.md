@@ -74,6 +74,13 @@
 ## Webapps and examples
 
 * fsm simulation
+  * support zooming and panning for the displayed FSM (similar to google maps)
+    * use existing libs:
+      * https://code.google.com/p/svgpan/
+      * https://github.com/talos/jquery-svgpan
+      * http://www.petercollingridge.co.uk/interactive-svg-components/pan-and-zoom-control
+      * http://www.petercollingridge.co.uk/book/export/html/437
+      * http://polymaps.org/
   * colorize next states or transitions so that it is visible which transitions will be made
   * explain the colors to the user
   * tell the user if the currently read string is acceptable or not by the fsm
