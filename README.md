@@ -1,4 +1,5 @@
-# Noam
+# Noam [![Build Status](https://travis-ci.org/izuzak/noam.png)](https://travis-ci.org/izuzak/noam)
+
 
 Noam is a JavaScript library for working with automata and formal grammars for regular and context-free languages.
 
