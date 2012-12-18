@@ -35,7 +35,7 @@
   "devDependencies": {
     "jasmine-node" :  ">=1.0.23",
     "benchtable" : ">=0.0.1",
-    "grunt" : ">=0.3.18a",
+    "grunt" : "~0.3.14",
     "grunt-jasmine-node" : ">=0.0.2"
   },
   "bundleDependencies": [],
