@@ -7,7 +7,7 @@
   "bugs" : "https://github.com/izuzak/noam/issues",
   "homepage" : "https://github.com/izuzak/noam",
   "scripts": {
-    "test": "jasmine-node test",
+    "test": "grunt --verbose",
     "build": "grunt",
     "benchmark": "node ./benchmarks/benchmark.js"
   },
