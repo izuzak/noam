@@ -1,7 +1,7 @@
 {
   "name": "noam",
-  "preferGlobal": "false",
-  "version": "0.0.3",
+  "preferGlobal": false,
+  "version": "0.0.4",
   "author": "Ivan Zuzak <izuzak@gmail.com> (http://ivanzuzak.info)",
   "description": "JavaScript library for working with automata and formal grammars for regular and context-free languages",
   "bugs" : "https://github.com/izuzak/noam/issues",
@@ -30,13 +30,18 @@
     "chomsky hierarchy"
   ],
   "dependencies" : {
-    "cli-table" : ">=0.0.1"
+    "cli-table" : ">=0.2.0"
   },
   "devDependencies": {
-    "jasmine-node" :  ">=1.0.23",
+    "jasmine-node" : ">=1.0.28",
     "benchtable" : ">=0.0.1",
     "grunt" : "~0.3.14",
-    "grunt-jasmine-node" : ">=0.0.2"
+    "grunt-jasmine-node" : ">=0.0.5",
+    "grunt-jsvalidate" : ">=0.1.3",
+    "grunt-beautify" : ">=0.1.1",
+    "wd" : ">=0.0.27",
+    "phantomjs" : ">=1.8.0",
+    "istanbul" : ">=0.1.25"
   },
   "bundleDependencies": [],
   "licenses": [
