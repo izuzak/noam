@@ -39,8 +39,6 @@
     "grunt-jasmine-node" : ">=0.0.5",
     "grunt-jsvalidate" : ">=0.1.3",
     "grunt-beautify" : ">=0.1.1",
-    "wd" : ">=0.0.27",
-    "phantomjs" : ">=1.8.0",
     "istanbul" : ">=0.1.25"
   },
   "bundleDependencies": [],
