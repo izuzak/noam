@@ -3,9 +3,30 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     concat: {
-      dist: {
-        src: ['src/intro.js', 'src/exports.js', 'src/middle.js', 'src/noam.util.js', 'src/noam.fsm.js', 'src/noam.grammar.js', 'src/noam.re.js', 'src/outro.js'],
-        dest: 'lib/noam.js'
+      node: {
+        src: ['src/intro.js',
+              'src/exports.js',
+              'src/middle.js',
+              'src/noam.util.js',
+              'src/require-structure.js',
+              'src/noam.fsm.js',
+              'src/noam.grammar.js',
+              'src/noam.re.js',
+              'src/outro.js'],
+        dest: 'lib/node/noam.js'
+      },
+      browser: {
+        src: ['src/intro.js',
+              'src/exports.js',
+              'src/middle.js',
+              'src/noam.util.js',
+              'node_modules/structure.js/lib/inline-hashtable.js',
+              'src/after-inline-hashtable.js',
+              'src/noam.fsm.js',
+              'src/noam.grammar.js',
+              'src/noam.re.js',
+              'src/outro.js'],
+        dest: 'lib/browser/noam.js'
       }
     },
 
@@ -14,9 +35,13 @@ module.exports = function(grunt) {
     },
 
     min: {
-      dist: {
-        src: ['lib/noam.js'],
-        dest: 'lib/noam.min.js'
+      node: {
+        src: ['lib/node/noam.js'],
+        dest: 'lib/node/noam.min.js'
+      },
+      browser: {
+        src: ['lib/browser/noam.js'],
+        dest: 'lib/browser/noam.min.js'
       }
     },
 

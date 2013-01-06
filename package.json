@@ -11,7 +11,7 @@
     "build": "grunt",
     "benchmark": "node ./benchmarks/benchmark.js"
   },
-  "main": "./lib/noam.js",
+  "main": "./lib/node/noam.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/izuzak/noam.git"
@@ -30,7 +30,8 @@
     "chomsky hierarchy"
   ],
   "dependencies" : {
-    "cli-table" : ">=0.2.0"
+    "cli-table" : ">=0.2.0",
+    "structure.js" : ">=0.0.x"
   },
   "devDependencies": {
     "jasmine-node" : ">=1.0.28",

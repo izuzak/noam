@@ -1,5 +1,5 @@
 describe("UTIL", function() {
-  var noamUtil = require("../lib/noam.js").util;
+  var noamUtil = require("../lib/node/noam.js").util;
 
   describe("areEquivalent", function() {
     it("undefined test", function() {
