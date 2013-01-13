@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
     <title> I can has regex simplify </title>
 
-    <script type="text/javascript" src="../lib/noam.js"></script>
+    <script type="text/javascript" src="../../lib/noam.js"></script>
     <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
     <script type="text/javascript" src="https://raw.github.com/twitter/bootstrap/gh-pages/assets/js/bootstrap.js"></script>
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css"/>
@@ -18,12 +18,12 @@
 
       .deletedRegexPart {
         background-color: lightpink;
-        font-weight:bold;
+        font-weight: bold;
       }
 
       .addedRegexPart {
         background-color: lightgreen;
-        font-weight:bold;
+        font-weight: bold;
       }
     </style>
   </head>
@@ -59,10 +59,8 @@
 
     <script type="text/javascript">
       // taken from http://rosettacode.org/wiki/Longest_common_subsequence#JavaScript
-      function lcs(x,y){
-        var s,i,j,m,n,
-          lcs=[],row=[],c=[],
-          left,diag,latch;
+      function lcs(x, y) {
+        var s, i, j, m, n, lcs = [], row = [], c = [], left, diag, latch;
         //make sure shorter string is the column string
         if(m<n){s=x;x=y;y=s;}
         m = x.length;
