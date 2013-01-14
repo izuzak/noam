@@ -84,12 +84,8 @@
   * colorize next states or transitions so that it is visible which transitions will be made
   * explain the colors to the user
   * tell the user if the currently read string is acceptable or not by the fsm
-  * add usage docs
-  * add links to noam
-  * add credits
   * add some settings for generating regexes (regex size, alphabet, etc.)
   * add support to enter an automaton by hand, without entering a regex
-  * add pretty icons to buttons
 * regex minification
   * improve coloring of regex parts:
     * by using an existing implementation for diff-ing strings
@@ -115,5 +111,5 @@
   * put graph rendering into background worker + re-render only when typing stops for 1-2s
   * image export for graphs
   * develop simple language for defining FSMs
-* develop webapp for step-by-step simulation of the operation of FSMs and grammars
+* develop webapp for step-by-step simulation of grammars
 * develop examples for FSMs, grammars and regular expressions
