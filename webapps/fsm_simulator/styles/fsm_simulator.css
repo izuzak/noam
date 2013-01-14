@@ -1,5 +1,59 @@
+.header {
+    text-align: center;
+    color: black;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 4em;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+}
+
+.header p {
+    display: block;
+    font-size: 2em;
+    line-height: 1em;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    font-style: italic;
+}
+
+hr {
+    height: 2px;
+    border-color: grey;
+}
+
+.content {
+    background-color: white;
+    min-height: 500px;
+    border: solid rgb(229, 229, 229) 2px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+.footer {
+    margin-top: 30px;
+    text-align: center;
+    color: grey;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 10px;
+}
+
+.instructions {
+    min-height: 190px;
+}
+
 body {
+    background-color: rgb(245, 245, 245);
     padding-top: 40px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+
+h3 {
+    text-rendering: auto;
 }
 
 .input-div {
@@ -38,7 +92,7 @@ body {
     font-family: monospace;
     font-size: 14px;
     font-weight: normal;
-    min-height: 30px;
+    min-height: 20px;
     letter-spacing: normal;
     line-height: 20px;
     margin-bottom: 10px;
@@ -55,7 +109,7 @@ body {
     text-shadow: none;
     text-transform: none;
     vertical-align: middle;
-    width: 460px;
+    width: 100%;
     word-spacing: 0px;
     writing-mode: lr-tb;
 }

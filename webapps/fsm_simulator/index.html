@@ -1,73 +1,131 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Finite State Machine Simulator Wannabe</title>
+    <meta name="author" content="Ivan Zuzak, Vedrana Jankovic" />
+    <meta name="keywords" content="fsm, finite-state machine, regex, regular expression, simulation, software, graphviz" />
+    <meta name="description" content="FSM simulator is a Web application for step-by-step visual simulation of finite state machines which are defined with regular expressions." />
+    <meta name="viewport" content="width=device-width" />
+
+    <title>FSM Simulator</title>
 
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" />
     <link rel="stylesheet" href="styles/fsm_simulator.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>FSM simulator</h1>
+    <div class="header">
+      <div class="container">
+        <h1>FSM simulator</h1>
 
-      <p> Visually simulate the operation of your DFAs, NFAs and eNFAs one input symbol at a time! </p>
+        <p>
+          Visually simulate your DFAs, NFAs and ε-NFAs <br>
+          one input symbol at a time!
+        </p>
+      </div>
+    </div>
 
-      <div class="row-fluid">
-        <div class="span6">
-          <h3> Create automaton </h3>
+    <div class="content">
+      <div class="container controls">
+        <div class="row-fluid">
+          <div class="span6">
+            <h3> &#x2460; Create automaton </h3>
 
-          <p>
-            <button id="generateRegex" class="btn">Generate a random regular expression</button>
-          </p>
+            <div class="instructions">
 
-          <p>
-            <input id="regex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
-          </p>
+              <p>
+                Enter a regular expression into the input field below or click <strong>Generate random regex</strong> to have the app generate a simple regex randomly for you.
+              </p>
+              <p>
+                Next, click <strong>Create automaton</strong> to create a FSM for the defined regex and display its transition graph.
+              </p>
+              <p>
+                A valid regex consists of alphanumeric characters representing the set of input symbols (e.g. <code>a</code>, <code>B</code>, <code>9</code>), the <code>$</code> character representing the empty string, the choice operator <code>+</code>, the Kleene operator <code>*</code>, and parentheses <code>(</code> and <code>)</code>. An example of a valid regex is: <code>(a+B)*(c9+$)+$</code>.
+              </p>
+            </div>
 
-           <p>
-            <button id="createAutomaton" class="btn">Create automaton from regex</button>
-          </p>
 
+            <p>
+              <button id="generateRegex" class="btn">Generate random regex</button>
+            </p>
+
+            <p>
+              <input id="regex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
+            </p>
+
+             <p>
+              <button id="createAutomaton" class="btn">Create automaton</button>
+            </p>
+
+          </div>
+
+          <div class="span6">
+            <h3> &#x2461; Simulate automaton </h3>
+
+            <div class="instructions">
+              <p>
+                Enter a sequence of input symbols into the input field below or click <strong>Random string</strong>, <strong>Acceptable string</strong> and <strong>Unacceptable string</strong> to have the app generate random acceptable and unacceptable sequences for you.
+              </p>
+              <p>
+                Click <strong>Read next</strong> to have the FSM consume the next input symbol in the sequence and <strong>Read all</strong> to consume all remaining input symbols.
+                Click <strong>Step backward</strong> to go back one symbol and <strong>Reset</strong> to reset the FSM and go back to the beginning of the input sequence.
+              </p>
+              <p>
+                The input field highlights the input symbol that will be read next.
+              </p>
+            </div>
+
+            <p>
+              <button id="generateRandomString" class="btn"> Random string </button>
+              <button id="generateRandomAcceptableString" class="btn"> Acceptable string </button>
+              <button id="generateRandomUnacceptableString" class="btn"> Unacceptable string </button>
+            </p>
+
+            <p>
+              <div contenteditable id="inputString" type="text" class="input-div input-block-level monospaceRegex" placeholder="See if this fits"><br></div>
+            </p>
+
+            <p>
+              <button id="inputFirst" class="btn">
+                <i class="icon-fast-backward"></i>
+                Reset
+              </button>
+              <button id="inputPrevious" class="btn">
+                <i class="icon-backward"></i>
+                Step backward
+              </button>
+              <button id="inputNext" class="btn">
+                <i class="icon-forward"></i>
+                Read next
+              </button>
+              <button id="inputLast" class="btn">
+                <i class="icon-fast-forward"></i>
+                Read all
+              </button>
+            </p>
+
+          </div>
         </div>
 
-        <div class="span6">
-          <h3> Simulate automaton </h3>
-
-          <p>
-            <button id="generateRandomString" class="btn"> Random string </button>
-            <button id="generateRandomAcceptableString" class="btn"> Acceptable string </button>
-            <button id="generateRandomUnacceptableString" class="btn"> Unacceptable string </button>
-          </p>
-
-          <p>
-            <div contenteditable id="inputString" type="text" class="input-div input-block-level monospaceRegex" placeholder="See if this fits"></div>
-          </p>
-
-          <p>
-            <button id="inputFirst" class="btn">
-              <i class="icon-fast-backward"></i>
-              Reset
-            </button>
-            <button id="inputPrevious" class="btn">
-              <i class="icon-backward"></i>
-              Step backward
-            </button>
-            <button id="inputNext" class="btn">
-              <i class="icon-forward"></i>
-              Read next
-            </button>
-            <button id="inputLast" class="btn">
-              <i class="icon-fast-forward"></i>
-              Read all
-            </button>
-          </p>
-
-        </div>
+        <hr />
       </div>
 
-      <hr />
+      <div class="container graph">
+        <h3> &#x2462; Transition graph </h3>
+        <div id="automatonGraph"> </div>
+      </div>
+    </div>
 
-      <div id="automatonGraph"> </div>
+    <div class="footer">
+      <p>
+        <strong>FSM simulator</strong> is a demo of using <a href="https://github.com/izuzak/noam">noam</a>, a JavaScript library for working with finite-state machines, grammars and regular expressions.
+      </p>
+      <br>
+      <p>
+        Created by <a href="http://ivanzuzak.info">Ivan Zuzak</a> and <a href="http://vedri.ca">Vedrana Jankovic</a>.
+        Built with <a href="https://github.com/izuzak/noam">Noam</a>, <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>, <a href="https://github.com/mdaines/viz.js">Viz.js</a>, and <a href="http://jquery.com/">jQuery</a>.
+      </p>
+      <p>
+        Code available on <a href="https://github.com/izuzak/noam/tree/master/webapps/fsm_simulator">GitHub</a> and licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>.
+      </p>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
