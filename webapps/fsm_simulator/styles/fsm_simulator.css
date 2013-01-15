@@ -40,7 +40,6 @@ hr {
     width: 80%;
     margin-left: auto;
     margin-right: auto;
-    line-height: 10px;
 }
 
 .instructions {
@@ -116,6 +115,7 @@ h3 {
 
 .currentState {
     fill: lightpink;
+    background-color: lightpink;
     stroke-width: 2;
 }
 
