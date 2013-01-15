@@ -1,0 +1,116 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Ivan Zuzak, Vedrana Jankovic" />
+    <meta name="keywords" content="regex, regular expression, simplification, formal language, fsm, finite-state machine, software, algorithms" />
+    <meta name="description" content="RegEx Gym is a Web application for step-by-step visual simplification of regular expressions." />
+    <meta name="viewport" content="width=device-width" />
+
+    <title> Regular Expressions Gym </title>
+
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" />
+    <link rel="stylesheet" href="styles/regex_simplifier.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+      <h1>Regular Expressions Gym</h1>
+
+        <p>
+          Slim your regexes one step at a time!
+        </p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="container controls">
+        <div class="row-fluid">
+          <div class="span6">
+
+            <h3> &#x2460; Define regex </h3>
+
+            <div class="instructions">
+              <p>
+                Enter a regular expression into the input field below or click <strong>Generate random regex</strong> to have the app generate a simple regex randomly for you.
+              </p>
+              <p>
+                A valid regex consists of alphanumeric characters representing the set of input symbols (e.g. <code>a</code>, <code>B</code>, <code>9</code>), the <code>$</code> character representing the empty string, the choice operator <code>+</code>, the Kleene operator <code>*</code>, and parentheses <code>(</code> and <code>)</code>. An example of a valid regex is: <code>(a+B)*(c9+$)+$</code>.
+              </p>
+            </div>
+
+            <p>
+              <button id="generateRegex" class="btn">Generate random regex</button>
+            </p>
+          </div>
+
+          <div class="span6">
+            <h3> &#x2461; Simplify regex </h3>
+
+            <div class="instructions">
+              <p>
+                Click <strong>Simplify step</strong> to perform one simplification step, and <strong>Simplify full</strong> to perform simplification until the end.
+              </p>
+              <p>
+                Using set algebra and FSM equivalence laws, regex simplification reduces the length of the regex definition string while not changing the language that the regex defines.
+                For example, the regex <code>(a+aa)*</code> defines the same language as the regex <code>a*</code>.
+              </p>
+            </div>
+
+            <p>
+              <button id="simplifyRegex" class="btn">Simplify!</button>
+              <button id="simplifyRegexStep" class="btn">Step</button>
+            </p>
+          </div>
+
+          <p>
+            <input id="originalRegex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
+          </p>
+        </div>
+
+        <hr />
+      </div>
+
+      <div class="container graph">
+        <h3> &#x2462; Simplification history </h3>
+
+        <p>
+          For each simplification step, the application gives the regex strings before and after the simplification step, and the generic rule that was used to perform the step.
+          Furthermore, the application highlights the characters that were deleted in each simplification step.
+        </p>
+
+        <div id="simplificationHistory"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        <strong>Regular expressions gym</strong> is a demo of using <a href="https://github.com/izuzak/noam">noam</a>, a JavaScript library for working with finite-state machines, grammars and regular expressions.
+      </p>
+      <p>
+        Created by <a href="http://ivanzuzak.info">Ivan Zuzak</a> and <a href="http://vedri.ca">Vedrana Jankovic</a>.
+        Built with <a href="https://github.com/izuzak/noam">Noam</a>, <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>, and <a href="http://jquery.com/">jQuery</a>.
+      <br>
+        Code available on <a href="https://github.com/izuzak/noam/tree/master/webapps/fsm_simulator">GitHub</a> and licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>.
+      </p>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+    <script src="../../lib/noam.js"></script>
+    <script src="scripts/regex_simplifier.js"></script>
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-36346935-1']);
+      _gaq.push(['_setDomainName', 'auto']);
+      _gaq.push(['_setAllowLinker', true]);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  </body>
+</html>
