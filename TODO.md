@@ -82,20 +82,15 @@
       * http://www.petercollingridge.co.uk/book/export/html/437
       * http://polymaps.org/
   * colorize next states or transitions so that it is visible which transitions will be made
-  * explain the colors to the user
   * tell the user if the currently read string is acceptable or not by the fsm
   * add some settings for generating regexes (regex size, alphabet, etc.)
   * add support to enter an automaton by hand, without entering a regex
 * regex minification
   * improve coloring of regex parts:
-    * by using an existing implementation for diff-ing strings
-      * http://code.google.com/p/google-diff-match-patch/
-      * https://github.com/kpdecker/jsdiff
     * by making the simplification functions return the substituted strings
     * by "marking" the subtrees that were changed, deleted, added or used for the transformation as a precondition
   * add some settings for generating regexes (regex size, alphabet, etc.)
   * add error handling for user-defined regexes
-  * when the input is changed - reenable the simplify buttons
   * add link to fsm simulation app
 * develop playground webapp for working with FSMs and grammars
   * defining languages
