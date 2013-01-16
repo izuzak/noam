@@ -44,6 +44,7 @@ Noam is built with many awesome open-source projects:
 * [NodeJS](http://nodejs.org/) - used for running the command-line version of noam
 * [viz.js](https://github.com/mdaines/viz.js) - used for drawing FSM graphs in Web applications
 * [Bootstrap](http://twitter.github.com/bootstrap/) - used for styles in regex simplification webapp
+* [JsDiff](https://github.com/kpdecker/jsdiff) - used for diffing regexes in regex simplifier webapp
 * [jasmine-node](https://github.com/mhevery/jasmine-node) and [grunt-jasmine-node](https://github.com/jasmine-contrib/grunt-jasmine-node) - used for unit testing
 * [benchtable](https://github.com/izuzak/benchtable) and [benchmark.js](http://benchmarkjs.com/) - used for performance benchmarking
 * [grunt-jsvalidate](https://github.com/ariya/grunt-jsvalidate) - used for JavaScript validation
