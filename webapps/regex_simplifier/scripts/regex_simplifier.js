@@ -4,20 +4,40 @@ var sourceRegex = null;
 
 $("#generateRegex").click(function() {
   $("#originalRegex").val(noam.re.string.random(20, "abc", {}));
-  currentRegex = $("#originalRegex").val();
   onRegexChange();
 });
 
-$("#originalRegex").change(function() {
-  currentRegex = $("#originalRegex").val();
-  onRegexChange();
-});
+$("#originalRegex").change(onRegexChange);
+$("#originalRegex").keyup(onRegexChange);
 
 function onRegexChange() {
+  currentRegex = $("#originalRegex").val();
   regexCounter = 1;
-  $("#simplifyRegex").attr("disabled", false);
-  $("#simplifyRegexStep").attr("disabled", false);
   $("#simplificationHistory").html("");
+  validateRegex();
+}
+
+function validateRegex() {
+  var regex = $("#originalRegex").val();
+
+  if (regex.length === 0) {
+    $("#originalRegex").parent().removeClass("success error");
+    $("#simplifyRegex").attr("disabled", true);
+    $("#simplifyRegexStep").attr("disabled", true);
+  } else {
+    try {
+      noam.re.string.toTree(regex);
+      $("#originalRegex").parent().removeClass("error");
+      $("#originalRegex").parent().addClass("success");
+      $("#simplifyRegex").attr("disabled", false);
+      $("#simplifyRegexStep").attr("disabled", false);
+    } catch (e) {
+      $("#originalRegex").parent().removeClass("success");
+      $("#originalRegex").parent().addClass("error");
+      $("#simplifyRegex").attr("disabled", true);
+      $("#simplifyRegexStep").attr("disabled", true);
+    }
+  }
 }
 
 $("#simplifyRegex").click(simplifyAll);
