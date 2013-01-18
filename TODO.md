@@ -2,6 +2,9 @@
 
 ## Functionality
 
+* upgrade object equivalence function so that String==String String==string string==string
+  * also upgrade hashtable's hash function to support this
+* "++++" should not be considered a valid regex (e.g. when calling noam.re.string.toTree/toArray)
 * update noam.util.areEquivalent to be foolproof (e.g. use QUnit implementation or similar)
 * add noam.re.tree/array/string.areEquivalent, isSubset, intersection, etc etc
 * extend HashTable with prototypes:
@@ -61,6 +64,7 @@
 
 ## Performance and testing
 
+* random string generation for FSM is very slow non-trivial FSMs
 * in webapps - run noam inside a web worker so that noam doesn't block the UI
 * make specific benchmarks e.g. benchmarking the quality of regex simplification by regex length
 * make the new HashTable datastructure store the hash of an object into a "hidden" property of the object so that the HT doesn't have to recompute the hash again
@@ -83,14 +87,11 @@
       * http://polymaps.org/
   * colorize next states or transitions so that it is visible which transitions will be made
   * tell the user if the currently read string is acceptable or not by the fsm
-  * add some settings for generating regexes (regex size, alphabet, etc.)
   * add support to enter an automaton by hand, without entering a regex
 * regex minification
   * improve coloring of regex parts:
     * by making the simplification functions return the substituted strings
     * by "marking" the subtrees that were changed, deleted, added or used for the transformation as a precondition
-  * add some settings for generating regexes (regex size, alphabet, etc.)
-  * add error handling for user-defined regexes
   * add link to fsm simulation app
 * develop playground webapp for working with FSMs and grammars
   * defining languages
@@ -105,3 +106,10 @@
   * develop simple language for defining FSMs
 * develop webapp for step-by-step simulation of grammars
 * develop examples for FSMs, grammars and regular expressions
+* add links to other interesting webapps
+  * railroad diagrams
+    * http://www.xanthir.com/etc/railroad-diagrams/example.html
+    * http://www.xanthir.com/etc/railroad-diagrams/generator.html
+    * http://www.regexper.com/
+    * https://code.google.com/p/html-railroad-diagram/
+    * https://html-railroad-diagram.googlecode.com/svn/trunk/examples/railroad.html#value-railroad
