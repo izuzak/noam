@@ -69,24 +69,93 @@ function colorize() {
 }
 
 $("#generateRandomString").click(function(){
-  $("#inputString").html(Math.random() >= 0.5 ?
-    noam.fsm.randomStringInLanguage(automaton) :
-    noam.fsm.randomStringNotInLanguage(automaton));
-  resetAutomaton();
+  if ($("#startStop").text() === "Stop") {
+    $("#startStop").click();
+  }
+
+  $("#inputString").val(Math.random() >= 0.5 ?
+    noam.fsm.randomStringInLanguage(automaton).join("") :
+    noam.fsm.randomStringNotInLanguage(automaton).join(""));
+  onInputStringChange();
 });
 
 $("#generateRandomAcceptableString").click(function(){
-  $("#inputString").html(noam.fsm.randomStringInLanguage(automaton));
-  resetAutomaton();
+  if ($("#startStop").text() === "Stop") {
+    $("#startStop").click();
+  }
+
+  var s = noam.fsm.randomStringInLanguage(automaton).join("");
+  $("#inputString").val(s);
+  onInputStringChange();
 });
 
 $("#generateRandomUnacceptableString").click(function(){
-  $("#inputString").html(noam.fsm.randomStringNotInLanguage(automaton));
-  resetAutomaton();
+  if ($("#startStop").text() === "Stop") {
+    $("#startStop").click();
+  }
+
+  var s = noam.fsm.randomStringNotInLanguage(automaton).join("");
+  $("#inputString").val(s);
+  onInputStringChange();
 });
+
+$("#startStop").click(function() {
+  if ($("#startStop").text() === "Start") {
+    var r = $("#inputString").val();
+    $("#inputString").parent().html('<div id="inputString" type="text" class="input-div input-block-level monospaceRegex" placeholder="See if this fits"><br></div>');
+    $("#inputString").html(r === "" ? '<br>' : r);
+    resetAutomaton();
+    $("#inputString").removeAttr("contenteditable");
+    $("#inputFirst").attr("disabled", false);
+    $("#inputNext").attr("disabled", false);
+    $("#inputPrevious").attr("disabled", false);
+    $("#inputLast").attr("disabled", false);
+    $("#startStop").text("Stop");
+  } else {
+    var r = $("#inputString").text();
+    $("#inputString").parent().html('<input id="inputString" type="text" class="input-block-level monospaceRegex" placeholder="See if this fits">');
+    $("#inputString").keyup(onInputStringChange);
+    $("#inputString").change(onInputStringChange);
+    $("#inputString").val(r);
+    $("#inputString").attr("contenteditable", "");
+    $("#inputFirst").attr("disabled", true);
+    $("#inputNext").attr("disabled", true);
+    $("#inputPrevious").attr("disabled", true);
+    $("#inputLast").attr("disabled", true);
+    $("#startStop").text("Start");
+    $("#inputString").html(($("#inputString").text()));
+    $("#inputString").focus();
+  }
+});
+
+function onInputStringChange() {
+  var chars = $("#inputString").val().split("");
+  var isValidInputString = true;
+  for (var i=0; i<chars.length; i++) {
+    if (!noam.util.contains(automaton.alphabet, chars[i])) {
+      isValidInputString = false;
+      break;
+    }
+  }
+
+  if (isValidInputString) {
+    $("#startStop").attr("disabled", false);
+    $("#inputString").parent().addClass("success");
+    $("#inputString").parent().removeClass("error");
+  } else {
+    $("#startStop").attr("disabled", true);
+    $("#inputString").parent().removeClass("success");
+    $("#inputString").parent().addClass("error");
+  }
+}
 
 function colorNextSymbol() {
   $("#inputString").html(inputString);
+
+  if ($("#inputString").html() === "") {
+    $("#inputString").html("<br>");
+  }
+
   if (nextSymbolIndex < inputString.length) {
     colorDiv("inputString", [[nextSymbolIndex, nextSymbolIndex+1]], "nextSymbol");
   }
@@ -98,7 +167,7 @@ function resetAutomaton() {
   nextSymbolIndex = 0;
   colorize();
   colorNextSymbol();
-};
+}
 
 $("#inputFirst").click(function(){
   resetAutomaton();
@@ -152,6 +221,7 @@ $("#generateRegex").click(function() {
   regex = noam.re.string.random(5, "abcd", {});
   regex = noam.re.string.simplify(regex);
   $("#regex").val(regex);
+  onRegexChange();
 });
 
 $("#createAutomaton").click(function() {
@@ -160,4 +230,53 @@ $("#createAutomaton").click(function() {
   initialize();
   drawGraph();
   resetAutomaton();
+  previousRegex = "";
+
+  $("#generateRandomString").attr("disabled", false);
+  $("#generateRandomAcceptableString").attr("disabled", false);
+  $("#generateRandomUnacceptableString").attr("disabled", false);
+  $("#inputString").attr("disabled", false);
 });
+
+$("#regex").change(onRegexChange);
+$("#regex").keyup(onRegexChange);
+
+function onRegexChange() {
+  $("#automatonGraph").html("");
+  $("#inputString").html("<br>");
+
+  $("#generateRandomString").attr("disabled", true);
+  $("#generateRandomAcceptableString").attr("disabled", true);
+  $("#generateRandomUnacceptableString").attr("disabled", true);
+  $("#createAutomaton").attr("disabled", true);
+  $("#startStop").attr("disabled", true);
+  $("#inputFirst").attr("disabled", true);
+  $("#inputNext").attr("disabled", true);
+  $("#inputPrevious").attr("disabled", true);
+  $("#inputLast").attr("disabled", true);
+  $("#inputString").parent().html('<input id="inputString" type="text" class="input-block-level monospaceRegex" placeholder="See if this fits" disabled>');
+  $("#inputString").parent().removeClass("success error");
+  $("#inputString").keyup(onInputStringChange);
+  $("#inputString").change(onInputStringChange);
+  $("#startStop").text("Start");
+
+  validateRegex();
+}
+
+function validateRegex() {
+  var regex = $("#regex").val();
+
+  if (regex.length === 0) {
+    $("#regex").parent().removeClass("success error");
+  } else {
+    try {
+      noam.re.string.toTree(regex);
+      $("#regex").parent().removeClass("error");
+      $("#regex").parent().addClass("success");
+      $("#createAutomaton").attr("disabled", false);
+    } catch (e) {
+      $("#regex").parent().removeClass("success");
+      $("#regex").parent().addClass("error");
+    }
+  }
+}

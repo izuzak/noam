@@ -48,11 +48,13 @@
             </p>
 
             <p>
-              <input id="regex" type="text" class="input-block-level monospaceRegex" placeholder="or write your own">
+              <div class="control-group">
+                <input id="regex" type="text" class="input-block-level" placeholder="or write your own">
+              </div>
             </p>
 
              <p>
-              <button id="createAutomaton" class="btn">Create automaton</button>
+              <button id="createAutomaton" class="btn" disabled>Create automaton</button>
             </p>
 
           </div>
@@ -74,29 +76,34 @@
             </div>
 
             <p>
-              <button id="generateRandomString" class="btn"> Random string </button>
-              <button id="generateRandomAcceptableString" class="btn"> Acceptable string </button>
-              <button id="generateRandomUnacceptableString" class="btn"> Unacceptable string </button>
+              <button id="generateRandomString" class="btn" disabled> Random string </button>
+              <button id="generateRandomAcceptableString" class="btn" disabled> Acceptable string </button>
+              <button id="generateRandomUnacceptableString" class="btn" disabled> Unacceptable string </button>
             </p>
 
             <p>
-              <div contenteditable id="inputString" type="text" class="input-div input-block-level monospaceRegex" placeholder="See if this fits"><br></div>
+              <div class="control-group">
+                <input id="inputString" type="text" class="input-block-level" placeholder="See if this fits" disabled>
+              </div>
             </p>
 
             <p>
-              <button id="inputFirst" class="btn">
+              <button id="startStop" class="btn" disabled>
+                Start
+              </button>
+              <button id="inputFirst" class="btn" disabled>
                 <i class="icon-fast-backward"></i>
                 Reset
               </button>
-              <button id="inputPrevious" class="btn">
+              <button id="inputPrevious" class="btn" disabled>
                 <i class="icon-backward"></i>
                 Step backward
               </button>
-              <button id="inputNext" class="btn">
+              <button id="inputNext" class="btn" disabled>
                 <i class="icon-forward"></i>
                 Read next
               </button>
-              <button id="inputLast" class="btn">
+              <button id="inputLast" class="btn" disabled>
                 <i class="icon-fast-forward"></i>
                 Read all
               </button>
@@ -110,12 +117,12 @@
 
       <div class="container graph">
         <h3> &#x2462; Transition graph </h3>
-        
+
         <p>
-          The FSM being simulated is displayed in the form of a transition graph. 
+          The FSM being simulated is displayed in the form of a transition graph.
           The nodes representing the current states of the FSM are colored in <span class="currentState">&nbsp;&nbsp;&nbsp;</span>.
         </p>
-        
+
         <div id="automatonGraph"> </div>
       </div>
     </div>
