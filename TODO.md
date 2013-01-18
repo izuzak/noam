@@ -92,7 +92,6 @@
   * improve coloring of regex parts:
     * by making the simplification functions return the substituted strings
     * by "marking" the subtrees that were changed, deleted, added or used for the transformation as a precondition
-  * add link to fsm simulation app
 * develop playground webapp for working with FSMs and grammars
   * defining languages
   * minimizing/transforming languages
@@ -106,10 +105,3 @@
   * develop simple language for defining FSMs
 * develop webapp for step-by-step simulation of grammars
 * develop examples for FSMs, grammars and regular expressions
-* add links to other interesting webapps
-  * railroad diagrams
-    * http://www.xanthir.com/etc/railroad-diagrams/example.html
-    * http://www.xanthir.com/etc/railroad-diagrams/generator.html
-    * http://www.regexper.com/
-    * https://code.google.com/p/html-railroad-diagram/
-    * https://html-railroad-diagram.googlecode.com/svn/trunk/examples/railroad.html#value-railroad
