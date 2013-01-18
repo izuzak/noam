@@ -19,6 +19,10 @@
     min-height: 160px;
 }
 
+.graph {
+    min-height: 150px;
+}
+
 .header {
     text-align: center;
     color: black;
