@@ -22,6 +22,14 @@ If you just want to use noam (and not contribute to development), install using 
 
     npm install noam
 
+To use noam in a browser, add a `<script>` link to the browser-based versions found in `lib/browser/`:
+
+    <script src="https://raw.github.com/izuzak/noam/master/lib/browser/noam.js"></script>
+
+or minified version:
+
+    <script src="https://raw.github.com/izuzak/noam/master/lib/browser/noam.min.js"></script>
+
 ## Development
 
 1. Fork and/or clone repo: `git clone https://github.com/izuzak/noam.git`
@@ -39,6 +47,7 @@ If you just want to use noam (and not contribute to development), install using 
 Noam is developed by [Ivan Zuzak](http://ivanzuzak.info) &lt;izuzak@gmail.com&gt; and [Ivan Budiselic](https://github.com/ibudiselic). Contributors: [Vedrana Jankovic](http://vedri.ca/).
 
 Noam is built with many awesome open-source projects:
+* [structure.js](https://github.com/ibudiselic/structure.js) - used for its JS hashtable implementation
 * [cli-table](https://github.com/LearnBoost/cli-table) - used for drawing ascii tables in the command-line version of noam
 * [jQuery](http://jquery.com/) - used for the FSM Web application playgrounds
 * [NodeJS](http://nodejs.org/) - used for running the command-line version of noam
