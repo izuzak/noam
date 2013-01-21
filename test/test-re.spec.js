@@ -311,6 +311,31 @@ describe("regular expressions", function() {
         expect(noamFsm.isStringInLanguage(automaton, ["a", "b"])).toBeTruthy();
         expect(noamFsm.isStringInLanguage(automaton, ["a", "b", "b"])).toBeTruthy();
       });
+
+      it("throws on malformed regexes", function() {
+        /* use this code to see the error messages
+        var malformed = ["+", "++", "()", "a+()+b", "a()b", "ab)", "(ab))", "(ab", "*"];
+        for (var i=0; i<malformed.length; i++) {
+          try {
+            noamRe.string.toTree(malformed[i]);
+          } catch (e) {
+            console.log(malformed[i], e.message);
+          }
+        }
+        */
+        expect(function() { noamRe.string.toTree("+"); }).toThrow();
+        expect(function() { noamRe.string.toTree("++"); }).toThrow();
+        expect(function() { noamRe.string.toTree("()"); }).toThrow();
+        expect(function() { noamRe.string.toTree("a+()+b"); }).toThrow();
+        expect(function() { noamRe.string.toTree("a()b"); }).toThrow();
+        expect(function() { noamRe.string.toTree("ab)"); }).toThrow();
+        expect(function() { noamRe.string.toTree("(ab))"); }).toThrow();
+        expect(function() { noamRe.string.toTree("(ab"); }).toThrow();
+        expect(function() { noamRe.string.toTree("*"); }).toThrow();
+
+        // empty language works as a special case, even though it contains an "empty subexpression"
+        expect(function() { noamRe.string.toTree(""); }).not.toThrow();
+      });
     });
 
     describe("toAutomaton", function() {

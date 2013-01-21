@@ -1137,6 +1137,24 @@
       specials.RIGHT_PAREN.toString = function() { return ")"; };
       specials.EPS.toString = function() { return "$"; };
 
+      /* Custom Error constructor for regular expression errors.
+       *
+       * Every RegexError object has the following properties:
+       *  - name: the string "RegexError"
+       *  - message: a string description of the error
+       *  - position: a number specifying the 0-based index of the position where the error 
+       *              was found (note that this might not be where the error actually is, i.e.
+       *              this number is a hint rather than a definite answer)
+       */
+      function RegexError(message, position) {
+        this.name = "RegexError";
+        this.message = message;
+        this.position = position;
+      }
+
+      // We do this to get the stack trace when RegexError objects are thrown.
+      RegexError.prototype = new Error();
+
       // The next three functions are used to make a convenient array wrapper
       // used in the parsing code.
       //
@@ -1159,12 +1177,17 @@
 
       // Returns the tree representation of the regex given by @a arr.
       function toTree(arr) {
+        // special case for the empty language
+        // empty subexpressions are not allowed except when defining the empty language
+        if (arr.length === 0) {
+          return noam.re.tree.makeSeq([]);
+        }
         var input = _makeInputSeq(arr);
         var result = _parseExpr(input);
         
         // should be at end of input
         if (input.peek() !== undefined) {
-          throw new Error("Malformed regex array: successfully parsed up to position " + input.idx);
+          throw new RegexError("Malformed regex array: successfully parsed up to position " + input.idx, input.idx);
         }
         return result;
       }
@@ -1219,8 +1242,8 @@
             }
           }
           if (failed) {
-            throw new Error("Array regex not convertible to string representation:" +
-                " failed at position " + i);
+            throw new RegexError("Array regex not convertible to string representation:" +
+                " failed at position " + i, i);
           }
           res.push(elem);
         }
@@ -1262,6 +1285,10 @@
           }
           katoms.push(katom);
         }
+        if (katoms.length === 0) {
+          throw new RegexError("Malformed regex array: empty choice subexpression at index " +
+              input.idx, input.idx);
+        }
         
         return noam.re.tree.makeSeq(katoms);
       }
@@ -1282,7 +1309,8 @@
           input.advance(); // skip the left parenthesis
           var expr = _parseExpr(input);
           if (input.peek() !== specials.RIGHT_PAREN) {
-            throw new Error("Malformed regex array: missing matching right parenthesis at index " + input.idx);
+            throw new RegexError("Malformed regex array: missing matching right parenthesis at index " +
+                input.idx, input.idx);
           }
           input.advance(); // skip the right parenthesis
           return expr;
@@ -1292,6 +1320,9 @@
         } else if (input.peek()===undefined || input.peek()===specials.ALT || 
               input.peek()===specials.RIGHT_PAREN) {
           return undefined; // this will stop the parsing of <concat>
+        } else if (input.peek() === specials.KSTAR) {
+            throw new RegexError("Malformed regex array: empty subexpression before Kleene star at index " + 
+                input.idx, input.idx);
         } else {
           var sym = noam.re.tree.makeLit(input.peek());
           input.advance();
@@ -1355,7 +1386,7 @@
         for (var i=0; i<str.length; ++i) {
           if (escaped) {
             if (escapable.indexOf(str[i]) === -1) {
-              throw new Error("Malformed string regex: illegal escape sequence \\" + str[i]);
+              throw new RegexError("Malformed string regex: illegal escape sequence \\" + str[i], i);
             }
             arr.push(str[i]); // the result of the escape sequence is the escaped character itself
             escaped = false;
@@ -1374,7 +1405,7 @@
           }
         }
         if (escaped) {
-          throw new Error("Malformed string regex: unfinished escape sequence at end of string");
+          throw new RegexError("Malformed string regex: unfinished escape sequence at end of string", str.length-1);
         }
 
         return arr;
