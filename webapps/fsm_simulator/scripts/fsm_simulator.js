@@ -216,21 +216,53 @@ var currentStates = null;
 var inactiveStates = null;
 var previousStates = null;
 var nextStates = null;
+var inputIsRegex = true;
+
+$("#regexinput").click(function(){
+  inputIsRegex = true;
+});
+
+$("#fsminput").click(function(){
+  inputIsRegex = false;
+});
 
 $("#generateRegex").click(function() {
   regex = noam.re.string.random(5, "abcd", {});
   regex = noam.re.string.simplify(regex);
   $("#regex").val(regex);
-  onRegexChange();
+  onRegexOrAutomatonChange();
+});
+
+function generateAutomaton(fsmType) {
+  automaton = noam.fsm.createRandomFsm(noam.fsm.dfaType, 4, 3, 3);
+  $("#fsm").val(noam.fsm.serializeFsmToString(automaton));
+  $("#fsm").scrollTop(0);
+  onRegexOrAutomatonChange();
+}
+
+$("#generateDFA").click(function() {
+  generateAutomaton(noam.fsm.dfaType);
+});
+
+$("#generateNFA").click(function() {
+  generateAutomaton(noam.fsm.nfaType);
+});
+
+$("#generateENFA").click(function() {
+  generateAutomaton(noam.fsm.enfaType);
 });
 
 $("#createAutomaton").click(function() {
-  regex = $("#regex").val();
-  automaton = noam.re.string.toAutomaton(regex);
+  if (inputIsRegex) {
+    regex = $("#regex").val();
+    automaton = noam.re.string.toAutomaton(regex);
+  } else {
+    automaton = noam.fsm.parseFsmFromString($("#fsm").val());
+  }
+
   initialize();
   drawGraph();
   resetAutomaton();
-  previousRegex = "";
 
   $("#generateRandomString").attr("disabled", false);
   $("#generateRandomAcceptableString").attr("disabled", false);
@@ -238,10 +270,12 @@ $("#createAutomaton").click(function() {
   $("#inputString").attr("disabled", false);
 });
 
-$("#regex").change(onRegexChange);
-$("#regex").keyup(onRegexChange);
+$("#regex").change(onRegexOrAutomatonChange);
+$("#regex").keyup(onRegexOrAutomatonChange);
+$("#fsm").change(onRegexOrAutomatonChange);
+$("#fsm").keyup(onRegexOrAutomatonChange);
 
-function onRegexChange() {
+function onRegexOrAutomatonChange() {
   $("#automatonGraph").html("");
   $("#inputString").html("<br>");
 
@@ -260,7 +294,29 @@ function onRegexChange() {
   $("#inputString").change(onInputStringChange);
   $("#startStop").text("Start");
 
-  validateRegex();
+  if (inputIsRegex) {
+    validateRegex();
+  } else {
+    validateFsm();
+  }
+}
+
+function validateFsm() {
+  var fsm = $("#fsm").val();
+
+  if (fsm.length === 0) {
+    $("#fsm").parent().removeClass("success error");
+  } else {
+    try {
+      noam.fsm.parseFsmFromString(fsm);
+      $("#fsm").parent().removeClass("error");
+      $("#fsm").parent().addClass("success");
+      $("#createAutomaton").attr("disabled", false);
+    } catch (e) {
+      $("#fsm").parent().removeClass("success");
+      $("#fsm").parent().addClass("error");
+    }
+  }
 }
 
 function validateRegex() {

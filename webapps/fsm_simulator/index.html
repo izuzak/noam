@@ -26,40 +26,65 @@
     <div class="content">
       <div class="container controls">
         <div class="row-fluid">
-          <div class="span6">
+          <div class="span6 column">
             <h3> &#x2460; Create automaton </h3>
 
-            <div class="instructions">
+            <ul class="nav nav-tabs">
+              <li id="regexinput" class="active"><a href="#tab1" data-toggle="tab">Input regex</a></li>
+              <li id="fsminput"><a href="#tab2" data-toggle="tab">Input automaton</a></li>
+            </ul>
 
-              <p>
-                Enter a regular expression into the input field below or click <strong>Generate random regex</strong> to have the app generate a simple regex randomly for you.
-              </p>
-              <p>
-                Next, click <strong>Create automaton</strong> to create a FSM for the defined regex and display its transition graph.
-              </p>
-              <p>
-                A valid regex consists of alphanumeric characters representing the set of input symbols (e.g. <code>a</code>, <code>B</code>, <code>9</code>), the <code>$</code> character representing the empty string, the choice operator <code>+</code>, the Kleene operator <code>*</code>, and parentheses <code>(</code> and <code>)</code>. An example of a valid regex is: <code>(a+B)*(c9+$)+$</code>.
-              </p>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab1">
+                <div class="instructions">
+                  <p>
+                    Enter a regular expression into the input field below or click <strong>Generate random regex</strong> to have the app generate a simple regex randomly for you.
+                    Next, click <strong>Create automaton</strong> to create a FSM for the defined regex and display its transition graph.
+                  </p>
+                  <p>
+                    A valid regex consists of alphanumeric characters representing the set of input symbols (e.g. <code>a</code>, <code>B</code>, <code>9</code>), the <code>$</code> character representing the empty string, the choice operator <code>+</code>, the Kleene operator <code>*</code>, and parentheses <code>(</code> and <code>)</code>. An example of a valid regex is: <code>(a+B)*(c9+$)+$</code>.
+                  </p>
+                </div>
+
+                <p>
+                  <button id="generateRegex" class="btn">Generate random regex</button>
+                </p>
+
+                <p>
+                  <div class="control-group">
+                    <input id="regex" type="text" class="input-block-level" placeholder="or write your own" spellcheck="false">
+                  </div>
+                </p>
+              </div>
+              <div class="tab-pane" id="tab2">
+                <div class="instructions">
+                  <p>
+                    Enter a FSM into the input field below or click <strong>Generate random DFA/NFA/eNFA</strong> to have the app generate a simple FSM randomly for you.
+                    Next, click <strong>Create automaton</strong> to display the FSM's transition graph.
+                  </p>
+                  <p>
+                    A valid FSM definition contains a list of states, symbols and transitions, the initial state and the accepting states. States and symbols are alphanumeric character strings and can not overlap. Transitions have the format: <code>stateA:symbol>stateB,stateC</code>. The <code>$</code> character is used to represent the empty string symbol (epsilon) but should not be listed in the alphabet. Generate a FSM to see a valid example.
+                  </p>
+                </div>
+
+                <p>
+                  <button id="generateDFA" class="btn">Generate random DFA</button>
+                  <button id="generateNFA" class="btn">Generate random NFA</button>
+                  <button id="generateENFA" class="btn">Generate random eNFA</button>
+                </p>
+                <p>
+                  <textarea id="fsm" class="input-block-level" type="text" placeholder="or write your own" spellcheck="false"></textarea>
+                </p>
+              </div>
             </div>
 
-
             <p>
-              <button id="generateRegex" class="btn">Generate random regex</button>
-            </p>
-
-            <p>
-              <div class="control-group">
-                <input id="regex" type="text" class="input-block-level" placeholder="or write your own" spellcheck="false">
-              </div>
-            </p>
-
-             <p>
               <button id="createAutomaton" class="btn" disabled>Create automaton</button>
             </p>
 
           </div>
 
-          <div class="span6">
+          <div class="span6 column">
             <h3> &#x2461; Simulate automaton </h3>
 
             <div class="instructions">

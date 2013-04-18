@@ -2,7 +2,7 @@
     min-height: 150px;
 }
 
-input {
+input,textarea {
     font-family: monospace;
 }
 
@@ -50,7 +50,7 @@ hr {
     margin-right: auto;
 }
 
-.instructions {
+.column {
     min-height: 190px;
 }
 
