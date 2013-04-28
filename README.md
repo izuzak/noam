@@ -24,11 +24,11 @@ If you just want to use noam (and not contribute to development), install using 
 
 To use noam in a browser, add a `<script>` link to the browser-based versions found in `lib/browser/`:
 
-    <script src="https://raw.github.com/izuzak/noam/master/lib/browser/noam.js"></script>
+    <script src="http://izuzak.github.com/noam/lib/browser/noam.js"></script>
 
 or minified version:
 
-    <script src="https://raw.github.com/izuzak/noam/master/lib/browser/noam.min.js"></script>
+    <script src="http://izuzak.github.com/noam/lib/browser/noam.min.js"></script>
 
 ## Development
 
