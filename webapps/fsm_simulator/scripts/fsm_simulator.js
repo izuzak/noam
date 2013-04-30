@@ -230,6 +230,7 @@ $("#generateRegex").click(function() {
   regex = noam.re.string.random(5, "abcd", {});
   regex = noam.re.string.simplify(regex);
   $("#regex").val(regex);
+  $("#regex").focus();
   onRegexOrAutomatonChange();
 });
 
@@ -237,6 +238,7 @@ function generateAutomaton(fsmType) {
   automaton = noam.fsm.createRandomFsm(noam.fsm.dfaType, 4, 3, 3);
   $("#fsm").val(noam.fsm.serializeFsmToString(automaton));
   $("#fsm").scrollTop(0);
+  $("#fsm").focus();
   onRegexOrAutomatonChange();
 }
 

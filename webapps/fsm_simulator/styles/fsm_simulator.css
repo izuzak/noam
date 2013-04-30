@@ -148,3 +148,7 @@ h3 {
     background-color: lightgreen;
     font-weight:bold;
 }
+
+#fsm {
+    height: 60px;
+}
