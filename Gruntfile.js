@@ -30,11 +30,11 @@ module.exports = function(grunt) {
       }
     },
 
-    lint: {
+    jshint: {
       all: ['src/exports.js', 'src/noam.util.js', 'src/noam.fsm.js', 'src/noam.grammar.js', 'src/noam.re.js', 'test/*.js', 'benchmarks/*.js']
     },
 
-    min: {
+    uglify: {
       node: {
         src: ['lib/node/noam.js'],
         dest: 'lib/node/noam.min.js'
@@ -86,42 +86,15 @@ module.exports = function(grunt) {
       }
     },
 
-    /* // currently unused
-    beautify: {
-      tests: ['test/*.js', 'benchmarks/*.js'],
-      files: ['lib/noam.js']
-    },
-
-    beautifier: {
-      options: {
-        indentSize: 2,
-        indentChar: ' ',
-        preserveNewlines: true,
-        bracesOnOwnLine: false,
-        keepArrayIndentation: false,
-        spaceAfterAnonFunction: true,
-        indentLevel: 0
-      },
-      tests: {
-        options: {
-          indentSize: 2,
-          indentChar: ' ',
-          preserveNewlines: true,
-          bracesOnOwnLine: false,
-          keepArrayIndentation: false,
-          spaceAfterAnonFunction: true,
-          indentLevel: 0
-        }
-      }
-    }*/
-
   });
 
   grunt.loadNpmTasks('grunt-jasmine-node');
   grunt.loadNpmTasks('grunt-jsvalidate');
-  // grunt.loadNpmTasks('grunt-beautify');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
   // Default task.
-  grunt.registerTask('default', 'jsvalidate lint concat jasmine_node min');
+  grunt.registerTask('default', ['jsvalidate', 'jshint', 'concat', 'uglify', 'jasmine_node']);
 
 };

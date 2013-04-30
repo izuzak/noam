@@ -36,7 +36,7 @@ or minified version:
 2. Change dir to noam: `cd noam`
 3. Install dependencies: `npm install`
 4. Make changes to noam sources (`./src`), tests (`./test`) or benchmarks (`./benchmarks`)
-5. Build using grunt (validate -> lint -> concat -> test -> minify): `grunt` (on linux), `grunt.cmd` (on windows)
+5. Build using grunt (validate -> lint -> concat -> test -> minify): `grunt` (on linux and osx), `grunt.cmd` (on windows)
 6. (bonus points) Run `istanbul cover node_modules/jasmine-node/bin/jasmine-node test` to get code coverage reports in `./coverage`. Add more tests or change existing tests to improve coverage
 7. Fix issues reported by tests and coverage reports, and then repeat 5) and 6)
 8. Commit, push and make a pull request, or send a git patch by e-mail
