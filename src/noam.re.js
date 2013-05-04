@@ -1,13 +1,13 @@
-  /* 
+  /*
    * Regular expressions module.
    *
-   * Parsed regular expressions are represented by a syntax tree. Tools for working with that 
+   * Parsed regular expressions are represented by a syntax tree. Tools for working with that
    * representation are accessible through noam.re.tree.
    *
    * Two linear representations are also available and provide a convenient way to specify
    * some languages, but are not composable like the tree representation. The array representation
    * is available through noam.re.array and supports arbitrarily complex literals. If all the
-   * literals are characters, the string representation should be more convenient. It is 
+   * literals are characters, the string representation should be more convenient. It is
    * available through noam.re.string. These linear representations are only useful for specifying
    * languages and should usually be converted to a tree representation or to an automaton immediately.
    */
@@ -27,40 +27,40 @@
         LIT: 'literal',
         EPS: 'epsilon'
       };
-      
+
       function copyAndDeleteProperties(o1, o2) {
         var p;
-        
+
         for (p in o1) {
           if (o1.hasOwnProperty(p)) {
             delete o1[p];
           }
         }
-        
+
         for (p in o2) {
           if (o2.hasOwnProperty(p)) {
             o1[p] = o2[p];
           }
         }
       }
-      
+
       /*
         Simplifies the regular expression @a tree (a noam.re.tree object).
         The goal of simplification is to obtain a regular expression which
         defines the same language but has a smaller number of elements in
         the tree structure and therefore less elements in array or string
-        form. Simplification is performed by iteratively transforming the 
+        form. Simplification is performed by iteratively transforming the
         tree using a set of known algebraic equivalences in Kleene algebra.
-        If specified, the @a numIterations integer limits the number of 
+        If specified, the @a numIterations integer limits the number of
         transformations that will be performed. Furthermore, if specified,
-        the @a appliedPatterns array will be filled with objects that 
+        the @a appliedPatterns array will be filled with objects that
         describe which patterns were applied, i.e. which transformations
         were performed. The original tree @a tree is not modified; a new
         tree is returned as a result.
-        
+
         The current set of patterns that are checked are (small alphabet
         letters represent any regular expression):
-        
+
           # (a) => a (sequence of 1 element)
           # (a) => a (choices with 1 element)
           # $* => $
@@ -81,46 +81,49 @@
           # (ab+cb) => (a+c)b
           # a*($+b(a+b)*) => (a+b)*
           # ($+(a+b)*a)b* => (a+b)*
-          
+          # (a()) => ()
+          # ()* => ()
+
         If none of these "simple" patterns can be applied, the simplification
-        process tries to apply patterns based on language subset (via 
+        process tries to apply patterns based on language subset (via
         transformations to fsms):
-        
+
           # L1+L2 => L2, if L1 is subset of L2
           # (L1+L2)* => L2, if L1* is subset of L2*
           # L1*L2* => L2, if L1* is subset of L2*
           # $+L => L, if L contains $
-        
+          # (L1+$)(L2)* => (L2)* if L1 is subset of L2
+
         The tree transformation process is stopped after no transformation
         can be applied to the tree.
       */
-      
+
       var _regex_simplification_patterns = [];
-      
+
       // (a) => a (sequence)
       function _regex_simplify_1(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length === 1){
           tree.tag = tree.elements[0].tag;
-          
+
           copyAndDeleteProperties(tree, tree.elements[0]);
           return true;
         }
 
         return false;
       }
-      
+
       // (a) => a (choices)
       function _regex_simplify_2(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length === 1) {
           tree.tag = tree.choices[0].tag;
-          
+
           copyAndDeleteProperties(tree, tree.choices[0]);
           return true;
         }
-        
+
         return false;
       }
-      
+
       // $* => $
       function _regex_simplify_3(tree, fsmCache) {
          if (tree.tag === tags.KSTAR && tree.expr.tag === tags.EPS) {
@@ -128,22 +131,22 @@
            delete tree.expr;
            return true;
          }
-         
+
          return false;
       }
-      
+
       // (a*)* => a*
-      function _regex_simplify_4(tree, fsmCache) { 
+      function _regex_simplify_4(tree, fsmCache) {
          if (tree.tag === tags.KSTAR && tree.expr.tag === tags.KSTAR) {
            tree.expr = tree.expr.expr;
            return true;
          }
-         
+
          return false;
       }
-      
+
       // (a+b*)* => (a+b)*
-      function _regex_simplify_5(tree, fsmCache) { 
+      function _regex_simplify_5(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT) {
           var changed = false;
           for (var i=0; i<tree.expr.choices.length; i++) {
@@ -153,16 +156,16 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // $+a* => a*
-      function _regex_simplify_6(tree, fsmCache) { 
+      function _regex_simplify_6(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           var epsIndex = -1;
           var kstarIndex = -1;
-         
+
           for (var i=0; i<tree.choices.length; i++) {
             if (tree.choices[i].tag === tags.EPS) {
               epsIndex = i;
@@ -170,18 +173,18 @@
               kstarIndex = i;
             }
           }
-         
+
           if (epsIndex >= 0 && kstarIndex >= 0) {
             tree.choices.splice(epsIndex, 1);
             return true;
           }
         }
-        
+
         return false;
       }
-      
+
       // (a*b*)* => (a*+b*)*
-      function _regex_simplify_7(tree, fsmCache) { 
+      function _regex_simplify_7(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.SEQ && tree.expr.elements.length > 0) {
           var check = true;
           for (var i=0; i<tree.expr.elements.length; i++) {
@@ -190,7 +193,7 @@
               break;
             }
           }
-           
+
           if (check) {
             tree.expr.tag = tags.ALT;
             tree.expr.choices = tree.expr.elements;
@@ -198,32 +201,32 @@
             return true;
           }
         }
-        
+
         return false;
       }
-      
+
       // $a => a
-      function _regex_simplify_8(tree, fsmCache) { 
+      function _regex_simplify_8(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var epsIndex = -1;
-           
+
           for (var i=0; i<tree.elements.length; i++) {
             if (tree.elements[i].tag === tags.EPS) {
               epsIndex = i;
             }
           }
-           
+
           if (epsIndex >= 0) {
             tree.elements.splice(epsIndex, 1);
             return true;
           }
         }
-        
+
         return false;
       }
-      
+
       // (a+(b+c)) => a+b+c
-      function _regex_simplify_9(tree, fsmCache) { 
+      function _regex_simplify_9(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           var found = -1, i;
           for (i=0; i<tree.choices.length; i++) {
@@ -231,7 +234,7 @@
               found = i;
             }
           }
-           
+
           if (found >= 0) {
             var node = tree.choices[found];
             tree.choices.splice(found, 1);
@@ -239,16 +242,16 @@
             for (i=0; i<node.choices.length; i++) {
               tree.choices.splice(found+i, 0, node.choices[i]);
             }
-             
+
             return true;
           }
         }
-        
+
         return false;
       }
-      
+
       // ab(cd) => abcd
-      function _regex_simplify_10(tree, fsmCache) { 
+      function _regex_simplify_10(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var found = -1, i;
           for (i=0; i<tree.elements.length; i++) {
@@ -257,7 +260,7 @@
               break;
             }
           }
-           
+
           if (found >= 0) {
             var node = tree.elements[i];
             tree.elements.splice(i, 1);
@@ -265,14 +268,14 @@
             for (i=0; i<node.elements.length; i++) {
               tree.elements.splice(found+i, 0, node.elements[i]);
             }
-            
+
             return true;
           }
         }
-        
+
         return false;
       }
-      
+
       // a+a => a
       function _regex_simplify_11(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
@@ -284,65 +287,65 @@
                 break;
               }
             }
-            
+
             if (found >= 0) {
               tree.choices.splice(found, 1);
               return true;
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // a+a* => a*
       function _regex_simplify_12(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           for (var i=0; i<tree.choices.length-1; i++) {
             var found = -1;
-            for (var j=i+1; j<tree.choices.length; j++) {              
+            for (var j=i+1; j<tree.choices.length; j++) {
               if (tree.choices[j].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[j].expr, tree.choices[i])) {
                 found = i;
                 break;
               }
-              
+
               else if (tree.choices[i].tag === tags.KSTAR && noam.util.areEquivalent(tree.choices[i].expr, tree.choices[j])) {
                 found = j;
                 break;
               }
             }
-            
+
             if (found >= 0) {
               tree.choices.splice(found, 1);
               return true;
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // a*a* => a*
       function _regex_simplify_13(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var found = -1;
-           
+
           for (var i=0; i<tree.elements.length-1; i++) {
             if (tree.elements[i].tag === tags.KSTAR && tree.elements[i+1].tag === tags.KSTAR && noam.util.areEquivalent(tree.elements[i], tree.elements[i+1])) {
               found = i;
               break;
             }
           }
-           
+
           if (found >= 0) {
             tree.elements.splice(found+1, 1);
             return true;
           }
         }
-        
+
         return false;
       }
-      
+
       // (aa+a)* => (a)*
       function _regex_simplify_14(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
@@ -350,14 +353,14 @@
             for (var j=0; j<tree.expr.choices.length; j++) {
               if (i !== j && tree.expr.choices[j].tag === tags.SEQ && tree.expr.choices[j].elements.length >= 2) {
                 var found = true;
-                
+
                 for (var k=0; k<tree.expr.choices[j].elements.length; k++) {
                   if (!(noam.util.areEquivalent(tree.expr.choices[i], tree.expr.choices[j].elements[k]))) {
                     found = false;
                     break;
                   }
                 }
-                
+
                 if (found) {
                   tree.expr.choices.splice(j, 1);
                   return true;
@@ -366,10 +369,10 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // (a + $)* => (a)*
       function _regex_simplify_15(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
@@ -380,10 +383,10 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // (ab+ac) => a(b+c)
       function _regex_simplify_16(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >=2) {
@@ -395,13 +398,13 @@
                     var first = tree.choices[i].elements[0];
                     var rest1 = makeSeq(tree.choices[i].elements.slice(1));
                     var rest2 = makeSeq(tree.choices[j].elements.slice(1));
-                    
+
                     var _alt = makeAlt([rest1, rest2]);
                     var _seq = makeSeq([first, _alt]);
-                    
+
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
-                    
+
                     return true;
                   }
                 }
@@ -409,10 +412,10 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // a*aa* => aa*
       function _regex_simplify_17(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >=3) {
@@ -426,10 +429,10 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // (ab+cb) => (a+c)b
       function _regex_simplify_18(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >=2) {
@@ -442,13 +445,13 @@
                     var last = tree.choices[i].elements[tree.choices[i].elements.length-1];
                     var rest1 = makeSeq(tree.choices[i].elements.slice(0, tree.choices[i].elements.length-1));
                     var rest2 = makeSeq(tree.choices[j].elements.slice(0, tree.choices[j].elements.length-1));
-                    
+
                     var _alt = makeAlt([rest1, rest2]);
                     var _seq = makeSeq([_alt, last]);
-                    
+
                     tree.choices[i] = _seq;
                     tree.choices.splice(j, 1);
-                    
+
                     return true;
                   }
                 }
@@ -456,39 +459,39 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // L1+L2 => L2, if L1 is subset of L2
       function _regex_simplify_19(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length >= 2) {
           var fsms = [];
-          
+
           fsms.push(getFromCacheOrCreateFsm(tree.choices[0], fsmCache));
-          
+
           var found = -1;
-          
+
           for (var i=0; i<tree.choices.length-1; i++) {
-            for (var j=i+1; j<tree.choices.length; j++) {  
+            for (var j=i+1; j<tree.choices.length; j++) {
               if (fsms.length <= j) {
                 fsms.push(getFromCacheOrCreateFsm(tree.choices[j], fsmCache));
               }
-              
+
               try {
                 if (noam.fsm.isSubset(fsms[i], fsms[j]) ) {
                   found = j;
                 }
               } catch (e) {
               }
-              
+
               try {
                 if (noam.fsm.isSubset(fsms[j], fsms[i]) ) {
                   found = i;
                 }
               } catch (e) {
               }
-              
+
               if (found >= 0) {
                 tree.choices.splice(found, 1);
                 return true;
@@ -496,39 +499,39 @@
             }
           }
         }
-        
+
           return false;
       }
-      
+
       // (L1+L2)* => L2*, if L1* is subset of L2*
       function _regex_simplify_20(tree, fsmCache) {
         if (tree.tag === tags.KSTAR && tree.expr.tag === tags.ALT && tree.expr.choices.length >= 2) {
           var fsms = [];
-          
+
           fsms.push(getFromCacheOrCreateFsm(makeKStar(tree.expr.choices[0]), fsmCache));
-          
+
           var found = -1;
-          
+
           for (var i=0; i<tree.expr.choices.length-1; i++) {
             for (var j=i+1; j<tree.expr.choices.length; j++) {
               if (fsms.length <= j) {
                 fsms.push(getFromCacheOrCreateFsm(makeKStar(tree.expr.choices[j]), fsmCache));
               }
-              
+
               try {
                 if (noam.fsm.isSubset(fsms[i], fsms[j]) ) {
                   found = j;
                 }
               } catch (e) {
               }
-              
+
               try {
                 if (noam.fsm.isSubset(fsms[j], fsms[i]) ) {
                   found = i;
                 }
               } catch (e) {
               }
-              
+
               if (found >= 0) {
                 tree.expr.choices.splice(found, 1);
                 return true;
@@ -536,32 +539,32 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       function getFromCacheOrCreateFsm(key, ht) {
         var fsm = ht.get(key);
-        
+
         if (!(fsm)) {
           fsm = noam.fsm.minimize(noam.re.tree.toAutomaton(key));
           ht.put(key, fsm);
         }
-        
+
         return fsm;
       }
-      
+
       // L1*L2* => L2, if L1* is subset of L2*
       function _regex_simplify_21(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length >= 2) {
           var fsms = [];
           fsms.push(getFromCacheOrCreateFsm(tree.elements[0], fsmCache));
-          
+
           var found = -1;
-          
+
           for (var i=0; i<tree.elements.length-1; i++) {
             fsms.push(getFromCacheOrCreateFsm(tree.elements[i+1], fsmCache));
-            
+
             if (tree.elements[i].tag === tags.KSTAR && tree.elements[i+1].tag === tags.KSTAR) {
               try {
                 if (noam.fsm.isSubset(fsms[i], fsms[i+1]) ) {
@@ -569,14 +572,14 @@
                 }
               } catch (e) {
               }
-              
+
               try {
                 if (noam.fsm.isSubset(fsms[i+1], fsms[i]) ) {
                   found = i;
                 }
               } catch (e) {
               }
-            
+
               if (found >= 0) {
                 tree.elements.splice(found, 1);
                 return true;
@@ -584,20 +587,20 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // $+L => L, if L contains $
       function _regex_simplify_22(tree, fsmCache) {
         if (tree.tag === tags.ALT && tree.choices.length > 1) {
           var index_eps = noam.util.index(tree.choices, makeEps());
-          
+
           if (index_eps >= 0) {
             for (var i=0; i<tree.choices.length; i++) {
               if (tree.choices[i].tag !== tags.EPS) {
                 var fsm = getFromCacheOrCreateFsm(tree.choices[i], fsmCache);
-                
+
                 if (noam.fsm.isAcceptingState(fsm, fsm.initialState)) {
                   tree.choices.splice(index_eps, 1);
                   return true;
@@ -606,54 +609,54 @@
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // a*($+b(a+b)*) => (a+b)*
       function _regex_simplify_23(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length > 1) {
           for (var i=0; i<tree.elements.length-1; i++) {
-            if (tree.elements[i].tag === tags.KSTAR && tree.elements[i+1].tag === tags.ALT && 
+            if (tree.elements[i].tag === tags.KSTAR && tree.elements[i+1].tag === tags.ALT &&
               tree.elements[i+1].choices.length === 2) {
-              
+
               var index_eps = noam.util.index(tree.elements[i+1].choices, makeEps());
-              
+
               if (index_eps >= 0) {
                 var internal = index_eps === 0 ? tree.elements[i+1].choices[1] : tree.elements[i+1].choices[0];
-                
-                if (internal.tag === tags.SEQ && internal.elements.length === 2) {                  
-                  if (internal.elements[1].tag === tags.KSTAR && internal.elements[1].expr.tag === tags.ALT && 
+
+                if (internal.tag === tags.SEQ && internal.elements.length === 2) {
+                  if (internal.elements[1].tag === tags.KSTAR && internal.elements[1].expr.tag === tags.ALT &&
                       internal.elements[1].expr.choices.length === 2 && noam.util.contains(internal.elements[1].expr.choices, tree.elements[i].expr)) {
                     if (noam.util.contains(internal.elements[1].expr.choices, internal.elements[0])) {
                       tree.elements[i+1] = internal.elements[1];
-                      tree.elements.splice(i, 1);                      
+                      tree.elements.splice(i, 1);
                       return true;
                     }
                   }
                 }
-              }              
+              }
             }
           }
         }
-        
+
         return false;
       }
-      
+
       // ($+(a+b)*a)b* => (a+b)*
       function _regex_simplify_24(tree, fsmCache) {
         if (tree.tag === tags.SEQ && tree.elements.length > 1) {
           for (var i=1; i<tree.elements.length; i++) {
-            if (tree.elements[i].tag === tags.KSTAR && tree.elements[i-1].tag === tags.ALT && 
+            if (tree.elements[i].tag === tags.KSTAR && tree.elements[i-1].tag === tags.ALT &&
               tree.elements[i-1].choices.length === 2) {
-              
+
               var index_eps = noam.util.index(tree.elements[i-1].choices, makeEps());
-              
+
               if (index_eps >= 0) {
                 var internal = index_eps === 0 ? tree.elements[i-1].choices[1] : tree.elements[i-1].choices[0];
-                
+
                 if (internal.tag === tags.SEQ && internal.elements.length === 2) {
-                  if (internal.elements[0].tag === tags.KSTAR && internal.elements[0].expr.tag === tags.ALT && 
+                  if (internal.elements[0].tag === tags.KSTAR && internal.elements[0].expr.tag === tags.ALT &&
                       internal.elements[0].expr.choices.length === 2 && noam.util.contains(internal.elements[0].expr.choices, tree.elements[i].expr)) {
                     if (noam.util.contains(internal.elements[0].expr.choices, internal.elements[1])) {
                       tree.elements[i-1] = internal.elements[0];
@@ -662,14 +665,104 @@
                     }
                   }
                 }
-              }              
+              }
             }
           }
         }
-        
+
         return false;
       }
-      
+
+      // (L1+$)(L2)* => (L2)* if L1 is subset of L2
+      function _regex_simplify_27(tree, fsmCache) {
+        if (tree.tag === tags.SEQ && tree.elements.length > 1) {
+          for (var i=0; i<tree.elements.length; i++) {
+            if (tree.elements[i].tag === tags.KSTAR) {
+              if (i > 0 && tree.elements[i-1].tag === tags.ALT && tree.elements[i-1].choices.length > 1) {
+                var index_eps = noam.util.index(tree.elements[i-1].choices, makeEps());
+
+                if (index_eps >= 0) {
+                  var eps = tree.elements[i-1].choices.splice(index_eps, 1)[0];
+
+                  var fsm_kstar = getFromCacheOrCreateFsm(tree.elements[i], fsmCache);
+                  var fsm_other = getFromCacheOrCreateFsm(tree.elements[i-1], fsmCache);
+
+                  var found = false;
+
+                  try {
+                    if (noam.fsm.isSubset(fsm_kstar, fsm_other)) {
+                      found = true;
+                    }
+                  } catch (e) {
+                  }
+
+                  if (found) {
+                    tree.elements.splice(i-1, 1);
+                    return true;
+                  } else {
+                    tree.elements[i-1].choices.splice(index_eps, 0, eps);
+                  }
+                }
+              } else if (i < tree.elements.length-1 && tree.elements[i+1].tag === tags.ALT && tree.elements[i+1].choices.length > 1) {
+                var index_eps = noam.util.index(tree.elements[i+1].choices, makeEps());
+
+                if (index_eps >= 0) {
+                  var eps = tree.elements[i+1].choices.splice(index_eps, 1)[0];
+
+                  var fsm_kstar = getFromCacheOrCreateFsm(tree.elements[i], fsmCache);
+                  var fsm_other = getFromCacheOrCreateFsm(tree.elements[i+1], fsmCache);
+
+                  var found = false;
+
+                  try {
+                    if (noam.fsm.isSubset(fsm_kstar, fsm_other)) {
+                      found = true;
+                    }
+                  } catch (e) {
+                  }
+
+                  if (found) {
+                    tree.elements.splice(i+1, 1);
+                    return true;
+                  } else {
+                    tree.elements[i+1].choices.splice(index_eps, 0, eps);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // (a()) => ()
+      function _regex_simplify_25(tree, fsmCache) {
+        if (tree.tag === tags.SEQ && tree.elements.length >= 1) {
+          for (var i=0; i<tree.elements.length; i++) {
+            if ((tree.elements[i].tag === tags.SEQ && tree.elements[i].elements.length === 0) ||
+                (tree.elements[i].tag === tags.ALT && tree.elements[i].choices.length === 0)) {
+              tree.elements = [];
+              return true;
+            }
+          }
+        }
+
+        return false;
+      }
+
+      // ()* => ()
+      function _regex_simplify_26(tree, fsmCache) {
+        if (tree.tag === tags.KSTAR && tree.expr.tag === tags.SEQ && tree.expr.elements.length === 0) {
+          tree.tag = tags.SEQ;
+          delete tree.expr;
+          tree.elements = [];
+          return true;
+        }
+
+        return false;
+      }
+
+      _regex_simplification_patterns.push({ 'pattern' : "(a()) => ()", 'type' : 'structure', 'function' : _regex_simplify_25});
+      _regex_simplification_patterns.push({ 'pattern' : "()* => ()", 'type' : 'structure', 'function' : _regex_simplify_26});
       _regex_simplification_patterns.push({ 'pattern' : "(a) => a", 'type' : 'structure', 'function' : _regex_simplify_1 });
       _regex_simplification_patterns.push({ 'pattern' : "(a) => a", 'type' : 'structure', 'function' : _regex_simplify_2 });
       _regex_simplification_patterns.push({ 'pattern' : "$* => $", 'type' : 'structure', 'function' : _regex_simplify_3});
@@ -692,79 +785,80 @@
       _regex_simplification_patterns.push({ 'pattern' : "L1+L2 => L2, if L1 is subset of L2", 'type' : 'fsm', 'function' : _regex_simplify_19});
       _regex_simplification_patterns.push({ 'pattern' : "(L1+L2)* => L2, if L1* is subset of L2*", 'type' : 'fsm', 'function' : _regex_simplify_20});
       _regex_simplification_patterns.push({ 'pattern' : "L1*L2* => L2, if L1* is subset of L2*", 'type' : 'fsm', 'function' : _regex_simplify_21});
+      _regex_simplification_patterns.push({ 'pattern' : "(L1+$)(L2)* => (L2)* if L1 is subset of L2", 'type' : 'fsm', 'function' : _regex_simplify_27});
       _regex_simplification_patterns.push({ 'pattern' : "ab(cd) => abcd", 'type' : 'structure', 'function' : _regex_simplify_10});
       _regex_simplification_patterns.push({ 'pattern' : "(a+(b+c)) => a+b+c", 'type' : 'structure', 'function' : _regex_simplify_9});
-      
+
       function simplify(tree, config) {
         var treeClone = noam.util.clone(tree);
-        
+
         if (typeof config === "undefined") {
           config = {};
         }
-        
+
         var opts = noam.util.clone(config);
-        
+
         if (typeof opts.numIterations === "undefined") {
           opts.numIterations = null;
         }
-        
+
         if (typeof opts.appliedPatterns === 'undefined') {
           opts.appliedPatterns = null;
         } else {
           opts.appliedPatterns = config.appliedPatterns;
         }
-        
+
         if (typeof opts.useFsmPatterns === "undefined") {
           opts.useFsmPatterns = true;
         }
-        
+
         var appliedPattern = "temp";
         var iterCount = 0;
         var fsmCache = new noam.util.HashTable();
-        
+
         while (appliedPattern !== null && (opts.numIterations === null || iterCount < opts.numIterations)) {
           appliedPattern = _simplify_iteration(treeClone, fsmCache, opts.useFsmPatterns);
-          
+
           if (appliedPattern !== null && opts.appliedPatterns !== null) {
             opts.appliedPatterns.push(appliedPattern);
           }
-          
+
           iterCount += 1;
         }
-                
+
         return treeClone;
       }
-      
+
       function _simplify_iteration(tree, fsmCache, useFsmPatterns) {
         var pattern = null;
         var result = null;
-        
+
         for (var i=0; i<_regex_simplification_patterns.length; i++) {
           pattern = _regex_simplification_patterns[i];
-          
+
           if (useFsmPatterns === false && pattern.type === "fsm") {
             continue;
           }
-          
+
           result = _simplify_recursion(tree, pattern['function'], fsmCache);
-          
+
           if (result) {
             return pattern.pattern;
           }
         }
-                
+
         return null;
       }
-      
+
       function _simplify_recursion(tree, patternFunction, fsmCache) {
         var appliedPattern = patternFunction(tree, fsmCache);
-        
+
         if (appliedPattern) {
           return appliedPattern;
         }
-        
+
         var children = [];
-        
+
         if (tree.tag === tags.ALT) {
           children = tree.choices;
         } else if (tree.tag === tags.SEQ) {
@@ -772,14 +866,14 @@
         } else if (tree.tag === tags.KSTAR) {
           children = [tree.expr];
         }
-        
+
         for (var i=0; i<children.length; i++) {
           appliedPattern = _simplify_recursion(children[i], patternFunction, fsmCache);
           if (appliedPattern) {
             return appliedPattern;
           }
         }
-        
+
         return false;
       }
 
@@ -931,7 +1025,7 @@
       }
 
 
-      // "Operator" precedence lookup. This is used when determining if we need to 
+      // "Operator" precedence lookup. This is used when determining if we need to
       // insert parentheses to preserve the meaning of the regex when converting from
       // the tree representation to the array representation.
       var _prec = {};
@@ -944,7 +1038,7 @@
       _prec[tags.LIT] = 3;
       _prec[tags.EPS] = 3;
 
-      // Returns true if parantheses are needed around the child expression 
+      // Returns true if parantheses are needed around the child expression
       // when it is embedded into the parent expression, false otherwise.
       function _needParens(par, child) {
         return _prec[par.tag] >= _prec[child.tag];
@@ -1011,9 +1105,9 @@
       // be in the tree (i.e. noam.re.tree) representation.
       // Parentheses are inserted into the array to preserve the meaning of the
       // regex. However, this does not really lead to minimal parenthesization because
-      // it doesn't consider any rewriting rules. More specifically, if there were 
-      // parentheses that modify associativity of alteration or sequencing in the 
-      // original regex that was parsed into this tree, they will be preserved 
+      // it doesn't consider any rewriting rules. More specifically, if there were
+      // parentheses that modify associativity of alteration or sequencing in the
+      // original regex that was parsed into this tree, they will be preserved
       // even though they are not necessary.
       function toArray(regex) {
         var arr = [];
@@ -1022,7 +1116,7 @@
       }
 
       // Returns the string representation of @a regex which must be in the tree
-      // (i.e. noam.re.tree) representation. This is not always possible, so 
+      // (i.e. noam.re.tree) representation. This is not always possible, so
       // this function throws when the regex contains some symbols which are not
       // single-character strings.
       //
@@ -1034,14 +1128,14 @@
 
       // Returns a random regex containing at most @a numSymbols symbols from the
       // specified array of possible symbols @a alphabet. The probability distribution
-      // of symbol selection is uniform and can be skewed by repeating elements in 
+      // of symbol selection is uniform and can be skewed by repeating elements in
       // alphabet. The parameter @a cfg is optional and can contain the following
       // fields:
       //   ALT_PROB    - the probability that alteration is used between two subexpressions
       //                 instead of sequencing (default 0.5)
       //   KLEENE_PROB - the probability that any subexpression is put under the Kleene
       //                 star operator (default 0.1)
-      //   EPS_PROB    - the probability that epsilon is added as an alteration choice 
+      //   EPS_PROB    - the probability that epsilon is added as an alteration choice
       //                 (default 0.1)
       function random(numSymbols, alphabet, cfg) {
         var altp = 0.5;
@@ -1051,7 +1145,7 @@
           if (cfg.ALT_PROB) {
             altp = cfg.ALT_PROB;
           }
-          if (cfg.KLEENE_PROB) { 
+          if (cfg.KLEENE_PROB) {
             kleenep = cfg.KLEENE_PROB;
           }
           if (cfg.EPS_PROB) {
@@ -1112,7 +1206,7 @@
      * A linear representation of regular expressions.
      * Every symbol can be an arbitrary object.
      *
-     * Regular expression operators, parentheses and epsilon must be represented using 
+     * Regular expression operators, parentheses and epsilon must be represented using
      * the array.specials constants.
      *
      * Concatenation is implicit when there are no operators between two subexpressions.
@@ -1120,7 +1214,7 @@
      * can be modified using parentheses.
      */
     var array = (function() {
-      // This is based on object identity, i.e. each of these constants will be different 
+      // This is based on object identity, i.e. each of these constants will be different
       // from any other object that can be inserted into the regex array.
       var specials = {
         ALT: {},
@@ -1129,7 +1223,7 @@
         RIGHT_PAREN: {},
         EPS: {}
       };
-      
+
       // give objects their usual string representation
       specials.ALT.toString = function() { return "+"; };
       specials.KSTAR.toString = function() { return "*"; };
@@ -1142,7 +1236,7 @@
        * Every RegexError object has the following properties:
        *  - name: the string "RegexError"
        *  - message: a string description of the error
-       *  - position: a number specifying the 0-based index of the position where the error 
+       *  - position: a number specifying the 0-based index of the position where the error
        *              was found (note that this might not be where the error actually is, i.e.
        *              this number is a hint rather than a definite answer)
        */
@@ -1184,7 +1278,7 @@
         }
         var input = _makeInputSeq(arr);
         var result = _parseExpr(input);
-        
+
         // should be at end of input
         if (input.peek() !== undefined) {
           throw new RegexError("Malformed regex array: successfully parsed up to position " + input.idx, input.idx);
@@ -1196,7 +1290,7 @@
       // undefined if @a obj doesn't match any of them.
       function _replacementStr(obj) {
         // This can't be done with a dict because objects are not hashable...
-        if (obj === specials.ALT || obj === specials.KSTAR || 
+        if (obj === specials.ALT || obj === specials.KSTAR ||
             obj === specials.LEFT_PAREN || obj === specials.RIGHT_PAREN ||
             obj === specials.EPS) {
           return obj.toString();
@@ -1220,7 +1314,7 @@
       }
 
       // Returns the string representation of the regex given by @a arr.
-      // 
+      //
       // Throws if the regex contains any symbols which are not one-character strings
       // and special symbols from noam.re.array.specials.
       function toString(arr) {
@@ -1289,7 +1383,7 @@
           throw new RegexError("Malformed regex array: empty choice subexpression at index " +
               input.idx, input.idx);
         }
-        
+
         return noam.re.tree.makeSeq(katoms);
       }
 
@@ -1317,11 +1411,11 @@
         } else if (input.peek() === specials.EPS) {
           input.advance();
           return noam.re.tree.makeEps();
-        } else if (input.peek()===undefined || input.peek()===specials.ALT || 
+        } else if (input.peek()===undefined || input.peek()===specials.ALT ||
               input.peek()===specials.RIGHT_PAREN) {
           return undefined; // this will stop the parsing of <concat>
         } else if (input.peek() === specials.KSTAR) {
-            throw new RegexError("Malformed regex array: empty subexpression before Kleene star at index " + 
+            throw new RegexError("Malformed regex array: empty subexpression before Kleene star at index " +
                 input.idx, input.idx);
         } else {
           var sym = noam.re.tree.makeLit(input.peek());
@@ -1335,7 +1429,7 @@
       function random(numSymbols, alphabet, cfg) {
         return noam.re.tree.toArray(noam.re.tree.random(numSymbols, alphabet, cfg));
       }
-      
+
       function simplify(arr, numIterations, appliedPatterns) {
         var tree = noam.re.array.toTree(arr);
         var treeSimplified = noam.re.tree.simplify(tree, numIterations, appliedPatterns);
@@ -1366,7 +1460,7 @@
      *    - parentheses which are used for grouping
      *    - the backslash character (\) which is used for escaping the special meaning of all
      *      the listed characters, including backslash itself; for example, the regex
-     *      "(a+b)*\\+" represents the language of all strings of as and bs ending in one 
+     *      "(a+b)*\\+" represents the language of all strings of as and bs ending in one
      *      plus character (notice that due to the fact that backslash also escapes in
      *      JavaScript strings, we need two backslashes to get the two-character
      *      sequence \+ that we want)
@@ -1412,7 +1506,7 @@
       }
 
       // Returns the tree representation of the regex represented by @a str.
-      // 
+      //
       // Semantically equivalent to first converting the @a str to the array
       // representation via noam.re.string.toArray and then converting the
       // result to a tree via noam.re.array.toTree.
@@ -1422,7 +1516,7 @@
       }
 
       // Returns an FSM accepting the language of the regex represented by @a str.
-      // 
+      //
       // Semantically equivalent to first converting the @a str to the array
       // representation via noam.re.string.toArray, then converting the
       // result to a tree via noam.re.array.toTree and finally converting the result
@@ -1441,7 +1535,7 @@
         }
         return noam.re.tree.toString(noam.re.tree.random(numSymbols, arr, cfg));
       }
-      
+
       function simplify(str, numIterations, appliedPatterns) {
         var tree = noam.re.string.toTree(str);
         var treeSimplified = noam.re.tree.simplify(tree, numIterations, appliedPatterns);
@@ -1449,7 +1543,7 @@
       }
 
       return {
-        escapable: escapable, 
+        escapable: escapable,
 
         toArray: toArray,
         toTree: toTree,

@@ -2,7 +2,7 @@ describe("regular expressions", function() {
   var noamRe = require('../lib/node/noam.js').re;
   var noamFsm = require('../lib/node/noam.js').fsm;
   var noamUtil = require('../lib/node/noam.js').util;
-  
+
   describe("tree representation API", function() {
 
     var literal_a = noamRe.tree.makeLit("a");
@@ -272,7 +272,7 @@ describe("regular expressions", function() {
       });
 
       it("assigns operator priority to parentheses > Kleene star > concatenation > alteration", function() {
-        var regex = ["a", "b", specials.KSTAR, 
+        var regex = ["a", "b", specials.KSTAR,
             specials.ALT,
             specials.LEFT_PAREN, "c", "d", specials.RIGHT_PAREN, specials.KSTAR]; // ab* + (cd)*
         expect(inRegexLanguage(regex, [])).toBeTruthy();
@@ -406,171 +406,177 @@ describe("regular expressions", function() {
     });
 
   });
-  
+
   describe("regex simplification", function() {
     describe("simplify", function() {
       var specials = noamRe.array.specials;
       // TODO -- add sanity checks using fsm equivalence?
-      
+
       it("works for trees, arrays and strings", function() {
         var r1 = "(a+b*)*+(c*)*+d+d+g+g*+h*h*+$";
-        
+
         var r1_tree = noamRe.string.toTree(r1);
         var r1_tree_s = noamRe.tree.simplify(r1_tree);
-        
+
         var r1_arr = noamRe.string.toArray(r1);
         var r1_arr_s = noamRe.array.simplify(r1_arr);
-        
+
         var r1_str_s = noamRe.string.simplify(r1);
-        
+
         expect(noamRe.tree.toString(r1_tree_s) === noamRe.array.toString(r1_arr_s)).toBeTruthy();
         expect(noamRe.tree.toString(r1_tree_s) === r1_str_s).toBeTruthy();
       });
-      
+
       it("handles ((a)) = (a), seq and alt", function() {
         var re1 = noamRe.tree.makeSeq( [noamRe.tree.makeLit ("a")] );
         var re2 = noamRe.tree.makeAlt( [noamRe.tree.makeLit ("a")] );
-        
+
         var re1_s = noamRe.tree.simplify(re1);
         var re2_s = noamRe.tree.simplify(re2);
-        
+
         expect(re1_s.tag === noamRe.tree.tags.LIT).toBeTruthy();
         expect(re2_s.tag === noamRe.tree.tags.LIT).toBeTruthy();
       });
-      
+
       it("handles eps* = eps", function() {
         var re1 = noamRe.array.toTree([ specials.EPS, specials.KSTAR ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.EPS ])).toBeTruthy();
       });
-      
+
       it("handles (a*)*", function() {
         var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.KSTAR, specials.RIGHT_PAREN, specials.KSTAR ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
       });
-      
+
       it("handles (a+b*)* = (a+b)*", function() {
         var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.KSTAR, specials.RIGHT_PAREN, specials.KSTAR ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
       });
-      
+
       it("handles eps+a* = a*", function() {
         var re1 = noamRe.array.toTree([ specials.EPS, specials.ALT, "a", specials.KSTAR ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
       });
-      
+
       it("handles (a*b*c*)* = (a*+b*+c*)*", function() {
         var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.KSTAR, "b", specials.KSTAR, "c", specials.KSTAR, specials.RIGHT_PAREN, specials.KSTAR ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.ALT, "c", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
       });
-      
+
       it("handles eps a = a", function() {
         var re1 = noamRe.array.toTree([ specials.EPS, "a" ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a" ])).toBeTruthy();
       });
-      
+
       it("handles (a + (b + c)) = a+b+c", function() {
         var re1 = noamRe.array.toTree([ "a", specials.ALT, specials.LEFT_PAREN, "b", specials.ALT, "c", specials.RIGHT_PAREN]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", specials.ALT, "b", specials.ALT, "c" ])).toBeTruthy();
       });
-      
+
       it("handles a b ( c d ) = a b c d", function() {
         var re1 = noamRe.array.toTree([ "a", "b", specials.LEFT_PAREN, "c", "d", specials.RIGHT_PAREN]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", "b", "c", "d" ])).toBeTruthy();
       });
-      
+
       it("handles  a + b + a = a+b // a* + b + a* = a*+b // a + b + a* = b+a*", function() {
         var specials = noamRe.array.specials;
         var re1 = noamRe.array.toTree([ "a", specials.ALT, "b", specials.ALT, "a"]);
         var re2 = noamRe.array.toTree([ "a", specials.KSTAR, specials.ALT, "b", specials.ALT, "a", specials.KSTAR]);
         var re3 = noamRe.array.toTree([ "a", specials.ALT, "b", specials.ALT, "a", specials.KSTAR]);
-        
+
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         var re2_s = noamRe.tree.toArray(noamRe.tree.simplify(re2));
         var re3_s = noamRe.tree.toArray(noamRe.tree.simplify(re3));
-                
+
         expect(noamUtil.areEquivalent(re1_s, [ "a", specials.ALT, "b" ])).toBeTruthy();
         expect(noamUtil.areEquivalent(re2_s, [ "a", specials.KSTAR, specials.ALT, "b" ])).toBeTruthy();
         expect(noamUtil.areEquivalent(re3_s, [ "b", specials.ALT, "a", specials.KSTAR ])).toBeTruthy();
       });
-      
+
       it("handles a*a* = a*", function() {
         var re1 = noamRe.array.toTree([ "a", specials.KSTAR, "a", specials.KSTAR]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", specials.KSTAR ])).toBeTruthy();
       });
-      
+
       it("handles (aa+b+a)* = (b+a)*", function() {
         var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", "a", specials.ALT, "b", specials.ALT, "a", specials.RIGHT_PAREN, specials.KSTAR]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "b", specials.ALT, "a", specials.RIGHT_PAREN, specials.KSTAR])).toBeTruthy();
       });
-      
+
       it("handles (a + $ + b)* = (a + b)*", function() {
         var re1 = noamRe.array.toTree([ specials.LEFT_PAREN, "a", specials.ALT, specials.EPS, specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR])).toBeTruthy();
       });
-      
+
       it("handles (ab+ac) = a(b+c)", function() {
         var re1 = noamRe.array.toTree([ "a", "b", specials.ALT, "a", "c"]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", specials.LEFT_PAREN, "b", specials.ALT, "c", specials.RIGHT_PAREN ])).toBeTruthy();
       });
-      
+
       it("handles a* a a* = a a*", function() {
         var re1 = noamRe.array.toTree([ "a", specials.KSTAR, "a", "a", specials.KSTAR]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ "a", "a", specials.KSTAR ])).toBeTruthy();
       });
-      
+
       it("handles (ab+cb) = (a+c)b", function() {
         var re1 = noamRe.array.toTree([ "a", "b", specials.ALT, "c", "b"]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "c", specials.RIGHT_PAREN, "b"])).toBeTruthy();
       });
-      
+
       it("handles L1+L2 => L2, if L1 is subset of L2", function() {
         var re1 = noamRe.array.toTree([ "a", "b", specials.ALT, specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ]);
         var re1_s = noamRe.tree.toArray(noamRe.tree.simplify(re1));
         expect(noamUtil.areEquivalent(re1_s, [ specials.LEFT_PAREN, "a", specials.ALT, "b", specials.RIGHT_PAREN, specials.KSTAR ])).toBeTruthy();
       });
-            
+
       it("handles (L1+L2)* => L2*, if L1* is subset of L2*", function() {
         var re1 = noamRe.string.toTree("(ab+(a+b))*");
         var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
         expect(re1_s).toEqual("(a+b)*");
       });
-      
+
       it("handles L1*L2* => L2*, if L1* is subset of L2*", function() {
         var re1 = noamRe.string.toTree("(abab)*(ab)*");
         var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
         expect(re1_s).toEqual("(ab)*");
       });
-        
+
       it("handles a*($+b(a+b)*) => (a+b)*", function() {
         var re1 = noamRe.string.toTree("a*($+b(a+b)*)");
         var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
         expect(re1_s).toEqual("(a+b)*");
       });
-      
+
       it("handles ($+(a+b)*a)b* => (a+b)*", function() {
         var re1 = noamRe.string.toTree("($+(a+b)*a)b*");
         var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
         expect(re1_s).toEqual("(a+b)*");
       });
-      
+
       it("handles $+L => L, if L contains $", function() {
         var re1 = noamRe.string.toTree("$+b*($+c)");
         var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
         expect(re1_s).toEqual("b*($+c)");
+      });
+
+      it("handles (L1+$)(L2)* => (L2)*, if L1 is subset of L2", function() {
+        var re1 = noamRe.string.toTree("(a+b+c+$)(a+b+c)*(a+b+c+$)");
+        var re1_s = noamRe.tree.toString(noamRe.tree.simplify(re1));
+        expect(re1_s).toEqual("(a+b+c)*");
       });
     });
   });
