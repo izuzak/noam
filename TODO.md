@@ -2,9 +2,9 @@
 
 ## Functionality
 
+* use isEquals from underscore or lodash
 * upgrade object equivalence function so that String==String String==string string==string
   * also upgrade hashtable's hash function to support this
-* "++++" should not be considered a valid regex (e.g. when calling noam.re.string.toTree/toArray)
 * update noam.util.areEquivalent to be foolproof (e.g. use QUnit implementation or similar)
 * add noam.re.tree/array/string.areEquivalent, isSubset, intersection, etc etc
 * extend HashTable with prototypes:
@@ -72,8 +72,6 @@
 * add profiling capability
 * refactor internal code to use more optimized data structures
 * add performance testing
-* improve FSM->regex algo by trying out different approaches (the goal is to get as clean regex as possible)
-  * http://cs.stackexchange.com/questions/2016/how-to-convert-finite-automata-to-regular-expressions
 
 ## Webapps and examples
 
@@ -87,7 +85,6 @@
       * http://polymaps.org/
   * colorize next states or transitions so that it is visible which transitions will be made
   * tell the user if the currently read string is acceptable or not by the fsm
-  * add support to enter an automaton by hand, without entering a regex
 * regex minification
   * improve coloring of regex parts:
     * by making the simplification functions return the substituted strings
