@@ -15,6 +15,7 @@ See [TODO list](TODO.md).
 
 * [Regular Expressions Gym](http://izuzak.github.com/noam/webapps/regex_simplifier/) - Slim your regexes one step at a time! Source is [here](https://github.com/izuzak/noam/tree/master/webapps/regex_simplifier).
 * [FSM Simulator](http://ivanzuzak.info/noam/webapps/fsm_simulator/) - Visually simulate the operation of your DFAs, NFAs and eNFAs one input symbol at a time! Source is [here](https://github.com/izuzak/noam/tree/master/webapps/fsm_simulator).
+* [FSM2Regex](http://ivanzuzak.info/noam/webapps/fsm2regex/) - Convert you FSMs to regexes and your regexes to FSMs! Source is [here](https://github.com/izuzak/noam/tree/master/webapps/fsm2regex).
 
 ## Install
 

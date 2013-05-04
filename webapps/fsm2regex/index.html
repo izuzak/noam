@@ -1,0 +1,171 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Ivan Zuzak, Vedrana Jankovic" />
+    <meta name="keywords" content="fsm, finite-state machine, regex, regular expression, convert, transform, software, graphviz" />
+    <meta name="description" content="Fsm2Regex is a Web application for transforming finite state machines to regular expressions and regexes to FSMs." />
+    <meta name="viewport" content="width=device-width" />
+
+    <title>FSM2Regex</title>
+
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" />
+    <link rel="stylesheet" href="styles/fsm2regex.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <h1>FSM2Regex</h1>
+
+        <p>
+          Convert you FSMs to regexes<br>
+          and your regexes to FSMs!
+        </p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="container controls">
+        <h3> &#x2460; Create automaton </h3>
+
+        <p>
+          Enter a <strong>FSM</strong> below and the application will convert and show the equivalent regular expression. Alternately, enter a <strong>regular expression</strong> and the application will convert and show the equivalent FSM.
+        </p>
+
+        <div class="row-fluid">
+          <div class="span6 column">
+            <h3> Input automaton </h3>
+
+            <div class="instructions">
+              <p>
+                Enter a FSM into the input field below or click <strong>Generate random DFA/NFA/eNFA</strong> to have the app generate a simple FSM randomly for you.
+                Next, click <strong>Create automaton</strong> to display the FSM's transition graph.
+              </p>
+              <p>
+                A valid FSM definition contains a list of states, symbols and transitions, the initial state and the accepting states. States and symbols are alphanumeric character strings and can not overlap. Transitions have the format: <code>stateA:symbol>stateB,stateC</code>. The <code>$</code> character is used to represent the empty string symbol (epsilon) but should not be listed in the alphabet. Generate a FSM to see a valid example.
+              </p>
+            </div>
+
+            <p>
+              <button id="generateDFA" class="btn">Generate random DFA</button>
+              <button id="generateNFA" class="btn">Generate random NFA</button>
+              <button id="generateENFA" class="btn">Generate random eNFA</button>
+            </p>
+            <p>
+              <textarea id="fsm" class="input-block-level" type="text" placeholder="or write your own" spellcheck="false"></textarea>
+            </p>
+
+          </div>
+
+          <div class="span6 column">
+            <h3> Input regex </h3>
+
+            <div class="instructions">
+              <p>
+                Enter a regular expression into the input field below or click <strong>Generate random regex</strong> to have the app generate a simple regex randomly for you.
+                Next, click <strong>Create automaton</strong> to create a FSM for the defined regex and display its transition graph.
+              </p>
+              <p>
+                A valid regex consists of alphanumeric characters representing the set of input symbols (e.g. <code>a</code>, <code>B</code>, <code>9</code>), the <code>$</code> character representing the empty string, the choice operator <code>+</code>, the Kleene operator <code>*</code>, and parentheses <code>(</code> and <code>)</code>. An example of a valid regex is: <code>(a+B)*(c9+$)+$</code>.
+              </p>
+            </div>
+
+            <p>
+              <button id="generateRegex" class="btn">Generate random regex</button>
+            </p>
+
+            <p>
+              <div class="control-group">
+                <input id="regex" type="text" class="input-block-level" placeholder="or write your own" spellcheck="false">
+              </div>
+            </p>
+
+          </div>
+        </div>
+
+        <hr />
+      </div>
+
+      <div class="container graph">
+        <h3> &#x2461; Transition graph </h3>
+
+        <p>
+          The FSM being converted is displayed in the form of a transition graph.
+        </p>
+
+        <div id="automatonGraph"> </div>
+      </div>
+
+      <div class="container">
+        <h3> &#x2462; What's next? </h3>
+
+        <p>
+          This is just the beginning! If you like learning about and playing with FSMs and regexes, check out these other Web apps:
+          <ul>
+            <li>
+              <a href="http://ivanzuzak.info/noam/webapps/fsm_simulator/">FSM simulator</a> - A Web app that visually simulates the step-by-step execution of finite-state machines.
+            </li>
+            <li>
+              <a href="http://ivanzuzak.info/noam/webapps/regex_simplifier/">Regular Expressions Gym</a> - A Web app that simplifies your regular expressions by detecting and removing sub-expressions that generate the same strings.
+            </li>
+            <li>
+              <a href="http://www.regexper.com/">Regexper</a> - A Web app that displays regular expressions as railroad diagrams.
+            </li>
+            <li>
+              <a href="http://mdaines.github.com/grammophone/">Grammophone</a> - A Web app for analyzing and transforming context-free grammars, e.g. for generating strings from a grammar and computing SLR/LR/LALR parsing tables.
+            </li>
+            <li>
+              <a href="http://www.debuggex.com/">Debuggex</a> - A Web app that is a visual regular expression debugger, tester, and helper.
+            </li>
+          </ul>
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        <strong>FSM2Regex</strong> is a demo of using <a href="https://github.com/izuzak/noam">noam</a>, a JavaScript library for working with finite-state machines, grammars and regular expressions.
+      </p>
+      <p>
+        Created by <a href="http://ivanzuzak.info">Ivan Zuzak</a>.
+        Built with <a href="https://github.com/izuzak/noam">Noam</a>, <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>, <a href="https://github.com/mdaines/viz.js">Viz.js</a>, and <a href="http://jquery.com/">jQuery</a>.
+        <br>
+        Code available on <a href="https://github.com/izuzak/noam/tree/master/webapps/fsm_simulator">GitHub</a> and licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>.
+      </p>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="http://benalman.com/code/projects/jquery-throttle-debounce/jquery.ba-throttle-debounce.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+    <script src="http://mdaines.github.io/viz.js/viz.js"></script>
+    <script src="../../lib/browser/noam.js"></script>
+    <script src="scripts/fsm2regex.js"></script>
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-36346935-1']);
+      _gaq.push(['_setDomainName', 'auto']);
+      _gaq.push(['_setAllowLinker', true]);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+    <script type="text/javascript">
+      var _gauges = _gauges || [];
+      (function() {
+        var t   = document.createElement('script');
+        t.type  = 'text/javascript';
+        t.async = true;
+        t.id    = 'gauges-tracker';
+        t.setAttribute('data-site-id', '5162c171613f5d6f68000001');
+        t.src = '//secure.gaug.es/track.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(t, s);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+.graph {
+    min-height: 150px;
+}
+
+input,textarea {
+    font-family: monospace;
+}
+
+.header {
+    text-align: center;
+    color: black;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 4em;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+}
+
+.header p {
+    display: block;
+    font-size: 2em;
+    line-height: 1em;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    font-style: italic;
+}
+
+hr {
+    height: 2px;
+    border-color: grey;
+}
+
+.content {
+    background-color: white;
+    min-height: 500px;
+    border: solid rgb(229, 229, 229) 2px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+.footer {
+    margin-top: 30px;
+    text-align: center;
+    color: grey;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.column {
+    min-height: 190px;
+}
+
+body {
+    background-color: rgb(245, 245, 245);
+    padding-top: 40px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+
+h3 {
+    text-rendering: auto;
+}
+
+.input-div {
+    -webkit-appearance: none;
+    -webkit-border-image: none;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset;
+    -webkit-rtl-ordering: logical;
+    -webkit-transition-delay: 0s, 0s;
+    -webkit-transition-duration: 0.20000000298023224s, 0.20000000298023224s;
+    -webkit-transition-property: border, box-shadow;
+    -webkit-transition-timing-function: linear, linear;
+    -webkit-user-select: text;
+    -webkit-writing-mode: horizontal-tb;
+    background-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(204, 204, 204);
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-left-color: rgb(204, 204, 204);
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-right-color: rgb(204, 204, 204);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-top-color: rgb(204, 204, 204);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-top-style: solid;
+    border-top-width: 1px;
+    box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset;
+    box-sizing: border-box;
+    color: rgb(85, 85, 85);
+    cursor: auto;
+    display: inline-block;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: normal;
+    min-height: 20px;
+    letter-spacing: normal;
+    line-height: 20px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    min-height: 30px;
+    padding-bottom: 4px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 4px;
+    text-align: start;
+    text-indent: 0px;
+    text-shadow: none;
+    text-transform: none;
+    vertical-align: middle;
+    width: 100%;
+    word-spacing: 0px;
+    writing-mode: lr-tb;
+}
+
+.currentState {
+    fill: lightpink;
+    background-color: lightpink;
+    stroke-width: 2;
+}
+
+.nextState {
+    fill: lightgreen;
+}
+
+.previousState {
+    fill: lightblue;
+}
+
+.activeTransition {
+    stroke: blue;
+    stroke-width: 2;
+}
+
+.inactiveState {
+    fill: white;
+}
+
+.nextSymbol {
+    background-color: lightgreen;
+    font-weight:bold;
+}
+
+#fsm {
+    height: 60px;
+}
