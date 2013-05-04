@@ -689,7 +689,9 @@
     }
 
     accStates.push(";");
-    result.push(accStates.join(" "));
+    if (accStates.length > 2) {
+      result.push(accStates.join(" "));
+    }
     result.push("  node [shape = circle];");
     result.push("  secret_node [style=invis, shape=point];");
     //var initState = ['  {rank = source; "'];
@@ -1719,7 +1721,32 @@
     for (k=1; k<n+1; k++) {
       for (i=0; i<n; i++) {
         for (j=0; j<n; j++) {
-          r[k][i][j] = noam.re.tree.makeAlt([r[k-1][i][j], noam.re.tree.makeSeq([r[k-1][i][k-1], noam.re.tree.makeKStar(r[k-1][k-1][k-1]), r[k-1][k-1][j]])]);
+          var t1 = ((typeof r[k-1][i][k-1].choices !== "undefined" && r[k-1][i][k-1].choices.length === 0) ||
+              (typeof r[k-1][k-1][j].choices !== "undefined" && r[k-1][k-1][j].choices.length === 0) ||
+              (typeof r[k-1][k-1][k-1].choices !== "undefined" && r[k-1][k-1][k-1].choices.length === 0));
+          var t2 =  (typeof r[k-1][i][j].choices !== "undefined" && r[k-1][i][j].choices.length === 0);
+
+          var seq = null
+
+          if (r[k-1][k-1][k-1].tag === noam.re.tree.tags.EPS) {
+            seq = noam.re.tree.makeSeq([r[k-1][i][k-1], r[k-1][k-1][j]]);
+          } else {
+            seq = noam.re.tree.makeSeq([r[k-1][i][k-1], noam.re.tree.makeKStar(r[k-1][k-1][k-1]), r[k-1][k-1][j]]);
+          }
+
+          var alt = [];
+
+          if (!t2) {
+            alt.push(r[k-1][i][j]);
+          }
+
+          if (!t1) {
+            alt.push(seq);
+          }
+
+          alt = noam.re.tree.makeAlt(alt);
+
+          r[k][i][j] = alt;
         }
       }
     }
