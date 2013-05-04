@@ -15,7 +15,7 @@ $("#generateRegex").click(function() {
 });
 
 function generateAutomaton(fsmType) {
-  var automaton = noam.fsm.createRandomFsm(noam.fsm.dfaType, 3, 2, 2);
+  var automaton = noam.fsm.createRandomFsm(fsmType, 3, 2, 2);
   $("#fsm").val(noam.fsm.serializeFsmToString(automaton));
   $("#fsm").scrollTop(0);
   $("#fsm").focus();
