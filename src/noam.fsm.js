@@ -850,15 +850,13 @@
 
       processedPairs.push(currentPair);
 
-      for (i=0; i<fsmA.alphabet.length; i++) {
-        for (j=0; j<fsmA.alphabet.length; j++) {
-          var pair = [noam.fsm.makeTransition(fsmA, [currentPair[0]], fsmA.alphabet[j])[0],
-                      noam.fsm.makeTransition(fsmB, [currentPair[1]], fsmA.alphabet[j])[0]];
+      for (j=0; j<fsmA.alphabet.length; j++) {
+        var pair = [noam.fsm.makeTransition(fsmA, [currentPair[0]], fsmA.alphabet[j])[0],
+                    noam.fsm.makeTransition(fsmB, [currentPair[1]], fsmA.alphabet[j])[0]];
 
-          if (!(noam.util.contains(processedPairs, pair)) &&
-              !(noam.util.contains(unprocessedPairs, pair))) {
-            unprocessedPairs.push(pair);
-          }
+        if (!(noam.util.contains(processedPairs, pair)) &&
+            !(noam.util.contains(unprocessedPairs, pair))) {
+          unprocessedPairs.push(pair);
         }
       }
     }
