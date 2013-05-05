@@ -40,6 +40,7 @@ function onRegexChange() {
   var regex = validateRegex();
   if (regex !== null) {
     var automaton = noam.re.tree.toAutomaton(regex);
+    console.log(automaton);
     drawGraph(automaton);
     $("#fsm").val(noam.fsm.serializeFsmToString(automaton));
   }
@@ -97,8 +98,8 @@ function validateRegex() {
   }
 }
 
-var onRegexChangeDebounced = $.debounce(500, onRegexChange);
-var onAutomatonChangeDebounced = $.debounce(500, onAutomatonChange)
+var onRegexChangeDebounced = _.debounce(onRegexChange, 500);
+var onAutomatonChangeDebounced = _.debounce(onAutomatonChange, 500)
 
 $("#regex").change(onRegexChangeDebounced);
 $("#regex").keyup(onRegexChangeDebounced);
