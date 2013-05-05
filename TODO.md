@@ -64,6 +64,7 @@
 
 ## Performance and testing
 
+* precompute what can be precomputed (e.g. epsilon closure)
 * random string generation for FSM is very slow non-trivial FSMs
 * in webapps - run noam inside a web worker so that noam doesn't block the UI
 * make specific benchmarks e.g. benchmarking the quality of regex simplification by regex length
