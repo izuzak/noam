@@ -40,7 +40,6 @@ function onRegexChange() {
   var regex = validateRegex();
   if (regex !== null) {
     var automaton = noam.re.tree.toAutomaton(regex);
-    console.log(automaton);
     drawGraph(automaton);
     $("#fsm").val(noam.fsm.serializeFsmToString(automaton));
   }
