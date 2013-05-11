@@ -64,15 +64,22 @@ function validateFsm() {
 
   if (fsm.length === 0) {
     $("#fsm").parent().removeClass("success error");
+    $("#regex").parent().removeClass("success error");
+    $("#inputError").hide();
   } else {
     try {
       fsm = noam.fsm.parseFsmFromString(fsm);
       $("#fsm").parent().removeClass("error");
       $("#fsm").parent().addClass("success");
+      $("#regex").parent().removeClass("error");
+      $("#regex").parent().addClass("success");
+      $("#inputError").hide();
       return fsm;
     } catch (e) {
       $("#fsm").parent().removeClass("success");
       $("#fsm").parent().addClass("error");
+      $("#inputError").show();
+      $("#inputError").text("Error: " + e.message);
       return null;
     }
   }
@@ -83,15 +90,22 @@ function validateRegex() {
 
   if (regex.length === 0) {
     $("#regex").parent().removeClass("success error");
+    $("#fsm").parent().removeClass("success error");
+    $("#inputError").hide();
   } else {
     try {
       regex = noam.re.string.toTree(regex);
       $("#regex").parent().removeClass("error");
       $("#regex").parent().addClass("success");
+      $("#fsm").parent().removeClass("error");
+      $("#fsm").parent().addClass("success");
+      $("#inputError").hide();
       return regex;
     } catch (e) {
       $("#regex").parent().removeClass("success");
       $("#regex").parent().addClass("error");
+      $("#inputError").show();
+      $("#inputError").text("Error: " + e.message);
       return null;
     }
   }
