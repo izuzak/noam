@@ -130,22 +130,25 @@ $("#startStop").click(function() {
 
 function onInputStringChange() {
   var chars = $("#inputString").val().split("");
-  var isValidInputString = true;
+  var isValidInputString = -1;
   for (var i=0; i<chars.length; i++) {
     if (!noam.util.contains(automaton.alphabet, chars[i])) {
-      isValidInputString = false;
+      isValidInputString = i;
       break;
     }
   }
 
-  if (isValidInputString) {
+  if (isValidInputString === -1) {
     $("#startStop").attr("disabled", false);
     $("#inputString").parent().addClass("success");
     $("#inputString").parent().removeClass("error");
+    $("#inputError").hide();
   } else {
     $("#startStop").attr("disabled", true);
     $("#inputString").parent().removeClass("success");
     $("#inputString").parent().addClass("error");
+    $("#inputError").show();
+    $("#inputError").text("Error: input character at position " + i + " is not in FSM alphabet.");
   }
 }
 
@@ -295,6 +298,7 @@ function onRegexOrAutomatonChange() {
   $("#inputString").keyup(onInputStringChange);
   $("#inputString").change(onInputStringChange);
   $("#startStop").text("Start");
+  $("#inputError").hide();
 
   if (inputIsRegex) {
     validateRegex();
@@ -308,15 +312,19 @@ function validateFsm() {
 
   if (fsm.length === 0) {
     $("#fsm").parent().removeClass("success error");
+    $("#fsmError").hide();
   } else {
     try {
       noam.fsm.parseFsmFromString(fsm);
       $("#fsm").parent().removeClass("error");
       $("#fsm").parent().addClass("success");
       $("#createAutomaton").attr("disabled", false);
+      $("#fsmError").hide();
     } catch (e) {
       $("#fsm").parent().removeClass("success");
       $("#fsm").parent().addClass("error");
+      $("#fsmError").text("Error: " + e.message);
+      $("#fsmError").show();
     }
   }
 }
@@ -326,15 +334,19 @@ function validateRegex() {
 
   if (regex.length === 0) {
     $("#regex").parent().removeClass("success error");
+    $("#fsmError").hide();
   } else {
     try {
       noam.re.string.toTree(regex);
       $("#regex").parent().removeClass("error");
       $("#regex").parent().addClass("success");
       $("#createAutomaton").attr("disabled", false);
+      $("#fsmError").hide();
     } catch (e) {
       $("#regex").parent().removeClass("success");
       $("#regex").parent().addClass("error");
+      $("#fsmError").text("Error: " + e.message);
+      $("#fsmError").show();
     }
   }
 }
