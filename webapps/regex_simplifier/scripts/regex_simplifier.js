@@ -24,6 +24,7 @@ function validateRegex() {
     $("#originalRegex").parent().removeClass("success error");
     $("#simplifyRegex").attr("disabled", true);
     $("#simplifyRegexStep").attr("disabled", true);
+    $("#inputError").hide();
   } else {
     try {
       noam.re.string.toTree(regex);
@@ -31,11 +32,14 @@ function validateRegex() {
       $("#originalRegex").parent().addClass("success");
       $("#simplifyRegex").attr("disabled", false);
       $("#simplifyRegexStep").attr("disabled", false);
+      $("#inputError").hide();
     } catch (e) {
       $("#originalRegex").parent().removeClass("success");
       $("#originalRegex").parent().addClass("error");
       $("#simplifyRegex").attr("disabled", true);
       $("#simplifyRegexStep").attr("disabled", true);
+      $("#inputError").text("Error: " + e.message);
+      $("#inputError").show();
     }
   }
 }
