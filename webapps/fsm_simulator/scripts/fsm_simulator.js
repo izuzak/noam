@@ -260,7 +260,19 @@ $("#generateENFA").click(function() {
 $("#createAutomaton").click(function() {
   if (inputIsRegex) {
     regex = $("#regex").val();
+    automatonType = $("#automatonType").val();
     automaton = noam.re.string.toAutomaton(regex);
+
+    if (automatonType === noam.fsm.nfaType) {
+      automaton = noam.fsm.convertEnfaToNfa(automaton);
+    }
+
+    if (automatonType === noam.fsm.dfaType) {
+      automaton = noam.fsm.convertEnfaToNfa(automaton);
+      automaton = noam.fsm.convertNfaToDfa(automaton);
+      automaton = noam.fsm.minimize(automaton);
+      automaton = noam.fsm.convertStatesToNumbers(automaton);
+    }
   } else {
     automaton = noam.fsm.parseFsmFromString($("#fsm").val());
   }

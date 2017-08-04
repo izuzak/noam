@@ -973,6 +973,42 @@
     return minimalFsm;
   };
 
+  noam.fsm.convertStatesToNumbers = function(fsm) {
+    var newFsm = noam.fsm.makeNew();
+    var mapping = {};
+
+    for (i=0; i<fsm.states.length; i++) {
+      mapping[fsm.states[i].toString()] = i;
+    }
+
+    newFsm.alphabet = noam.util.clone(fsm.alphabet);
+
+    for (i=0; i<fsm.states.length; i++) {
+      noam.fsm.addState(newFsm, mapping[fsm.states[i].toString()]);
+    }
+
+    noam.fsm.setInitialState(newFsm, mapping[fsm.initialState.toString()]);
+
+    for (i=0; i<fsm.acceptingStates.length; i++) {
+      noam.fsm.addAcceptingState(newFsm, mapping[fsm.acceptingStates[i].toString()]);
+    }
+
+    for (i=0; i<fsm.transitions.length; i++) {
+      var newToStates = [];
+
+      for (j=0; j<fsm.transitions[i].toStates.length; j++) {
+        newToStates.push(mapping[fsm.transitions[i].toStates[j].toString()]);
+      }
+
+      noam.fsm.addTransition(newFsm,
+        mapping[fsm.transitions[i].fromState.toString()],
+        newToStates,
+        fsm.transitions[i].symbol);
+    }
+
+    return newFsm;
+  }
+
   // generate random fsm
   noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet, maxNumToStates) {
     var newFsm = {}, i, j, k;

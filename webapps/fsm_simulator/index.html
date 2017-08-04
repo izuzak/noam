@@ -55,6 +55,17 @@
                     <input id="regex" type="text" class="input-block-level" placeholder="or write your own" spellcheck="false">
                   </div>
                 </p>
+
+                <p>
+                  <div class="control-group">
+                    <label for="automatonType">Select generated FSM type: </label>
+                    <select id="automatonType">
+                      <option value="eNFA" default="true">eNFA</option>
+                      <option value="NFA">NFA</option>
+                      <option value="DFA">DFA</option>
+                    </select>
+                  </div>
+                </p>
               </div>
               <div class="tab-pane" id="tab2">
                 <div class="instructions">
