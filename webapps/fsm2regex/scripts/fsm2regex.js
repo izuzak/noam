@@ -53,7 +53,7 @@ function onAutomatonChange() {
     drawGraph(automaton);
     automaton = noam.fsm.minimize(automaton);
     var r = noam.fsm.toRegex(automaton);
-    r = noam.re.tree.simplify(r);
+    r = noam.re.tree.simplify(r, {"useFsmPatterns": false});
     var s = noam.re.tree.toString(r);
     $("#regex").val(s);
   }
