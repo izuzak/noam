@@ -1,10 +1,12 @@
+var current_regex = $("#regex").val()
+var current_fsm = $("#fsm").val()
+
 function drawGraph(automaton) {
   var dotString = noam.fsm.printDotFormat(automaton);
   var gvizXml = Viz(dotString, "svg");
   $("#automatonGraph").html(gvizXml);
   $("#automatonGraph svg").width($("#automatonGraph").width());
 }
-
 
 $("#generateRegex").click(function() {
   var regex = noam.re.string.random(5, "abcd", {});
@@ -35,6 +37,12 @@ $("#generateENFA").click(function() {
 });
 
 function onRegexChange() {
+  if (current_regex === $("#regex").val()) {
+    return;
+  }
+
+  current_regex = $("#regex").val();
+
   $("#automatonGraph").html("");
   $("#fsm").val("");
   var regex = validateRegex();
@@ -42,10 +50,17 @@ function onRegexChange() {
     var automaton = noam.re.tree.toAutomaton(regex);
     drawGraph(automaton);
     $("#fsm").val(noam.fsm.serializeFsmToString(automaton));
+    current_fsm = $("#fsm").val();
   }
 }
 
 function onAutomatonChange() {
+  if (current_fsm === $("#fsm").val()) {
+    return;
+  }
+
+  current_fsm = $("#fsm").val();
+
   $("#automatonGraph").html("");
   $("#regex").val("");
   var automaton = validateFsm();
@@ -56,6 +71,7 @@ function onAutomatonChange() {
     r = noam.re.tree.simplify(r, {"useFsmPatterns": false});
     var s = noam.re.tree.toString(r);
     $("#regex").val(s);
+    current_regex = $("#regex").val();
   }
 }
 
