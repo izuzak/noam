@@ -13,7 +13,7 @@ See [TODO list](TODO.md).
 
 ## Web apps
 
-* [Regular Expressions Gym](http://izuzak.github.com/noam/webapps/regex_simplifier/) - Slim your regexes one step at a time! Source is [here](https://github.com/izuzak/noam/tree/master/webapps/regex_simplifier).
+* [Regular Expressions Gym](http://ivanzuzak.info/noam/webapps/regex_simplifier/) - Slim your regexes one step at a time! Source is [here](https://github.com/izuzak/noam/tree/master/webapps/regex_simplifier).
 * [FSM Simulator](http://ivanzuzak.info/noam/webapps/fsm_simulator/) - Visually simulate the operation of your DFAs, NFAs and eNFAs one input symbol at a time! Source is [here](https://github.com/izuzak/noam/tree/master/webapps/fsm_simulator).
 * [FSM2Regex](http://ivanzuzak.info/noam/webapps/fsm2regex/) - Convert your FSMs to regexes and your regexes to FSMs! Source is [here](https://github.com/izuzak/noam/tree/master/webapps/fsm2regex).
 
@@ -25,11 +25,11 @@ If you just want to use noam (and not contribute to development), install using 
 
 To use noam in a browser, add a `<script>` link to the browser-based versions found in `lib/browser/`:
 
-    <script src="http://izuzak.github.com/noam/lib/browser/noam.js"></script>
+    <script src="http://izuzak.github.io/noam/lib/browser/noam.js"></script>
 
 or minified version:
 
-    <script src="http://izuzak.github.com/noam/lib/browser/noam.min.js"></script>
+    <script src="http://izuzak.github.io/noam/lib/browser/noam.min.js"></script>
 
 ## Development
 
