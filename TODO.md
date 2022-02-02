@@ -56,7 +56,7 @@
 * write API documentation for current code
 * write overview/list of implemented functionality
 * add similar and related projects list:
-  * http://code.google.com/p/fsmjs/
+  * https://code.google.com/p/fsmjs/
   * https://github.com/jakesgordon/javascript-state-machine/
   * https://github.com/fschaefer/Stately.js
   * https://github.com/mdaines/grammophone
