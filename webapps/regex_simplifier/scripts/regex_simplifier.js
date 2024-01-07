@@ -2,7 +2,7 @@ var regexCounter = 1;
 var currentRegex = null;
 var sourceRegex = null;
 
-$("#generateRegex").click(function() {
+$("#generateRegex").click(function () {
   $("#originalRegex").val(noam.re.string.random(20, "abc", {}));
   onRegexChange();
 });
@@ -50,7 +50,7 @@ function simplifyAll() {
   $("#simplifyRegexStep").attr("disabled", true);
   $("#simplifyRegex").attr("disabled", true);
 
-  var loop = function() {
+  var loop = function () {
     var isDone = simplifyStep();
 
     if (isDone === false) {
@@ -65,7 +65,7 @@ function colorize(source, result) {
   var sourceText = source.text();
   var resultText = result.text();
 
-  var diff = JsDiff.diffChars(sourceText, resultText);
+  var diff = Diff.diffChars(sourceText, resultText);
 
   colorDiv(source, diff, "removed", "deletedRegexPart");
   colorDiv(result, diff, "added", "addedRegexPart");
@@ -76,13 +76,19 @@ function createRegexLabel(regNum) {
 }
 
 function createSimplifyStepDiv(isInitial, regex) {
-  var outerDiv = $("<div />", { "class": "simplifyStep" });
+  var outerDiv = $("<div />", { class: "simplifyStep" });
 
-  var stepLabel = $("<label />", { "class": "regexStep span1" });
-  var stepDiv = $("<div />", { "class": "input-block-level monospaceRegex appliedRule", type : "text"});
+  var stepLabel = $("<label />", { class: "regexStep span1" });
+  var stepDiv = $("<div />", {
+    class: "input-block-level monospaceRegex appliedRule",
+    type: "text",
+  });
 
-  var regexLabel = $("<label />", { "class": "regexCounter span1" });
-  var regexDiv = $("<div />", { "class": "input-block-level monospaceRegex regexString", type : "text"});
+  var regexLabel = $("<label />", { class: "regexCounter span1" });
+  var regexDiv = $("<div />", {
+    class: "input-block-level monospaceRegex regexString",
+    type: "text",
+  });
 
   var reglab = createRegexLabel(regexCounter);
   regexCounter += 1;
@@ -121,9 +127,14 @@ function simplifyStep() {
     var previousDiv = $(".simplifyStep").slice(-1)[0];
     var currentDiv = createSimplifyStepDiv(false, currentRegex);
     $("#simplificationHistory").append(currentDiv);
-    $(currentDiv).find(".appliedRule").html(appliedPatterns[appliedPatterns.length - 1]);
+    $(currentDiv)
+      .find(".appliedRule")
+      .html(appliedPatterns[appliedPatterns.length - 1]);
     $(currentDiv).find(".regexString").html(result);
-    colorize($(previousDiv).find(".regexString"), $(currentDiv).find(".regexString"));
+    colorize(
+      $(previousDiv).find(".regexString"),
+      $(currentDiv).find(".regexString"),
+    );
 
     sourceRegex = currentRegex;
     currentRegex = result;
@@ -139,12 +150,12 @@ function colorDiv(div, parts, type, cssClass) {
   var shouldBeTrueOrUndefined = type;
   var mustBeUndefined = type === "added" ? "removed" : "added";
 
-  for (var i=0; i<parts.length; i++) {
+  for (var i = 0; i < parts.length; i++) {
     if (parts[i][mustBeUndefined] === undefined) {
-      if (parts[i][shouldBeTrueOrUndefined] === undefined){
+      if (parts[i][shouldBeTrueOrUndefined] === undefined) {
         out += parts[i].value;
       } else {
-        out += '<font class="' + cssClass + '">' + parts[i].value + '</font>';
+        out += '<font class="' + cssClass + '">' + parts[i].value + "</font>";
       }
     }
   }
@@ -153,15 +164,17 @@ function colorDiv(div, parts, type, cssClass) {
 }
 
 function simplify_(regex) {
-  var config = {numIterations : 1, appliedPatterns : []};
+  var config = { numIterations: 1, appliedPatterns: [] };
   var result = noam.re.string.simplify(regex, config);
   var numOfLastStepPatterns = config.appliedPatterns.length;
   while (result === regex) {
     config.numIterations += 1;
     config.appliedPatterns = [];
     result = noam.re.string.simplify(regex, config);
-    if (config.appliedPatterns.length === 0 ||
-        config.appliedPatterns.length === numOfLastStepPatterns)
+    if (
+      config.appliedPatterns.length === 0 ||
+      config.appliedPatterns.length === numOfLastStepPatterns
+    )
       break;
     numOfLastStepPatterns = config.appliedPatterns.length;
   }

@@ -1,147 +1,182 @@
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <meta name="author" content="Ivan Zuzak, Vedrana Jankovic" />
-    <meta name="keywords" content="fsm, finite-state machine, regex, regular expression, convert, transform, software, graphviz" />
-    <meta name="description" content="Fsm2Regex is a Web application for transforming finite state machines to regular expressions and regexes to FSMs." />
+    <meta name="keywords"
+        content="fsm, finite-state machine, regex, regular expression, convert, transform, software, graphviz" />
+    <meta name="description"
+        content="Fsm2Regex is a Web application for transforming finite state machines to regular expressions and regexes to FSMs." />
     <meta name="viewport" content="width=device-width" />
 
     <title>FSM2Regex</title>
 
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" />
+    <link rel="stylesheet"
+        href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" />
     <link rel="stylesheet" href="styles/fsm2regex.css" />
-  </head>
-  <body>
-    <div class="header">
-      <div class="container">
-        <h1>FSM2Regex</h1>
+</head>
 
-        <p>
-          Convert your FSMs to regexes<br>
-          and your regexes to FSMs!
-        </p>
-      </div>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>FSM2Regex</h1>
+
+            <p>
+                Convert your FSMs to regexes<br>
+                and your regexes to FSMs!
+            </p>
+        </div>
     </div>
 
     <div class="content">
-      <div class="container controls">
-        <h3> &#x2460; Create automaton </h3>
+        <div class="container controls">
+            <h3> &#x2460; Create automaton </h3>
 
-        <p>
-          Enter a <strong>FSM</strong> below and the application will convert and show the equivalent regular expression. Alternately, enter a <strong>regular expression</strong> and the application will convert and show the equivalent FSM.
-        </p>
+            <p>
+                Enter a <strong>FSM</strong> below and the application will convert and show the equivalent regular
+                expression. Alternately, enter a <strong>regular expression</strong> and the application will convert
+                and show the equivalent FSM.
+            </p>
 
-        <div class="row-fluid">
-          <div class="span6 column">
-            <h3> Input automaton </h3>
+            <div class="row-fluid">
+                <div class="span6 column">
+                    <h3> Input automaton </h3>
 
-            <div class="instructions">
-              <p>
-                Enter a FSM into the input field below or click <strong>Generate random DFA/NFA/eNFA</strong> to have the app generate a simple FSM randomly for you.
-                The page will detect the chanage, show the equivalent regex, and display the FSM's transition graph.
-              </p>
-              <p>
-                A valid FSM definition contains a list of states, symbols and transitions, the initial state and the accepting states. States and symbols are alphanumeric character strings and can not overlap. Transitions have the format: <code>stateA:symbol>stateB,stateC</code>. The <code>$</code> character is used to represent the empty string symbol (epsilon) but should not be listed in the alphabet. Generate a FSM to see a valid example.
-              </p>
+                    <div class="instructions">
+                        <p>
+                            Enter a FSM into the input field below or click <strong>Generate random
+                                DFA/NFA/eNFA</strong> to have the app generate a simple FSM randomly for you.
+                            The page will detect the chanage, show the equivalent regex, and display the FSM's
+                            transition graph.
+                        </p>
+                        <p>
+                            A valid FSM definition contains a list of states, symbols and transitions, the initial state
+                            and the accepting states. States and symbols are alphanumeric character strings and can not
+                            overlap. Transitions have the format: <code>stateA:symbol>stateB,stateC</code>. The
+                            <code>$</code> character is used to represent the empty string symbol (epsilon) but should
+                            not be listed in the alphabet. Generate a FSM to see a valid example.
+                        </p>
+                    </div>
+
+                    <p>
+                        <button id="generateDFA" class="btn">Generate random DFA</button>
+                        <button id="generateNFA" class="btn">Generate random NFA</button>
+                        <button id="generateENFA" class="btn">Generate random eNFA</button>
+                    </p>
+                    <p>
+                        <textarea id="fsm" class="input-block-level" type="text" placeholder="or write your own"
+                            spellcheck="false"></textarea>
+                    </p>
+
+                </div>
+
+                <div class="span6 column">
+                    <h3> Input regex </h3>
+
+                    <div class="instructions">
+                        <p>
+                            Enter a regular expression into the input field below or click <strong>Generate random
+                                regex</strong> to have the app generate a simple regex randomly for you.
+                            The page will detect the chanage, show the equivalent FSM, and display its transition graph.
+                        </p>
+                        <p>
+                            A valid regex consists of alphanumeric characters representing the set of input symbols
+                            (e.g. <code>a</code>, <code>B</code>, <code>9</code>), the <code>$</code> character
+                            representing the empty string, the choice operator <code>+</code>, the Kleene operator
+                            <code>*</code>, and parentheses <code>(</code> and <code>)</code>. An example of a valid
+                            regex is: <code>(a+B)*(c9+$)+$</code>.
+                        </p>
+                    </div>
+
+                    <p>
+                        <button id="generateRegex" class="btn">Generate random regex</button>
+                    </p>
+
+                    <p>
+                    <div class="control-group">
+                        <input id="regex" type="text" class="input-block-level" placeholder="or write your own"
+                            spellcheck="false">
+                    </div>
+                    </p>
+
+                </div>
             </div>
 
-            <p>
-              <button id="generateDFA" class="btn">Generate random DFA</button>
-              <button id="generateNFA" class="btn">Generate random NFA</button>
-              <button id="generateENFA" class="btn">Generate random eNFA</button>
-            </p>
-            <p>
-              <textarea id="fsm" class="input-block-level" type="text" placeholder="or write your own" spellcheck="false"></textarea>
+            <p id="inputError" class="text-error">
             </p>
 
-          </div>
-
-          <div class="span6 column">
-            <h3> Input regex </h3>
-
-            <div class="instructions">
-              <p>
-                Enter a regular expression into the input field below or click <strong>Generate random regex</strong> to have the app generate a simple regex randomly for you.
-                The page will detect the chanage, show the equivalent FSM, and display its transition graph.
-              </p>
-              <p>
-                A valid regex consists of alphanumeric characters representing the set of input symbols (e.g. <code>a</code>, <code>B</code>, <code>9</code>), the <code>$</code> character representing the empty string, the choice operator <code>+</code>, the Kleene operator <code>*</code>, and parentheses <code>(</code> and <code>)</code>. An example of a valid regex is: <code>(a+B)*(c9+$)+$</code>.
-              </p>
-            </div>
-
-            <p>
-              <button id="generateRegex" class="btn">Generate random regex</button>
-            </p>
-
-            <p>
-              <div class="control-group">
-                <input id="regex" type="text" class="input-block-level" placeholder="or write your own" spellcheck="false">
-              </div>
-            </p>
-
-          </div>
+            <hr />
         </div>
 
-        <p id="inputError" class="text-error">
-        </p>
+        <div class="container graph">
+            <h3> &#x2461; Transition graph </h3>
 
-        <hr />
-      </div>
+            <p>
+                The FSM being converted is displayed in the form of a transition graph.
+            </p>
 
-      <div class="container graph">
-        <h3> &#x2461; Transition graph </h3>
+            <div id="automatonGraph"> </div>
+        </div>
 
-        <p>
-          The FSM being converted is displayed in the form of a transition graph.
-        </p>
+        <div class="container">
+            <h3> &#x2462; What's next? </h3>
 
-        <div id="automatonGraph"> </div>
-      </div>
+            <p>
+                This is just the beginning! If you like learning about and playing with FSMs and regexes, check out
+                these other Web apps:
+            <ul>
+                <li>
+                    <a href="https://ivanzuzak.info/noam/webapps/fsm_simulator/">FSM simulator</a> - A Web app that
+                    visually simulates the step-by-step execution of finite-state machines.
+                </li>
+                <li>
+                    <a href="https://ivanzuzak.info/noam/webapps/regex_simplifier/">Regular Expressions Gym</a> - A Web
+                    app that simplifies your regular expressions by detecting and removing sub-expressions that generate
+                    the same strings.
+                </li>
+                <li>
+                    <a href="https://www.regexper.com/">Regexper</a> - A Web app that displays regular expressions as
+                    railroad diagrams.
+                </li>
+                <li>
+                    <a href="https://mdaines.github.io/grammophone/">Grammophone</a> - A Web app for analyzing and
+                    transforming context-free grammars, e.g. for generating strings from a grammar and computing
+                    SLR/LR/LALR parsing tables.
+                </li>
+                <li>
+                    <a href="https://www.debuggex.com/">Debuggex</a> - A Web app that is a visual regular expression
+                    debugger, tester, and helper.
+                </li>
+            </ul>
+            </p>
+        </div>
 
-      <div class="container">
-        <h3> &#x2462; What's next? </h3>
+        <div class="container">
+            <h3> &#x2463; Feedback </h3>
 
-        <p>
-          This is just the beginning! If you like learning about and playing with FSMs and regexes, check out these other Web apps:
-          <ul>
-            <li>
-              <a href="https://ivanzuzak.info/noam/webapps/fsm_simulator/">FSM simulator</a> - A Web app that visually simulates the step-by-step execution of finite-state machines.
-            </li>
-            <li>
-              <a href="http://ivanzuzak.info/noam/webapps/regex_simplifier/">Regular Expressions Gym</a> - A Web app that simplifies your regular expressions by detecting and removing sub-expressions that generate the same strings.
-            </li>
-            <li>
-              <a href="https://www.regexper.com/">Regexper</a> - A Web app that displays regular expressions as railroad diagrams.
-            </li>
-            <li>
-              <a href="https://mdaines.github.io/grammophone/">Grammophone</a> - A Web app for analyzing and transforming context-free grammars, e.g. for generating strings from a grammar and computing SLR/LR/LALR parsing tables.
-            </li>
-            <li>
-              <a href="https://www.debuggex.com/">Debuggex</a> - A Web app that is a visual regular expression debugger, tester, and helper.
-            </li>
-          </ul>
-        </p>
-      </div>
-
-      <div class="container">
-        <h3> &#x2463; Feedback </h3>
-
-        <p>
-          Love the application, hate it, found a bug, or have a feature idea? I'd love to hear about it! Please send your feedback via the <a href="https://github.com/izuzak/noam/issues">noam project issues page on GitHub</a>.
-        </p>
-      </div>
+            <p>
+                Love the application, hate it, found a bug, or have a feature idea? I'd love to hear about it! Please
+                send your feedback via the <a href="https://github.com/izuzak/noam/issues">noam project issues page on
+                    GitHub</a>.
+            </p>
+        </div>
     </div>
 
     <div class="footer">
-      <p>
-        <strong>FSM2Regex</strong> is a demo of using <a href="https://github.com/izuzak/noam">noam</a>, a JavaScript library for working with finite-state machines, grammars and regular expressions.
-      </p>
-      <p>
-        Created by <a href="https://ivanzuzak.info">Ivan Zuzak</a>.
-        Built with <a href="https://github.com/izuzak/noam">Noam</a>, <a href="https://getbootstrap.com">Bootstrap</a>, <a href="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js">Viz.js</a>, and <a href="https://jquery.com/">jQuery</a>.
-        <br>
-        Code available on <a href="https://github.com/izuzak/noam/tree/master/webapps/fsm_simulator">GitHub</a> and licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>.
-      </p>
+        <p>
+            <strong>FSM2Regex</strong> is a demo of using <a href="https://github.com/izuzak/noam">noam</a>, a
+            JavaScript library for working with finite-state machines, grammars and regular expressions.
+        </p>
+        <p>
+            Created by <a href="https://ivanzuzak.info">Ivan Zuzak</a>.
+            Built with <a href="https://github.com/izuzak/noam">Noam</a>, <a
+                href="https://getbootstrap.com">Bootstrap</a>, <a
+                href="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js">Viz.js</a>, and <a
+                href="https://jquery.com/">jQuery</a>.
+            <br>
+            Code available on <a href="https://github.com/izuzak/noam/tree/master/webapps/fsm_simulator">GitHub</a> and
+            licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>.
+        </p>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
@@ -150,5 +185,6 @@
     <script src="../assets/viz.js"></script>
     <script src="../../lib/browser/noam.js"></script>
     <script src="scripts/fsm2regex.js"></script>
-  </body>
+</body>
+
 </html>

@@ -1,578 +1,587 @@
 <html>
-  <head>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="description" content="noam - a playground for formal languages and automata" />
-    <meta name="author" content="Ivan Zuzak" />
 
-    <title> Noam - a playground for formal languages and automata </title>
-    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
-    <link rel="stylesheet" href="https://raw.github.com/harvesthq/chosen/master/chosen/chosen.css" />
+<head>
 
-    <script type="text/javascript" src="../../lib/browser/noam.js"></script>
-    <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
-    <script type="text/javascript" src="https://raw.github.com/ajaxorg/ace-builds/master/src/ace.js"></script>
-    <script type="text/javascript" src="http://twitter.github.com/bootstrap/assets/js/bootstrap-tab.js"></script>
-    <script type="text/javascript" src="http://twitter.github.com/bootstrap/assets/js/bootstrap-button.js"></script>
-    <script type="text/javascript" src="https://raw.github.com/chrisdone/jquery-console/master/jquery.console.js"></script>
-    <script type="text/javascript" src="../assets/viz.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="description" content="noam - a playground for formal languages and automata" />
+        <meta name="author" content="Ivan Zuzak" />
 
-    <style type="text/css" media="screen">
-      #page {
-        background-color: #333;
-        margin-top: 2%;
-        height: 90%;
-        width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-        border: 15px solid;
-        border-radius: 10px;
-        box-shadow: 0px 0px 15px 10px #333;
-      }
+        <title> Noam - a playground for formal languages and automata </title>
+        <link rel="stylesheet" href="https://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
+        <link rel="stylesheet" href="https://raw.github.com/harvesthq/chosen/master/chosen/chosen.css" />
 
-      #views {
-        display: block;
-        height: 80%;
-        width: 100%;
-        min-width: 608px;
-      }
+        <script type="text/javascript" src="../../lib/browser/noam.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
+        <script type="text/javascript" src="https://raw.github.com/ajaxorg/ace-builds/master/src/ace.js"></script>
+        <script type="text/javascript" src="https://twitter.github.com/bootstrap/assets/js/bootstrap-tab.js"></script>
+        <script type="text/javascript"
+            src="https://twitter.github.com/bootstrap/assets/js/bootstrap-button.js"></script>
+        <script type="text/javascript"
+            src="https://raw.github.com/chrisdone/jquery-console/master/jquery.console.js"></script>
+        <script type="text/javascript" src="../assets/viz.js"></script>
 
-      #noam-left, #noam-right {
-        display: block;
-        float: left;
-        height: 100%;
-        background-color: white;
-        min-width: 300px;
-      }
+        <style type="text/css" media="screen">
+            #page {
+                background-color: #333;
+                margin-top: 2%;
+                height: 90%;
+                width: 90%;
+                margin-left: auto;
+                margin-right: auto;
+                border: 15px solid;
+                border-radius: 10px;
+                box-shadow: 0px 0px 15px 10px #333;
+            }
 
-      #vertical_dragbar {
-        background: url(http://jsfiddle.net/img/handle-v.png) 50% 50% no-repeat;
-        display: block;
-        float: left;
-        width: 8px;
-        height: 100%;
-        cursor: col-resize;
-      }
+            #views {
+                display: block;
+                height: 80%;
+                width: 100%;
+                min-width: 608px;
+            }
 
-      #horizontal_dragbar {
-        background: url(http://jsfiddle.net/img/handle-h.png) 50% 50% no-repeat;
-        height: 8px;
-        width: 100%;
-        cursor: row-resize;
-      }
+            #noam-left,
+            #noam-right {
+                display: block;
+                float: left;
+                height: 100%;
+                background-color: white;
+                min-width: 300px;
+            }
 
-      #noam-console {
-        word-wrap: break-word;
-        padding-top: 10px;
-      }
+            #vertical_dragbar {
+                background: url(https://jsfiddle.net/img/handle-v.png) 50% 50% no-repeat;
+                display: block;
+                float: left;
+                width: 8px;
+                height: 100%;
+                cursor: col-resize;
+            }
 
-      #noam-console {
-        width: 100%;
-        font-size: 14px;
-      }
+            #horizontal_dragbar {
+                background: url(https://jsfiddle.net/img/handle-h.png) 50% 50% no-repeat;
+                height: 8px;
+                width: 100%;
+                cursor: row-resize;
+            }
 
-      #noam-console div.jquery-console-inner {
-        background:#333;
-        overflow:auto;
-      }
+            #noam-console {
+                word-wrap: break-word;
+                padding-top: 10px;
+            }
 
-      #noam-console div.jquery-console-prompt-box {
-        color: #fff;
-        font-family: monospace;
-      }
+            #noam-console {
+                width: 100%;
+                font-size: 14px;
+            }
 
-      #noam-console div.jquery-console-focus span.jquery-console-cursor {
-        background: #fefefe;
-        color:#333;
-        font-weight: bold;
-      }
+            #noam-console div.jquery-console-inner {
+                background: #333;
+                overflow: auto;
+            }
 
-      #noam-console div.jquery-console-message-error {
-        color:#ef0505;
-        font-family: sans-serif;
-        font-weight: bold;
-        padding: 0.1em;
-      }
+            #noam-console div.jquery-console-prompt-box {
+                color: #fff;
+                font-family: monospace;
+            }
 
-      #noam-console div.jquery-console-message-value, div.jquery-console-welcome {
-        color: #1ad027;
-        font-family: monospace;
-        padding: 0.1em;
-      }
+            #noam-console div.jquery-console-focus span.jquery-console-cursor {
+                background: #fefefe;
+                color: #333;
+                font-weight: bold;
+            }
 
-      #noam-console div.jquery-console-message-type {
-        color: #52666f;
-        font-family: monospace;
-        padding: 0.1em;
-      }
+            #noam-console div.jquery-console-message-error {
+                color: #ef0505;
+                font-family: sans-serif;
+                font-weight: bold;
+                padding: 0.1em;
+            }
 
-      #noam-console span.jquery-console-prompt-label {
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
+            #noam-console div.jquery-console-message-value,
+            div.jquery-console-welcome {
+                color: #1ad027;
+                font-family: monospace;
+                padding: 0.1em;
+            }
+
+            #noam-console div.jquery-console-message-type {
+                color: #52666f;
+                font-family: monospace;
+                padding: 0.1em;
+            }
+
+            #noam-console span.jquery-console-prompt-label {
+                font-weight: bold;
+            }
+        </style>
+    </head>
+
+<body>
     <div id="page">
-      <div id="views">
-        <div id="noam-left">
-          <div id="op-div" class="form-inline" ">
-            <select data-placeholder="OP" class="span2 chzn-select select" id="noam-lang-1" required="">
-              <option value=""> Choose language</option>
-              <optgroup class="opt-fsm" label="FSMs"></optgroup>
-              <optgroup class="opt-gram" label="Grammars"></optgroup>
-              <optgroup class="opt-regex" label="Regexes"></optgroup>
-            </select>
-            <label id="op-desc"></label>
-            <select data-placeholder="OP" class="span2 chzn-select select" id="noam-view-1" required="">
-              <option value=""> Choose view</option>
-              <optgroup class="opt-fsm" label="FSMs"></optgroup>
-              <optgroup class="opt-gram" label="Grammars"></optgroup>
-              <optgroup class="opt-regex" label="Regexes"></optgroup>
-            </select>
-            <label id="op-desc"></label>
-          </div>
-          <div id="editor" class="view">
-          </div>
+        <div id="views">
+            <div id="noam-left">
+                <div id="op-div" class="form-inline" ">
+            <select data-placeholder=" OP" class="span2 chzn-select select" id="noam-lang-1" required="">
+                    <option value=""> Choose language</option>
+                    <optgroup class="opt-fsm" label="FSMs"></optgroup>
+                    <optgroup class="opt-gram" label="Grammars"></optgroup>
+                    <optgroup class="opt-regex" label="Regexes"></optgroup>
+                    </select>
+                    <label id="op-desc"></label>
+                    <select data-placeholder="OP" class="span2 chzn-select select" id="noam-view-1" required="">
+                        <option value=""> Choose view</option>
+                        <optgroup class="opt-fsm" label="FSMs"></optgroup>
+                        <optgroup class="opt-gram" label="Grammars"></optgroup>
+                        <optgroup class="opt-regex" label="Regexes"></optgroup>
+                    </select>
+                    <label id="op-desc"></label>
+                </div>
+                <div id="editor" class="view">
+                </div>
+            </div>
+            <div class="handler" id="vertical_dragbar"></div>
+            <div id="noam-right">
+                <div id="op-div" class="form-inline">
+                    <select data-placeholder="OP" class="span2 chzn-select select" id="noam-lang-2" required="">
+                        <option value=""> Choose language</option>
+                        <optgroup class="opt-fsm" label="FSMs"></optgroup>
+                        <optgroup class="opt-gram" label="Grammars"></optgroup>
+                        <optgroup class="opt-regex" label="Regexes"></optgroup>
+                    </select>
+                    <label id="op-desc"></label>
+                    <select data-placeholder="OP" class="span2 chzn-select select" id="noam-view-2" required="">
+                        <option value=""> Choose view</option>
+                        <optgroup class="opt-fsm" label="FSMs"></optgroup>
+                        <optgroup class="opt-gram" label="Grammars"></optgroup>
+                        <optgroup class="opt-regex" label="Regexes"></optgroup>
+                    </select>
+                    <label id="op-desc"></label>
+                </div>
+                <div id="rightview" class="view"
+                    style="display: table-cell; text-align: center; vertical-align: middle;">
+                </div>
+            </div>
         </div>
-        <div class="handler" id="vertical_dragbar"></div>
-        <div id="noam-right">
-          <div id="op-div" class="form-inline">
-            <select data-placeholder="OP" class="span2 chzn-select select" id="noam-lang-2" required="">
-              <option value=""> Choose language</option>
-              <optgroup class="opt-fsm" label="FSMs"></optgroup>
-              <optgroup class="opt-gram" label="Grammars"></optgroup>
-              <optgroup class="opt-regex" label="Regexes"></optgroup>
-            </select>
-            <label id="op-desc"></label>
-            <select data-placeholder="OP" class="span2 chzn-select select" id="noam-view-2" required="">
-              <option value=""> Choose view</option>
-              <optgroup class="opt-fsm" label="FSMs"></optgroup>
-              <optgroup class="opt-gram" label="Grammars"></optgroup>
-              <optgroup class="opt-regex" label="Regexes"></optgroup>
-            </select>
-            <label id="op-desc"></label>
-          </div>
-          <div id="rightview" class="view" style="display: table-cell; text-align: center; vertical-align: middle;">
-          </div>
+        <div class="handler" id="horizontal_dragbar"></div>
+        <div id="noam-console">
         </div>
-      </div>
-      <div class="handler" id="horizontal_dragbar"></div>
-      <div id="noam-console">
-      </div>
-    <!-- OPERATION DIV -->
+        <!-- OPERATION DIV -->
 
-    <!-- INPUT 1 DIV -->
-    <div id="in1-div" class="form-inline" style="margin-bottom: 20px; display: none">
-      <select data-placeholder="Input language 1" class="span2 chzn-select select" id="noam-in1" required="">
-        <option value="">Input language 1</option>
-        <optgroup class="opt-fsm" label="FSMs"></optgroup>
-        <optgroup class="opt-gram" label="Grammars"></optgroup>
-        <optgroup class="opt-regex" label="Regexes"></optgroup>
-      </select>
-      <label class="desc"></label>
-      <br>
-      <div class="lang-info">
+        <!-- INPUT 1 DIV -->
+        <div id="in1-div" class="form-inline" style="margin-bottom: 20px; display: none">
+            <select data-placeholder="Input language 1" class="span2 chzn-select select" id="noam-in1" required="">
+                <option value="">Input language 1</option>
+                <optgroup class="opt-fsm" label="FSMs"></optgroup>
+                <optgroup class="opt-gram" label="Grammars"></optgroup>
+                <optgroup class="opt-regex" label="Regexes"></optgroup>
+            </select>
+            <label class="desc"></label>
+            <br>
+            <div class="lang-info">
 
-        <img class="img" style="max-width: 500px; max-height: 200px;" src=""></img>
-        <div class="table"></div>
-      </div>
-    </div>
+                <img class="img" style="max-width: 500px; max-height: 200px;" src=""></img>
+                <div class="table"></div>
+            </div>
+        </div>
 
-    <script type="text/javascript">
-      var langTypes = {
-        REGEX : "regex",
-        FSM : "fsm",
-        GRAMMAR : "gram"
-      };
+        <script type="text/javascript">
+            var langTypes = {
+                REGEX: "regex",
+                FSM: "fsm",
+                GRAMMAR: "gram"
+            };
 
-      var interactivity = {
-        IO : "io",
-        INTERACTIVE : "interactive"
-      };
+            var interactivity = {
+                IO: "io",
+                INTERACTIVE: "interactive"
+            };
 
-      // HELPER FUNCTIONS
+            // HELPER FUNCTIONS
 
-      function customJSONstringify(key, value) {
-        console.log(key, value);
+            function customJSONstringify(key, value) {
+                console.log(key, value);
 
-        if (Array.isArray(value) && key !== "transitions") {
-          return JSON.stringify(value).slice(1,-1);
-        } else {
-          return value;
-        }
-      }
-
-      function appendOption(selectSelector, optionGroupSelector, optionValue, optionText) {
-        var option = document.createElement('option');
-        option.setAttribute('value', optionValue);
-        option.appendChild(document.createTextNode(optionText));
-        $(selectSelector + " " + optionGroupSelector)[0].appendChild(option);
-      }
-
-      var isLocalStorageAvailable = 'localStorage' in window && window['localStorage'] !== null;
-
-      function getLangIds() {
-        var langIds = [];
-
-        for (var langId in langs) {
-          langIds.push(langId);
-        }
-
-        return langIds.sort();
-      }
-
-      function setLang(id, type, def) {
-        var lang = { id : id, type : type, def : def };
-        langs[id] = lang;
-
-        if (isLocalStorageAvailable) {
-          localStorage.setItem(id, JSON.stringify(lang));
-          localStorage.setItem("____noamLangIds", JSON.stringify(getLangIds()));
-        }
-
-        refreshLanguageSelects();
-      }
-
-      function removeLang(id) {
-        delete langs[id];
-
-        if (isLocalStorageAvailable) {
-          localStorage.removeItem(id);
-          localStorage.setItem("____noamLangIds", JSON.stringify(getLangIds()));
-        }
-
-        refreshLanguageSelects();
-      }
-
-      function loadLangsFromMemory() {
-        if (isLocalStorageAvailable) {
-          var langIds = JSON.parse(localStorage.getItem("____noamLangIds"));
-
-          if (langIds !== null) {
-            for (var i=0; i<langIds.length; i++) {
-              langs[langIds[i]] = JSON.parse(localStorage.getItem(langIds[i]));
+                if (Array.isArray(value) && key !== "transitions") {
+                    return JSON.stringify(value).slice(1, -1);
+                } else {
+                    return value;
+                }
             }
-          }
-        }
 
-        refreshLanguageSelects();
-      }
-
-      // NOAM OPERATIONS
-
-      var ops = {
-        minimize : {
-          languageType : langTypes.FSM,
-          interactivityClass : interactivity.IO,
-          numberOfInputs : 1,
-          numberOfOutputs : 1,
-          name : "Minimize FSM",
-          description : "description 1",
-          function : noam.fsm.minimize
-        },
-        union : {
-          languageType : langTypes.FSM,
-          interactivityClass : interactivity.IO,
-          numberOfInputs : 2,
-          numberOfOutputs : 1,
-          name : "FSM union",
-          description : "description 2",
-          function : noam.fsm.union
-        }
-      };
-
-
-
-      /*
-
-      noam.fsm.determineType = function(fsm) {
-      noam.fsm.computeEpsilonClosure = function(fsm, states) {
-      noam.fsm.makeSimpleTransition = function(fsm, states, symbol) {
-      noam.fsm.makeTransition = function(fsm, states, symbol) {
-      noam.fsm.readString = function(fsm, inputSymbolStream) {
-      noam.fsm.transitionTrail = function(fsm, state, inputSymbolStream) {
-      noam.fsm.isStringInLanguage = function(fsm, inputSymbolStream) {
-      noam.fsm.getReachableStates = function(fsm, state, shouldIncludeInitialState) {
-      noam.fsm.removeUnreachableStates = function (fsm) {
-      noam.fsm.areEquivalentStates = function(fsmA, stateA, fsmB, stateB) {
-      noam.fsm.areEquivalentFSMs = function(fsmA, fsmB) {
-      noam.fsm.removeEquivalentStates = function(fsm) {
-      noam.fsm.minimize = function(fsm) {
-      noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet, maxNumToStates) {
-      noam.fsm.convertNfaToDfa = function(fsm) {
-      noam.fsm.convertEnfaToNfa = function(fsm) {
-      noam.fsm.isLanguageNonEmpty = function(fsm) {
-      noam.fsm.isLanguageInfinite = function(fsm) {
-      noam.fsm.randomStringInLanguage = function(fsm) {
-      noam.fsm.randomStringNotInLanguage = function(fsm) {
-      noam.fsm.union = function(fsmA, fsmB) {
-      noam.fsm.intersection = function(fsmA, fsmB) {
-      noam.fsm.difference = function(fsmA, fsmB) {
-      noam.fsm.complement = function(fsm) {
-      noam.fsm.concatenation = function(fsmA, fsmB) {
-      noam.fsm.kleene = function(fsm) {
-      noam.fsm.reverse = function(fsm) {
-      noam.fsm.isSubset = function(fsmA, fsmB) {
-
-      */
-
-      var langs = {};
-
-      loadLangsFromMemory();
-
-      // generate random fsm + store into memory
-      for (var i=0; i<2; i++) {
-        var fsm = noam.fsm.createRandomFsm(noam.fsm.dfaType, Math.random()*6, Math.random()*5, 1);
-        setLang(Math.random().toString(), langTypes.FSM, fsm);
-      }
-
-      function refreshLanguageSelects() {
-        refreshInputSelect('noam-lang-1');
-        refreshInputSelect('noam-lang-2');
-      }
-
-      function refreshInputSelect(selectId) {
-        var selected = $("#" + selectId).val();
-
-        $("#" + selectId + " option").each(function() {
-          if ($(this).val() === "" || $(this).is("optgroup")) {
-          } else {
-            $(this).remove();
-          }
-        });
-
-        var found = false;
-
-        for (var langid in langs) {
-          appendOption("#" + selectId, ".opt-" + langs[langid].type, langid, langid);
-          found = (langid === selected) || found;
-        }
-
-        $("#" + selectId).val(found ? selected : "");
-      }
-
-      function setupInput(inputDivId) {
-        $("#" + inputDivId + " .select").change(function () {
-          if ($(this).val() === "") {
-            $("#" + inputDivId + " .desc").text("");
-            $("#" + inputDivId + " .lang-info").hide();
-          } else {
-            $("#" + inputDivId + " .desc").text(Math.random().toString());
-            $("#" + inputDivId + " .lang-info").show();
-            $("#" + inputDivId + " .text").text(JSON.stringify(langs[$(this).val()].def, customJSONstringify, 2));
-          }
-
-          updateOutput();
-        });
-
-        $("#" + inputDivId + " .text").keyup(function() {
-          updateOutput();
-        });
-      }
-
-      //
-      //  CONSOLE
-      //
-
-      $(document).ready(function(){
-        var noamConsole = $('#noam-console').console({
-          promptLabel: 'noam> ',
-          commandValidate: function(line){
-            if (line == "") {
-              return false;
+            function appendOption(selectSelector, optionGroupSelector, optionValue, optionText) {
+                var option = document.createElement('option');
+                option.setAttribute('value', optionValue);
+                option.appendChild(document.createTextNode(optionText));
+                $(selectSelector + " " + optionGroupSelector)[0].appendChild(option);
             }
-            else {
-              return true;
+
+            var isLocalStorageAvailable = 'localStorage' in window && window['localStorage'] !== null;
+
+            function getLangIds() {
+                var langIds = [];
+
+                for (var langId in langs) {
+                    langIds.push(langId);
+                }
+
+                return langIds.sort();
             }
-          },
-          commandHandle:function(line){
-            return [{msg:line, className:"jquery-console-message-value"}];
-          },
-          autofocus: true,
-          animateScroll: true,
-          promptHistory: true,
-          welcomeMessage:'Welcome to noam. Type "help" for a list of commands.'
-        });
-      });
 
-      //
-      //  WINDOW SIZING & RESIZING
-      //
+            function setLang(id, type, def) {
+                var lang = {id: id, type: type, def: def};
+                langs[id] = lang;
 
-      function updateLeftContentSize(width, height) {
-        if (width === null) {
-          width = $("#editor").outerWidth();
-        }
+                if (isLocalStorageAvailable) {
+                    localStorage.setItem(id, JSON.stringify(lang));
+                    localStorage.setItem("____noamLangIds", JSON.stringify(getLangIds()));
+                }
 
-        if (height === null) {
-          height = $("#editor").outerHeight();
-        }
+                refreshLanguageSelects();
+            }
 
-        $("#editor").css("width", width);
-        $("#editor").css("height", height);
-        editor.resize();
-        editor.resize(true);
-      }
+            function removeLang(id) {
+                delete langs[id];
 
-      function updateRightContentSize(width, height) {
-        if (width === null) {
-          width = $("#noam-right").outerWidth();
-        }
+                if (isLocalStorageAvailable) {
+                    localStorage.removeItem(id);
+                    localStorage.setItem("____noamLangIds", JSON.stringify(getLangIds()));
+                }
 
-        if (height === null) {
-          height = $("#noam-right").outerHeight()-28;
-        }
+                refreshLanguageSelects();
+            }
 
-        $("#rightview").css("width", width);
-        $("#rightview").css("height", height-10);
+            function loadLangsFromMemory() {
+                if (isLocalStorageAvailable) {
+                    var langIds = JSON.parse(localStorage.getItem("____noamLangIds"));
 
-        $("#rightview svg").css("width", width);
-        $("#rightview svg").css("height", height-10);
-      }
+                    if (langIds !== null) {
+                        for (var i = 0; i < langIds.length; i++) {
+                            langs[langIds[i]] = JSON.parse(localStorage.getItem(langIds[i]));
+                        }
+                    }
+                }
 
-      var dragging = false;
-      var dragbarWidthHeight = 8;
-      var minLeftWindowWidth = 300;
-      var minRightWindowWidth = 300;
-      var minViewWindowsHeight = 300;
-      var minConsoleHeight = 50;
-      var selectBoxHeight = 28;
+                refreshLanguageSelects();
+            }
 
-      var initialLeftWindowWidthPercentage = 30;
-      var initialRightWindowWidthPercentage = 70;
+            // NOAM OPERATIONS
 
-      $('#vertical_dragbar').mousedown(function(e){
-        e.preventDefault();
-        dragging = true;
-        var oW = $("#views").outerWidth();
-
-        $(document).mousemove(function(e) {
-          var leftOffset = $('#views').offset().left;
-          var lW = e.pageX - leftOffset;
-          var rW = oW - lW - dragbarWidthHeight;
-
-          if (lW >= minLeftWindowWidth && rW >= minRightWindowWidth) {
-            $("#noam-left").css("width", lW/oW*100 + "%");
-            $("#noam-right").css("width", rW/oW*100 + "%");
-            updateLeftContentSize(lW, null);
-            updateRightContentSize(rW, null);
-          }
-        });
-      });
-
-      $('#horizontal_dragbar').mousedown(function(e){
-        e.preventDefault();
-        dragging = true;
-        var oH = $("#page").innerHeight();
-
-        $(document).mousemove(function(e){
-          var topOffset = $('#views').offset().top;
-          var uH = Math.round(e.pageY - topOffset);
-          var dH = Math.round(oH - uH - dragbarWidthHeight);
-
-          if (uH >= minViewWindowsHeight && dH >= minConsoleHeight) {
-            $("#views").css("height", uH/oH*100 + "%");
-            $("#noam-console").css("height", dH/oH*100 + "%");
-            $("#noam-console div.jquery-console-inner").css("height", dH-10);
-            updateLeftContentSize(null, uH - selectBoxHeight);
-            updateRightContentSize(null, uH - selectBoxHeight);
-          }
-        });
-      });
-
-      $(document).mouseup(function(e){
-        if (dragging) {
-          $(document).unbind('mousemove');
-          dragging = false;
-        }
-      });
-
-      $(window).resize(function() {
-        var oW = $("#views").outerWidth();
-        var oH = $("#views").outerHeight();
-        var lW = $("#noam-left").outerWidth();
-        var rW = oW - dragbarWidthHeight - lW;
-
-        $("#noam-left").css("width", lW/oW*100 + "%");
-        $("#noam-right").css("width", rW/oW*100 + "%");
-        $("#noam-console").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight);
-        $("#noam-console div.jquery-console-inner").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight - 10);
-
-        updateLeftContentSize(lW, oH-selectBoxHeight);
-        updateRightContentSize(rW, oH-selectBoxHeight);
-      });
-
-      $(document).ready(function(){
-        var oW = $("#views").outerWidth();
-        var oH = $("#views").innerHeight();
-        var leftOff = $('#views').offset().left;
-
-        $("#noam-left").css("width", oW/100*initialLeftWindowWidthPercentage - 1);
-        $("#noam-right").css("width", oW/100*initialRightWindowWidthPercentage - dragbarWidthHeight);
-        $("#noam-console").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight);
-        $("#noam-console div.jquery-console-inner").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight);
-
-        updateLeftContentSize(oW/100*initialLeftWindowWidthPercentage, oH - selectBoxHeight);
-        updateRightContentSize(oW/100*initialRightWindowWidthPercentage - dragbarWidthHeight, oH - selectBoxHeight);
-      });
-
-      //
-      //  ACE EDITOR
-      //
-
-      editor = ace.edit("editor");
-      //var FriscMode = require("ace/mode/frisc").Mode;
-      //editor.getSession().setMode(new FriscMode());
-      document.getElementById('editor').style.fontSize='10pt';
-      document.getElementById('editor').style.fontFamily='courier new';
-      $(".ace_gutter").width("47 px");
-      editor.setShowPrintMargin(false);
-      editor.renderer.setHScrollBarAlwaysVisible(false);
-      //editor.renderer.setVScrollBarAlwaysVisible(false);
-      editor.resize();
-      editor.resize(true);
+            var ops = {
+                minimize: {
+                    languageType: langTypes.FSM,
+                    interactivityClass: interactivity.IO,
+                    numberOfInputs: 1,
+                    numberOfOutputs: 1,
+                    name: "Minimize FSM",
+                    description: "description 1",
+                    function: noam.fsm.minimize
+                },
+                union: {
+                    languageType: langTypes.FSM,
+                    interactivityClass: interactivity.IO,
+                    numberOfInputs: 2,
+                    numberOfOutputs: 1,
+                    name: "FSM union",
+                    description: "description 2",
+                    function: noam.fsm.union
+                }
+            };
 
 
 
-      editor.getSession().on('change', function() {
-        var editorInputString = editor.getSession().getValue();
-        var editorInputStringOneLine = editorInputString.split("\n").join("");
-        try {
-          var inputJson = JSON.parse(editorInputStringOneLine);
-          var dotString = noam.fsm.printDotFormat(inputJson);
-          var gvizXml = Viz(dotString, "svg");
-          $("#rightview").html(gvizXml);
-          updateRightContentSize(null, null);
-        } catch (e) {
-        }
-      });
+            /*
+      
+            noam.fsm.determineType = function(fsm) {
+            noam.fsm.computeEpsilonClosure = function(fsm, states) {
+            noam.fsm.makeSimpleTransition = function(fsm, states, symbol) {
+            noam.fsm.makeTransition = function(fsm, states, symbol) {
+            noam.fsm.readString = function(fsm, inputSymbolStream) {
+            noam.fsm.transitionTrail = function(fsm, state, inputSymbolStream) {
+            noam.fsm.isStringInLanguage = function(fsm, inputSymbolStream) {
+            noam.fsm.getReachableStates = function(fsm, state, shouldIncludeInitialState) {
+            noam.fsm.removeUnreachableStates = function (fsm) {
+            noam.fsm.areEquivalentStates = function(fsmA, stateA, fsmB, stateB) {
+            noam.fsm.areEquivalentFSMs = function(fsmA, fsmB) {
+            noam.fsm.removeEquivalentStates = function(fsm) {
+            noam.fsm.minimize = function(fsm) {
+            noam.fsm.createRandomFsm = function(fsmType, numStates, numAlphabet, maxNumToStates) {
+            noam.fsm.convertNfaToDfa = function(fsm) {
+            noam.fsm.convertEnfaToNfa = function(fsm) {
+            noam.fsm.isLanguageNonEmpty = function(fsm) {
+            noam.fsm.isLanguageInfinite = function(fsm) {
+            noam.fsm.randomStringInLanguage = function(fsm) {
+            noam.fsm.randomStringNotInLanguage = function(fsm) {
+            noam.fsm.union = function(fsmA, fsmB) {
+            noam.fsm.intersection = function(fsmA, fsmB) {
+            noam.fsm.difference = function(fsmA, fsmB) {
+            noam.fsm.complement = function(fsm) {
+            noam.fsm.concatenation = function(fsmA, fsmB) {
+            noam.fsm.kleene = function(fsm) {
+            noam.fsm.reverse = function(fsm) {
+            noam.fsm.isSubset = function(fsmA, fsmB) {
+      
+            */
 
-        var fsm1 = {
-          states : ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"],
-          initialState : "p1",
-          acceptingStates : ["p5", "p6", "p7"],
-          alphabet : ["c", "d"],
-          transitions : [
-            { fromState : "p1", symbol : "c", toStates : ["p6"] },
-            { fromState : "p1", symbol : "d", toStates : ["p3"] },
-            { fromState : "p2", symbol : "c", toStates : ["p7"] },
-            { fromState : "p2", symbol : "d", toStates : ["p3"] },
-            { fromState : "p3", symbol : "c", toStates : ["p1"] },
-            { fromState : "p3", symbol : "d", toStates : ["p5"] },
-            { fromState : "p4", symbol : "c", toStates : ["p4"] },
-            { fromState : "p4", symbol : "d", toStates : ["p6"] },
-            { fromState : "p5", symbol : "c", toStates : ["p7"] },
-            { fromState : "p5", symbol : "d", toStates : ["p3"] },
-            { fromState : "p6", symbol : "c", toStates : ["p4"] },
-            { fromState : "p6", symbol : "d", toStates : ["p1"] },
-            { fromState : "p7", symbol : "c", toStates : ["p4"] },
-            { fromState : "p7", symbol : "d", toStates : ["p2"] },
-            { fromState : "p8", symbol : "c", toStates : ["p1"] },
-            { fromState : "p8", symbol : "d", toStates : ["p6"] }
-          ]
-        };
+            var langs = {};
 
-        editor.getSession().setValue(JSON.stringify(fsm1, null, 2));
-    </script>
-  </body>
+            loadLangsFromMemory();
+
+            // generate random fsm + store into memory
+            for (var i = 0; i < 2; i++) {
+                var fsm = noam.fsm.createRandomFsm(noam.fsm.dfaType, Math.random() * 6, Math.random() * 5, 1);
+                setLang(Math.random().toString(), langTypes.FSM, fsm);
+            }
+
+            function refreshLanguageSelects() {
+                refreshInputSelect('noam-lang-1');
+                refreshInputSelect('noam-lang-2');
+            }
+
+            function refreshInputSelect(selectId) {
+                var selected = $("#" + selectId).val();
+
+                $("#" + selectId + " option").each(function () {
+                    if ($(this).val() === "" || $(this).is("optgroup")) {
+                    } else {
+                        $(this).remove();
+                    }
+                });
+
+                var found = false;
+
+                for (var langid in langs) {
+                    appendOption("#" + selectId, ".opt-" + langs[langid].type, langid, langid);
+                    found = (langid === selected) || found;
+                }
+
+                $("#" + selectId).val(found ? selected : "");
+            }
+
+            function setupInput(inputDivId) {
+                $("#" + inputDivId + " .select").change(function () {
+                    if ($(this).val() === "") {
+                        $("#" + inputDivId + " .desc").text("");
+                        $("#" + inputDivId + " .lang-info").hide();
+                    } else {
+                        $("#" + inputDivId + " .desc").text(Math.random().toString());
+                        $("#" + inputDivId + " .lang-info").show();
+                        $("#" + inputDivId + " .text").text(JSON.stringify(langs[$(this).val()].def, customJSONstringify, 2));
+                    }
+
+                    updateOutput();
+                });
+
+                $("#" + inputDivId + " .text").keyup(function () {
+                    updateOutput();
+                });
+            }
+
+            //
+            //  CONSOLE
+            //
+
+            $(document).ready(function () {
+                var noamConsole = $('#noam-console').console({
+                    promptLabel: 'noam> ',
+                    commandValidate: function (line) {
+                        if (line == "") {
+                            return false;
+                        }
+                        else {
+                            return true;
+                        }
+                    },
+                    commandHandle: function (line) {
+                        return [{msg: line, className: "jquery-console-message-value"}];
+                    },
+                    autofocus: true,
+                    animateScroll: true,
+                    promptHistory: true,
+                    welcomeMessage: 'Welcome to noam. Type "help" for a list of commands.'
+                });
+            });
+
+            //
+            //  WINDOW SIZING & RESIZING
+            //
+
+            function updateLeftContentSize(width, height) {
+                if (width === null) {
+                    width = $("#editor").outerWidth();
+                }
+
+                if (height === null) {
+                    height = $("#editor").outerHeight();
+                }
+
+                $("#editor").css("width", width);
+                $("#editor").css("height", height);
+                editor.resize();
+                editor.resize(true);
+            }
+
+            function updateRightContentSize(width, height) {
+                if (width === null) {
+                    width = $("#noam-right").outerWidth();
+                }
+
+                if (height === null) {
+                    height = $("#noam-right").outerHeight() - 28;
+                }
+
+                $("#rightview").css("width", width);
+                $("#rightview").css("height", height - 10);
+
+                $("#rightview svg").css("width", width);
+                $("#rightview svg").css("height", height - 10);
+            }
+
+            var dragging = false;
+            var dragbarWidthHeight = 8;
+            var minLeftWindowWidth = 300;
+            var minRightWindowWidth = 300;
+            var minViewWindowsHeight = 300;
+            var minConsoleHeight = 50;
+            var selectBoxHeight = 28;
+
+            var initialLeftWindowWidthPercentage = 30;
+            var initialRightWindowWidthPercentage = 70;
+
+            $('#vertical_dragbar').mousedown(function (e) {
+                e.preventDefault();
+                dragging = true;
+                var oW = $("#views").outerWidth();
+
+                $(document).mousemove(function (e) {
+                    var leftOffset = $('#views').offset().left;
+                    var lW = e.pageX - leftOffset;
+                    var rW = oW - lW - dragbarWidthHeight;
+
+                    if (lW >= minLeftWindowWidth && rW >= minRightWindowWidth) {
+                        $("#noam-left").css("width", lW / oW * 100 + "%");
+                        $("#noam-right").css("width", rW / oW * 100 + "%");
+                        updateLeftContentSize(lW, null);
+                        updateRightContentSize(rW, null);
+                    }
+                });
+            });
+
+            $('#horizontal_dragbar').mousedown(function (e) {
+                e.preventDefault();
+                dragging = true;
+                var oH = $("#page").innerHeight();
+
+                $(document).mousemove(function (e) {
+                    var topOffset = $('#views').offset().top;
+                    var uH = Math.round(e.pageY - topOffset);
+                    var dH = Math.round(oH - uH - dragbarWidthHeight);
+
+                    if (uH >= minViewWindowsHeight && dH >= minConsoleHeight) {
+                        $("#views").css("height", uH / oH * 100 + "%");
+                        $("#noam-console").css("height", dH / oH * 100 + "%");
+                        $("#noam-console div.jquery-console-inner").css("height", dH - 10);
+                        updateLeftContentSize(null, uH - selectBoxHeight);
+                        updateRightContentSize(null, uH - selectBoxHeight);
+                    }
+                });
+            });
+
+            $(document).mouseup(function (e) {
+                if (dragging) {
+                    $(document).unbind('mousemove');
+                    dragging = false;
+                }
+            });
+
+            $(window).resize(function () {
+                var oW = $("#views").outerWidth();
+                var oH = $("#views").outerHeight();
+                var lW = $("#noam-left").outerWidth();
+                var rW = oW - dragbarWidthHeight - lW;
+
+                $("#noam-left").css("width", lW / oW * 100 + "%");
+                $("#noam-right").css("width", rW / oW * 100 + "%");
+                $("#noam-console").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight);
+                $("#noam-console div.jquery-console-inner").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight - 10);
+
+                updateLeftContentSize(lW, oH - selectBoxHeight);
+                updateRightContentSize(rW, oH - selectBoxHeight);
+            });
+
+            $(document).ready(function () {
+                var oW = $("#views").outerWidth();
+                var oH = $("#views").innerHeight();
+                var leftOff = $('#views').offset().left;
+
+                $("#noam-left").css("width", oW / 100 * initialLeftWindowWidthPercentage - 1);
+                $("#noam-right").css("width", oW / 100 * initialRightWindowWidthPercentage - dragbarWidthHeight);
+                $("#noam-console").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight);
+                $("#noam-console div.jquery-console-inner").css("height", $("#page").innerHeight() - oH - dragbarWidthHeight);
+
+                updateLeftContentSize(oW / 100 * initialLeftWindowWidthPercentage, oH - selectBoxHeight);
+                updateRightContentSize(oW / 100 * initialRightWindowWidthPercentage - dragbarWidthHeight, oH - selectBoxHeight);
+            });
+
+            //
+            //  ACE EDITOR
+            //
+
+            editor = ace.edit("editor");
+            //var FriscMode = require("ace/mode/frisc").Mode;
+            //editor.getSession().setMode(new FriscMode());
+            document.getElementById('editor').style.fontSize = '10pt';
+            document.getElementById('editor').style.fontFamily = 'courier new';
+            $(".ace_gutter").width("47 px");
+            editor.setShowPrintMargin(false);
+            editor.renderer.setHScrollBarAlwaysVisible(false);
+            //editor.renderer.setVScrollBarAlwaysVisible(false);
+            editor.resize();
+            editor.resize(true);
+
+
+
+            editor.getSession().on('change', function () {
+                var editorInputString = editor.getSession().getValue();
+                var editorInputStringOneLine = editorInputString.split("\n").join("");
+                try {
+                    var inputJson = JSON.parse(editorInputStringOneLine);
+                    var dotString = noam.fsm.printDotFormat(inputJson);
+                    var gvizXml = Viz(dotString, "svg");
+                    $("#rightview").html(gvizXml);
+                    updateRightContentSize(null, null);
+                } catch (e) {
+                }
+            });
+
+            var fsm1 = {
+                states: ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"],
+                initialState: "p1",
+                acceptingStates: ["p5", "p6", "p7"],
+                alphabet: ["c", "d"],
+                transitions: [
+                    {fromState: "p1", symbol: "c", toStates: ["p6"]},
+                    {fromState: "p1", symbol: "d", toStates: ["p3"]},
+                    {fromState: "p2", symbol: "c", toStates: ["p7"]},
+                    {fromState: "p2", symbol: "d", toStates: ["p3"]},
+                    {fromState: "p3", symbol: "c", toStates: ["p1"]},
+                    {fromState: "p3", symbol: "d", toStates: ["p5"]},
+                    {fromState: "p4", symbol: "c", toStates: ["p4"]},
+                    {fromState: "p4", symbol: "d", toStates: ["p6"]},
+                    {fromState: "p5", symbol: "c", toStates: ["p7"]},
+                    {fromState: "p5", symbol: "d", toStates: ["p3"]},
+                    {fromState: "p6", symbol: "c", toStates: ["p4"]},
+                    {fromState: "p6", symbol: "d", toStates: ["p1"]},
+                    {fromState: "p7", symbol: "c", toStates: ["p4"]},
+                    {fromState: "p7", symbol: "d", toStates: ["p2"]},
+                    {fromState: "p8", symbol: "c", toStates: ["p1"]},
+                    {fromState: "p8", symbol: "d", toStates: ["p6"]}
+                ]
+            };
+
+            editor.getSession().setValue(JSON.stringify(fsm1, null, 2));
+        </script>
+</body>
+
 </html>
